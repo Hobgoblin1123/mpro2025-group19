@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class StarShooterVS extends JPanel implements ActionListener, KeyListener {
+public class test extends JPanel implements ActionListener, KeyListener {
 
     // ゲーム設定
     private static final int WIDTH = 600;
@@ -26,7 +26,7 @@ public class StarShooterVS extends JPanel implements ActionListener, KeyListener
     // 入力管理
     private boolean[] keys;
 
-    public StarShooterVS() {
+    public test() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
         setFocusable(true);
@@ -190,7 +190,7 @@ public class StarShooterVS extends JPanel implements ActionListener, KeyListener
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Star Shooter VS");
-        StarShooterVS game = new StarShooterVS();
+        test game = new test();
         frame.add(game);
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
