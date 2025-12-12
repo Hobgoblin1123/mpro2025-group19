@@ -9,6 +9,7 @@ public class Player{
     private int bounds_x;
     private int bounds_y;
     private int radius;
+    private boolean isWin;
     private final static int dx = 5;
     private final static int dy = 5;
 
@@ -97,5 +98,13 @@ public class Player{
 
     public int getY(){
         return y;
+    }
+
+    public void setWin(boolean isWin){
+        this.isWin = isWin;
+    }
+
+    public boolean getWin(){
+        return isWin;
     }
 }
