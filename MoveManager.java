@@ -19,21 +19,19 @@ public class MoveManager {
         court_size_x = x;
         court_size_y = y;
         if (server) { // server の場合は，自分は左．clientの場合は自分は，右
-            myself = new Player(offset, y / 2, 0, y);
-            opponent = new Player(x - offset - myself.getWidth(), y / 2, 0, y);
+            myself = new Player(10, 10, offset, y / 2, 5, 0, y, 5);
+            opponent = new Player(10, 10, x - offset - myself.getRadius(), y / 2, 5, 0, y, 5);
             System.out.println("Waiting for connection with port no: " + port);
             sv = new CommServer(port);
             sv.setTimeout(1); // non-wait で通信
             System.out.println("Connected !");
         } else {
-            opponent = new Player(offset, y / 2, 0, y);
-            myself = new Player(x - offset - opponent.getWidth(), y / 2, 0, y);
+            opponent = new Player(10, 10, offset, y / 2, 5, 0, y, 5);
+            myself = new Player(10, 10, x - offset - opponent.getRadius(), y / 2, 5, 0, y, 5);
             cl = new CommClient(host, port);
             cl.setTimeout(1); // non-wait で通信
             System.out.println("Connected to " + host + ":" + port + "!");
         }
-        ball_x = offset + myself.getWidth() - 1;
-        ball_y = y / 2.0 + myself.getHeight() / 2;
         ball_moving_dir = 0;
         calcMovingVector();
         ball_speed = 3;
@@ -73,7 +71,7 @@ public class MoveManager {
         if (myself.checkHit(x0, y0)) {
             if (server) {
                 c = 5;
-                off = myself.getX() + myself.getWidth() - 1;
+                off = myself.getX() + myself.getRadius() - 1;
             } else {
                 c = 6;
                 off = myself.getX();
@@ -187,5 +185,96 @@ public class MoveManager {
         myself.draw(g);
         opponent.draw(g);
         g.drawRect(0, 0, court_size_x, court_size_y);
+    }
+}
+
+class ShootingView extends JPanel implements KeyListener, ActionListener {
+    private Timer timer;
+    private MoveManager tm;
+    private boolean ballMoving;
+    final static int court_size_x = 600;
+    final static int court_size_y = 300;
+
+    public ShootingView(MoveManager tm) {
+        this.tm = tm;
+        ballMoving = false;
+        setBackground(Color.white);
+        setPreferredSize(new Dimension(tm.court_size_x + 1, tm.court_size_y + 1));
+        setFocusable(true);
+        addKeyListener(this);
+        timer = new Timer(10, this); // 10ミリ秒ごとにボールが移動
+        if (!tm.isServer())
+            timer.start();
+    }
+
+    public void keyPressed(KeyEvent e) {
+        int k = e.getKeyCode();
+        if (!timer.isRunning())
+            timer.start(); // キーを押すとゲーム開始
+        else if (k == KeyEvent.VK_DOWN) {
+            tm.myself.moveDown();
+            if (!tm.isServer())
+                tm.send();
+            repaint();
+        } else if (k == KeyEvent.VK_RIGHT) {
+            tm.myself.moveRight();
+            if (!tm.isServer())
+                tm.send();
+            repaint();
+        } else if (k == KeyEvent.VK_LEFT) {
+            tm.myself.moveLeft();
+            if (!tm.isServer())
+                tm.send();
+            repaint();
+        }
+    }
+
+    public void keyReleased(KeyEvent e) {
+    }
+
+    public void keyTyped(KeyEvent e) {
+    }
+
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        tm.draw(g);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        if (tm.isServer()) {
+            tm.moveBall();
+            tm.send();
+            tm.recv();
+        } else {
+            tm.recv();
+        }
+        repaint();
+    }
+
+    public static void main(String[] args) {
+        String str;
+        boolean server = false;
+        if (args.length < 2) {
+            System.out.println("Usage : java TennisView {server/single/{host name}} {port no.} \n");
+            System.exit(1);
+        }
+        MoveManager tm;
+        if (args[0].equals("server")) {
+            server = true;
+            System.out.println("Server mode");
+            str = "server";
+            tm = new MoveManager(600, 300, 30, server, args[0], Integer.parseInt(args[1]));
+        } else {
+            server = false;
+            System.out.println("Client mode");
+            str = "client";
+            tm = new MoveManager(600, 300, 30, server, args[0], Integer.parseInt(args[1]));
+        }
+        JFrame frame = new JFrame("TennisView (" + str + " mode)");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        ShootingView tv = new ShootingView(tm);
+        frame.add(tv, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
     }
 }

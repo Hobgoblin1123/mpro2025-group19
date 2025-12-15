@@ -1,3 +1,5 @@
+package debug_game;
+
 import java.net.*;
 import java.io.*;
 

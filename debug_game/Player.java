@@ -1,3 +1,5 @@
+package debug_game;
+
 import java.awt.*;
 
 public class Player {
@@ -6,25 +8,33 @@ public class Player {
     private int x;
     private int y;
     private int speed;
-    private int bounds_x;
+    private int bounds_x_max;
+    private int bounds_x_min;
     private int bounds_y;
     private int radius;
     private final static int dx = 5;
     private final static int dy = 5;
 
-    public Player(int hp, int max_hp, int x, int y, int speed, int bounds_x, int bounds_y, int radius) {
+    public Player(int hp, int max_hp, int x, int y, int speed, int bounds_x_min, int bounds_x_max, int bounds_y,
+            int radius) {
         this.hp = hp;
         this.max_hp = max_hp;
         this.x = x;
         this.y = y;
         this.speed = speed;
-        this.bounds_x = bounds_x;
+        this.bounds_x_max = bounds_x_max;
+        this.bounds_x_min = bounds_x_min;
         this.bounds_y = bounds_y;
         this.radius = radius;
     }
 
     public void draw(Graphics g) {
         g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+    }
+
+    public void setXY(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
     public void moveUp() {
@@ -44,16 +54,16 @@ public class Player {
     }
 
     public void moveLeft() {
-        if ((x - radius) - dx * speed < 0) {
-            x = radius;
+        if ((x - radius) - dx * speed < bounds_x_min) {
+            x = bounds_x_min + radius;
             return;
         }
         x -= dx * speed;
     }
 
     public void moveRight() {
-        if ((x + radius) + dx * speed > bounds_x) {
-            x = bounds_x - radius;
+        if ((x + radius) + dx * speed > bounds_x_max) {
+            x = bounds_x_max - radius;
             return;
         }
         x += dx * speed;
