@@ -1,5 +1,3 @@
-package debug_game;
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -16,17 +14,17 @@ class MoveManager {
         court_size_x = x;
         court_size_y = y;
         if (server) { // server の場合は，自分は左．clientの場合は自分は，右
-            myself = new Player(10, 10, offset, y / 2, 5, 20, 200, y, 5);
-            opponent = new Player(10, 10, x - offset - myself.getRadius(), y / 2, 5, 320, 580, y, 5);
+            myself = new Player(10, 10, offset, y / 2, 1, 20, 200, y, 5);
+            opponent = new Player(10, 10, x - offset - myself.getRadius(), y / 2, 1, 320, 580, y, 5);
             System.out.println("Waiting for connection with port no: " + port);
             sv = new CommServer(port);
-            sv.setTimeout(100); // non-wait で通信
+            sv.setTimeout(1); // non-wait で通信
             System.out.println("Connected !");
         } else {
-            opponent = new Player(10, 10, offset, y / 2, 5, 20, 200, y, 5);
-            myself = new Player(10, 10, x - offset - opponent.getRadius(), y / 2, 5, 320, 580, y, 5);
+            opponent = new Player(10, 10, offset, y / 2, 1, 20, 200, y, 5);
+            myself = new Player(10, 10, x - offset - opponent.getRadius(), y / 2, 1, 320, 580, y, 5);
             cl = new CommClient(host, port);
-            cl.setTimeout(100); // non-wait で通信
+            cl.setTimeout(1); // non-wait で通信
             System.out.println("Connected to " + host + ":" + port + "!");
         }
     }
