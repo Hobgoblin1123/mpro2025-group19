@@ -153,33 +153,39 @@ class ShootingView extends JPanel implements KeyListener, ActionListener {
         }
         repaint();
     }
-
-    public static void main(String[] args) {
-        String str;
-        boolean server = false;
-        if (args.length < 2) {
-            System.out.println("Usage : java TennisView {server/single/{host name}} {port no.} \n");
-            System.exit(1);
-        }
-        MoveManager tm;
-        if (args[0].equals("server")) {
-            server = true;
-            System.out.println("Server mode");
-            str = "server";
-            tm = new MoveManager(600, 300, 30, server, args[0], Integer.parseInt(args[1]));
-        } else {
-            server = false;
-            System.out.println("Client mode");
-            str = "client";
-            tm = new MoveManager(600, 300, 30, server, args[0], Integer.parseInt(args[1]));
-        }
-        JFrame frame = new JFrame("TennisView (" + str + " mode)");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ShootingView tv = new ShootingView(tm);
-        frame.add(tv, BorderLayout.CENTER);
-        frame.pack();
-        frame.setVisible(true);
-
-        tv.requestFocusInWindow();
-    }
 }
+
+// public static void main(String[] args) {
+// // String str;
+// // boolean server = false;
+// // if (args.length < 2) {
+// // System.out.println("Usage : java TennisView {server/single/{host name}}
+// {port
+// // no.} \n");
+// // System.exit(1);
+// // }
+// // MoveManager tm;
+// // if (args[0].equals("server")) {
+// // server = true;
+// // System.out.println("Server mode");
+// // str = "server";
+// // tm = new MoveManager(600, 300, 30, server, args[0],
+// // Integer.parseInt(args[1]));
+// // } else {
+// // server = false;
+// // System.out.println("Client mode");
+// // str = "client";
+// // tm = new MoveManager(600, 300, 30, server, args[0],
+// // Integer.parseInt(args[1]));
+// // }
+
+// JFrame frame = new JFrame("TennisView (" + str + " mode)");
+// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+// ShootingView tv = new ShootingView(tm);
+// frame.add(tv, BorderLayout.CENTER);
+// frame.pack();
+// frame.setVisible(true);
+
+// tv.requestFocusInWindow();
+// }
+// }
