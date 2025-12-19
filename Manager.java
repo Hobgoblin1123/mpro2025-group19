@@ -3,12 +3,16 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.Observable;
 
+@SuppressWarnings("deprecation")
+
 class MoveManager extends Observable {
     private boolean server; // ボールの動きの計算はサーバ側で行う．
     private CommServer sv = null;
     private CommClient cl = null;
     public int court_size_x, court_size_y; // コートの大きさ
     public Player myself, opponent; // Player 自分と対戦相手
+
+    // public Shot myShot[];
 
     public MoveManager(int x, int y, int offset, boolean server, String host, int port) {
         this.server = server;
@@ -29,6 +33,10 @@ class MoveManager extends Observable {
             System.out.println("Connected to " + host + ":" + port + "!");
         }
     }
+
+    // public void MakeShot() {
+    // myShot = new Shot();
+    // }
 
     public void send() {
         if (server) {
@@ -137,6 +145,7 @@ class ShootingView extends JPanel implements KeyListener, ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (tm.isServer()) {
+
             tm.send();
             tm.recv();
         } else {
