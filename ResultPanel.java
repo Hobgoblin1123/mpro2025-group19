@@ -5,7 +5,7 @@ import javax.swing.border.Border;
 
 
 //  リザルト画面
-public class ResultPanel extends JPanel {
+public class ResultPanel extends JPanel implements ActionListener {
     private boolean isWin;
     private JLabel resLabel;
     private JButton retryButton;
@@ -35,12 +35,25 @@ public class ResultPanel extends JPanel {
         this.add(resLabel, BorderLayout.CENTER);
 
         // --- 3. ボタンの作成 ---
-        JPanel buttonPanel;
+        JPanel buttonPanel; // buttonPanel自身は他メソッドの処理を受けないのでフィールドにしない
         this.retryButton = new JButton("リトライ");
         this.quitButton = new JButton("ゲームをやめる");
         buttonPanel = new JPanel();
         buttonPanel.add(this.retryButton);
         buttonPanel.add(this.quitButton);
         this.add(buttonPanel, BorderLayout.SOUTH);
+
+        // --- 4. リスナーの登録 ---
+        this.retryButton.addActionListener(this);   // ボタンが押されたときの処理はResultPanel自身のもの
+        this.quitButton.addActionListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == this.retryButton) {
+            System.out.println("ゲームをもう一度行います");
+        } else if (e.getSource() == this.quitButton) {
+            System.out.println("ゲームを終了します");
+        }
     }
 }
