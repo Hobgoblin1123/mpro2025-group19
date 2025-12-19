@@ -77,14 +77,14 @@ public class Player{
         return hp;
     }
 
-    public int checkhit(int x_bullet, int y_bullet, int radius_bullet){
+    public boolean checkhit(int x_bullet, int y_bullet, int radius_bullet){
         int dist_x = x - x_bullet;
         int dist_y = y - y_bullet;
         int dist2 = dist_x * dist_x + dist_y * dist_y;
         if( dist2 <= radius * radius ){
-            return 1;
+            return true;
         }else{
-            return 0;
+            return false;
         }
     }
 
