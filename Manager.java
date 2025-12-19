@@ -1,8 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.Observable;
 
-class MoveManager {
+class MoveManager extends Observable {
     private boolean server; // ボールの動きの計算はサーバ側で行う．
     private CommServer sv = null;
     private CommClient cl = null;
@@ -53,6 +54,11 @@ class MoveManager {
             String[] xy = msg.split(" ");
             opponent.setXY(Integer.parseInt(xy[0]), Integer.parseInt(xy[1]));
         }
+    }
+
+    public void GameEnd() {
+        setChanged();
+        notifyObservers();
     }
 
     public boolean isServer() {
