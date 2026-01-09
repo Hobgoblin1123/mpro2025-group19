@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 
 public class Player {
@@ -13,6 +14,7 @@ public class Player {
     private boolean isWin;
     private final static int dx = 5;
     private final static int dy = 5;
+    private Image img;
 
     public Player(int hp, int max_hp, int x, int y, int speed, int bounds_x_min, int bounds_x_max, int bounds_y,
             int radius) {
@@ -25,10 +27,17 @@ public class Player {
         this.bounds_x_min = bounds_x_min;
         this.bounds_y = bounds_y;
         this.radius = radius;
+
+        if(bounds_x_min == 0)
+            this.img = new ImageIcon(getClass().getResource("player1.jpg")).getImage();
+        else{
+            this.img = new ImageIcon(getClass().getResource("player2.jpg")).getImage();
+        }
     }
 
     public void draw(Graphics g) {
-        g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        //g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        g.drawImage(img, x - radius, y - radius, 2 * radius, 2 * radius, null);
     }
 
     public void setXY(int x, int y) {

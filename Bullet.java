@@ -9,21 +9,22 @@ public class Bullet implements ActionListener{
     private int x;
     private int y;
     private int speed;
-    private int bounds_y;
+    private int bounds_x;
     private int radius;
     private int damage;
     private Color color = new Color(255, 0, 0);
-    private final static int dy = 5;
+    private final static int dx = 5;
     private Timer timer;
     public boolean isActive = true;
 
-    public Bullet(Player enemyPlayer,boolean server, int x, int y, int speed, int bounds_y, int radius, int damage){
+    public Bullet(Player enemyPlayer,boolean server, int x, int y, int speed, int bounds_x, int radius, int damage, Color color){
         this.enemyPlayer = enemyPlayer;
         this.server = server;
         this.x = x;
         this.y = y;
         this.speed = speed;
-        this.bounds_y = bounds_y;
+        this.color = color;
+        this.bounds_x = bounds_x;
         this.radius = radius;
         this.damage = damage;
         timer = new Timer(16, this);
@@ -37,16 +38,17 @@ public class Bullet implements ActionListener{
 
     public void move(){
         if(this.server){
-            y -= dy * speed;
+            x -= dx * speed;
         }else{
-            y += dy * speed;
+            x += dx * speed;
         }
     }
 
     public void checkbounds(){
-        if( (y + radius) < 0 || (y - radius) > bounds_y ){
-            isActive = false;
+        if( (x + radius) < 0 || (x - radius) > bounds_x ){
+            this.color = new Color(0, 0, 0);
             timer.stop();
+            isActive = false;
         }
     }
 
@@ -66,5 +68,6 @@ public class Bullet implements ActionListener{
             isActive = false;
         }
         move();
+        checkbounds();
     }
 }
