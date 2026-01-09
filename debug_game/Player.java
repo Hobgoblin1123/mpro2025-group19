@@ -1,3 +1,5 @@
+package debug_game;
+
 import java.awt.*;
 
 public class Player {
@@ -10,7 +12,6 @@ public class Player {
     private int bounds_x_min;
     private int bounds_y;
     private int radius;
-    private boolean isWin;
     private final static int dx = 5;
     private final static int dy = 5;
 
@@ -85,14 +86,14 @@ public class Player {
         return hp;
     }
 
-    public boolean checkhit(int x_bullet, int y_bullet, int radius_bullet) {
+    public int checkhit(int x_bullet, int y_bullet, int radius_bullet) {
         int dist_x = x - x_bullet;
         int dist_y = y - y_bullet;
         int dist2 = dist_x * dist_x + dist_y * dist_y;
         if (dist2 <= radius * radius) {
-            return true;
+            return 1;
         } else {
-            return false;
+            return 0;
         }
     }
 
@@ -110,13 +111,5 @@ public class Player {
 
     public int getRadius() {
         return radius;
-    }
-
-    public void setWin(boolean isWin) {
-        this.isWin = isWin;
-    }
-
-    public boolean getWin() {
-        return isWin;
     }
 }
