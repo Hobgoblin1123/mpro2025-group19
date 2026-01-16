@@ -300,7 +300,7 @@ class ShooterModel {
             return;
         for (Star s : stars)
             s.update(width, height, rand);// 背景の星の更新
-        if (isServer) {
+        if (isServer) {// クライアントから送られてきたデータの解読
             String msg = sv.recv();
             if (msg != null) {
                 try {
@@ -498,7 +498,7 @@ public class NetworkShooter extends JPanel implements ActionListener, KeyListene
     @Override
     public void actionPerformed(ActionEvent e) {
         if (model.isRunning) {
-            processInput();// 初期条件の入力
+            processInput();// 入力の受付
             model.update();// modelの更新
         }
         repaint();

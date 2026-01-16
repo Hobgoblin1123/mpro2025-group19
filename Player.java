@@ -1,7 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.awt.geom.Ellipse2D;
 
-public class Player {
+class Player {
     private int hp;
     private int max_hp;
     private int x;
@@ -28,21 +30,16 @@ public class Player {
         this.bounds_y = bounds_y;
         this.radius = radius;
 
-        if(bounds_x_min == 0)
+        if (bounds_x_min == 0)
             this.img = new ImageIcon(getClass().getResource("player1.jpg")).getImage();
-        else{
+        else {
             this.img = new ImageIcon(getClass().getResource("player2.jpg")).getImage();
         }
     }
 
     public void draw(Graphics g) {
-        //g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        // g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
         g.drawImage(img, x - radius, y - radius, 2 * radius, 2 * radius, null);
-    }
-
-    public void setXY(int x, int y) {
-        this.x = x;
-        this.y = y;
     }
 
     public void moveUp() {
@@ -94,19 +91,25 @@ public class Player {
         return hp;
     }
 
-    public boolean checkhit(int x_bullet, int y_bullet, int radius_bullet) {
-        int dist_x = x - x_bullet;
-        int dist_y = y - y_bullet;
-        int dist2 = dist_x * dist_x + dist_y * dist_y;
-        if (dist2 <= radius * radius) {
-            return true;
-        } else {
-            return false;
-        }
+    public Shape getBounds() {
+        return new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2);
     }
 
     public int getHp() {
         return hp;
+    }
+
+    public boolean IsDead() {
+        return (hp <= 0);
+    }
+
+    public void setXY(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setHP(int hp) {
+        this.hp = hp;
     }
 
     public int getX() {
@@ -127,5 +130,11 @@ public class Player {
 
     public boolean getWin() {
         return isWin;
+    }
+
+    public ArrayList<Bullet> tryShoot(/* int case(球の種類について記述する部分) */) {
+        ArrayList<Bullet> newBullets = new ArrayList<>();
+        newBullets.add(new Bullet(this, isWin, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
+        return newBullets;
     }
 }
