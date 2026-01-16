@@ -35,6 +35,8 @@ class Stage extends Observable implements KeyListener {
 @SuppressWarnings("deprecation")
 public class GameFrame extends JFrame implements Observer {
     private JPanel mainPanel;
+    private JPanel gamePanel;
+    private Object commModule;
 
     public GameFrame() {
         this.setTitle("GAME");
@@ -42,15 +44,10 @@ public class GameFrame extends JFrame implements Observer {
         this.setLayout(new BorderLayout());
 
         // ダミーのベースパネルを作成（ゲーム画面の代わり）
-        JPanel gameScreen = new JPanel();
-        gameScreen.setBackground(Color.BLACK);
-        gameScreen.setPreferredSize(new Dimension(800, 600));
-        
-        // 動作確認用ステージクラス
-        Stage stage = new Stage();
-        stage.addObserver(this);
-        gameScreen.addKeyListener(stage);
-        gameScreen.setFocusable(true);
+        JPanel gamePanel = new JPanel();
+        gamePanel.setBackground(Color.BLACK);
+        gamePanel.setPreferredSize(new Dimension(800, 600));
+        gamePanel.setFocusable(true);
 
         // Start, Server, Clientの各パネルを切り替えられる、土台となるmainPanelを使用
         mainPanel = new JPanel(new CardLayout());
@@ -59,19 +56,38 @@ public class GameFrame extends JFrame implements Observer {
         mainPanel.add(new StartPanel(this), "START");
         mainPanel.add(new ServerPanel(this), "SERVER");
         mainPanel.add(new ClientPanel(this), "CLIENT");
-        mainPanel.add(gameScreen, "GAME");
+        mainPanel.add(gamePanel, "GAME");
 
         this.add(mainPanel, BorderLayout.CENTER);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);    // ×を押したら閉じる
         ((CardLayout) mainPanel.getLayout()).show(mainPanel,"START");
         this.setVisible(true);
-
-        gameScreen.requestFocusInWindow();  // 実行後すぐにキー入力を受け付けるようにフォーカスを要求
     }
 
     //  画面切り替え用メソッド
     public void showCard(String key) {
         ((CardLayout) mainPanel.getLayout()).show(mainPanel, key);
+    }
+
+    public void startGame(boolean isServer, int port, String host) {
+        System.out.println("ゲーム開始: " + (isServer ? "Server" : "Client"));
+
+        //  ゲームのステージ
+        Stage stage = new Stage();
+        stage.addObserver(this);
+        
+        //  リトライ後を考慮して古いキーリスナーは削除
+        for (KeyListener kl : gamePanel.getKeyListeners()) {
+            gamePanel.removeKeyListener(kl);
+        }
+        
+        gamePanel.addKeyListener(stage);
+
+        showCard("GAME");
+
+        SwingUtilities.invokeLater(() -> {      //  gamePanelの描画後に実行(実行予約リストの最後尾に回す)
+            gamePanel.requestFocusInWindow();   //  キーボードの入力先をgamePanelに設定
+        });
     }
 
     @Override
