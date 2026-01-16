@@ -36,7 +36,17 @@ class Stage extends Observable implements KeyListener {
 public class GameFrame extends JFrame implements Observer {
     private JPanel mainPanel;
     private JPanel gamePanel;
-    private Object commModule;
+    private Object commSV;
+
+    // setterメソッド
+    public void setCommSV(Object comm) {
+        this.commSV = comm;
+    }
+
+    // getterメソッド
+    public Object getCommSV() {
+        return this.commSV;
+    }
 
     public GameFrame() {
         this.setTitle("GAME");
@@ -44,7 +54,7 @@ public class GameFrame extends JFrame implements Observer {
         this.setLayout(new BorderLayout());
 
         // ダミーのベースパネルを作成（ゲーム画面の代わり）
-        JPanel gamePanel = new JPanel();
+        gamePanel = new JPanel();
         gamePanel.setBackground(Color.BLACK);
         gamePanel.setPreferredSize(new Dimension(800, 600));
         gamePanel.setFocusable(true);
