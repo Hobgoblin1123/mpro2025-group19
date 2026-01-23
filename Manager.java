@@ -17,7 +17,7 @@ class MoveManager extends Observable {
 
     // public Shot myShot[];
 
-    public MoveManager(int x, int y, int offset, boolean server, String host, int port) {
+    public MoveManager(int x, int y, int offset, boolean server, Object comm) {
         this.server = server;
         court_size_x = x;
         court_size_y = y;
@@ -25,16 +25,12 @@ class MoveManager extends Observable {
         player1 = new Player(10, 10, offset, y / 2, 1, 20, 200, y, 5);
         player2 = new Player(10, 10, x - offset - player1.getRadius(), y / 2, 1, 320, 580, y, 5);
 
-        if (server) { // server の場合は，自分は左．clientの場合は自分は，右
-
-            System.out.println("Waiting for connection with port no: " + port);
-            sv = new CommServer(port);
-            sv.setTimeout(1); // non-wait で通信
-            System.out.println("Connected !");
+        if (server) {
+            // サーバーの場合、ServerPanelで作ったCommServerを受け取る
+            this.sv = (CommServer) comm;
         } else {
-            cl = new CommClient(host, port);
-            cl.setTimeout(1); // non-wait で通信
-            System.out.println("Connected to " + host + ":" + port + "!");
+            // クライアントの場合、ClientPanelで作ったCommClientを受け取る
+            this.cl = (CommClient) comm;
         }
     }
 

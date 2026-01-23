@@ -8,6 +8,7 @@ public class ServerPanel extends JPanel implements ActionListener {
     private JLabel portNum;
     private JButton closeBtn;
     private GameFrame f;
+    private boolean isWaiting = false;
 
     public ServerPanel(GameFrame f) {
         this.f = f;
@@ -16,7 +17,7 @@ public class ServerPanel extends JPanel implements ActionListener {
 
         // --- 2. 構成要素 ---
         portNum = new JLabel("ルームID", JLabel.CENTER);
-        statusLbl = new JLabel("待機中・・・", JLabel.CENTER);
+        statusLbl = new JLabel("起動準備中・・・", JLabel.CENTER);
         closeBtn = new JButton("戻る");
 
         // --- 3. リスナーの登録 ---
@@ -26,6 +27,44 @@ public class ServerPanel extends JPanel implements ActionListener {
         this.add(statusLbl, BorderLayout.CENTER);
         this.add(portNum, BorderLayout.NORTH);
         this.add(closeBtn, BorderLayout.SOUTH);
+
+        serverWait();
+    }
+
+    //  サーバー待機ロジック
+    public void serverWait() {
+        if (isWaiting) return;  //  二重起動防止
+        isWaiting = true;
+
+        //  --- 1. ランダムポート番号設定 ---
+        int port = (int) (Math.random() * 64511) + 1024;    // 65535 - 1024 = 64511
+        portNum.setText(String.valueOf(port));  //  int型をstring型に変換してラベル更新
+        statusLbl.setText("接続待機中・・・");
+
+        //  --- 2. 別スレッドで接続待ちを開始 (マルチスレッドを実現 = 裏で処理を行う) ---
+        // new Thread(new Runnable() {
+        //     @Override
+        //     public void run() {  // ← カッコの中（引数）が空っぽ！
+        //         // 処理
+        //     }
+        // });  以下の文はこれと同義
+        new Thread(() -> {
+            try {
+                //  --- 3. Commサーバーをインスタンス化 ---
+                CommServer sv = new CommServer(port);
+                f.setCommSV(sv);
+
+                // --- 4. 接続成功後、ゲームを実行 ---
+                SwingUtilities.invokeLater(() -> {
+                    f.startGame(true, sv);
+                    isWaiting = false;
+                });
+            } catch (Exception e){      // else文(例外=トラブル時の対応)
+                e.printStackTrace();    // エラー内容をターミナルに表示
+                isWaiting = false;      
+                SwingUtilities.invokeLater(() -> statusLbl.setText("エラーが発生しました"));
+            }
+        }).start();     // Threadの起動
     }
 
     @Override
@@ -33,17 +72,5 @@ public class ServerPanel extends JPanel implements ActionListener {
         if (e.getSource() == closeBtn) {
             f.showCard("START");
         }
-    }
-
-    public void setPort(int port) {
-        portNum.setText(String.valueOf(port));
-    }
-
-    // サーバーの起動
-    private void launchServer() {
-        int port = (int) (Math.random() * 64511) + 1024;    // 65535 - 1024 = 64511
-        setPort(port);
-
-        System.out.println("サーバ待受開始: " + port);
     }
 }
