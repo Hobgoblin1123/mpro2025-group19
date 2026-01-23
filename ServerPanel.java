@@ -56,7 +56,7 @@ public class ServerPanel extends JPanel implements ActionListener {
 
                 // --- 4. 接続成功後、ゲームを実行 ---
                 SwingUtilities.invokeLater(() -> {
-                    f.startGame(true, port, null);
+                    f.startGame(true, sv);
                     isWaiting = false;
                 });
             } catch (Exception e){      // else文(例外=トラブル時の対応)
