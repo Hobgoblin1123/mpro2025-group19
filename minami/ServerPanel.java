@@ -54,6 +54,8 @@ public class ServerPanel extends JPanel implements ActionListener {
                 CommServer sv = new CommServer(port);
                 f.setCommSV(sv);
 
+                System.out.println("接続に成功しました");
+
                 // --- 4. 接続成功後、ゲームを実行 ---
                 SwingUtilities.invokeLater(() -> {
                     f.startGame(true, sv);
