@@ -1,7 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-
-import javax.smartcardio.Card;
 import javax.swing.*;
 import java.util.*;
 
@@ -79,8 +77,22 @@ public class GameFrame extends JFrame implements Observer {
         ((CardLayout) mainPanel.getLayout()).show(mainPanel, key);
     }
 
-    public void startGame(boolean isServer, int port, String host) {
+    public void startGame(boolean isServer,Object comm) {
         System.out.println("ゲーム開始: " + (isServer ? "Server" : "Client"));
+
+
+        // 1. MoveManager (ゲームロジック) の作成
+        // 既存の通信オブジェクト(comm)を渡す
+        MoveManager mm = new MoveManager(600, 300, 30, isServer, comm);
+        mm.addObserver(this); // ゲーム終了監視用
+
+        // 2. ShootingView (描画パネル) の作成
+        ShootingView view = new ShootingView(mm);
+
+        // 3. 画面への追加処理
+        gamePanel.removeAll(); // 前のゲーム画面があれば消す
+        gamePanel.setLayout(new BorderLayout());
+        gamePanel.add(view, BorderLayout.CENTER); // ShootingViewを追加
 
         //  ゲームのステージ
         Stage stage = new Stage();
