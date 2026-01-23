@@ -56,6 +56,7 @@ public class ServerPanel extends JPanel implements ActionListener {
 
                 // --- 4. 接続成功後、ゲームを実行 ---
                 SwingUtilities.invokeLater(() -> {
+                    // ここを変更: ポート番号ではなく、生成した sv (CommServer) を直接渡す
                     f.startGame(true, sv);
                     isWaiting = false;
                 });
