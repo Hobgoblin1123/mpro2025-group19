@@ -2,13 +2,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
-public class Bullet {
-    private Player ownerPlayer;
-    private boolean server;
+public class BoundGimmick {
     private int x;
     private int y;
-    private int speed;
-    private int bounds_x;
+    private int speed_x;
+    private int speed_y;
+    private int bounds_up;
+    private int bounds_down;
+    private int bounds_right;
+    private int bounds_left;
     private int radius;
     private int damage;
     private Color color = new Color(255, 0, 0);
@@ -16,24 +18,20 @@ public class Bullet {
     private Timer timer;
     public boolean isActive = true;
 
-    public Bullet(Player owner, boolean server, int x, int y, int speed, int bounds_x, int radius, int damage,
+    public BoundGimmick(int x, int y, int speed_x, int speed_y, int bounds_up, int bounds_down, int bounds_right,
+            int bounds_left, int radius, int damage,
             Color color) {
-        this.ownerPlayer = owner;
-        this.server = server;
         this.x = x;
         this.y = y;
-        this.speed = speed;
+        this.speed_x = speed_x;
+        this.speed_y = speed_y;
         this.color = color;
-        this.bounds_x = bounds_x;
+        this.bounds_up = bounds_up;
+        this.bounds_down = bounds_down;
+        this.bounds_right = bounds_right;
+        this.bounds_left = bounds_left;
         this.radius = radius;
         this.damage = damage;
-    }
-
-    public Bullet(int x, int y, int radius, Color color) {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.radius = radius;
     }
 
     public void draw(Graphics g) {
@@ -42,15 +40,23 @@ public class Bullet {
     }
 
     public void move() {
-        if (this.server) {
-            x -= dx * speed;
-        } else {
-            x += dx * speed;
-        }
+        this.x += this.speed_x;
+        this.y += this.speed_y;
     }
 
-    public Player getOwner() {
-        return this.ownerPlayer;
+    public void checkBound() {
+        if (this.x + this.speed_x > this.bounds_right) {
+            this.speed_x *= -1;
+        }
+        if (this.x + this.speed_x < this.bounds_left) {
+            this.speed_x *= -1;
+        }
+        if (this.y + this.speed_y > this.bounds_down) {
+            this.speed_y *= -1;
+        }
+        if (this.y + this.speed_y < this.bounds_up) {
+            this.speed_y *= -1;
+        }
     }
 
     public int getX() {
@@ -61,11 +67,8 @@ public class Bullet {
         return this.y;
     }
 
-    public void setY(int y) {
-        this.y = y;
-    }
-
     public void update() {
+        checkBound();
         move();
     }
 
