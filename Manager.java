@@ -1,226 +1,258 @@
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.util.Observable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
+import java.util.Observable; // GameFrameとの連携に残しておきます
 
-@SuppressWarnings("deprecation")
-
+// Observableを継承したまま、中身をShooterModel風に改造
 class MoveManager extends Observable {
-    private boolean server; // ボールの動きの計算はサーバ側で行う．
+    // 通信関係
+    private boolean server;
     private CommServer sv = null;
     private CommClient cl = null;
-    public int court_size_x, court_size_y; // コートの大きさ
-    public Player player1, player2; // Player 自分と対戦相手
+
+    // ゲームデータ
+    public int court_size_x, court_size_y;
+    public Player player1, player2;
     public ArrayList<Bullet> bullets;
+    
+    // public ArrayList<PowerUpItem> items; // アイテムクラスを作ったら有効化
+    // public ArrayList<Star> stars;        // 星クラスを作ったら有効化
 
-    // public Shot myShot[];
+    public String winner = "";
+    public boolean isRunning = true;
+    private Random rand = new Random();
 
+    // コンストラクタ
     public MoveManager(int x, int y, int offset, boolean server, Object comm) {
         this.server = server;
-        court_size_x = x;
-        court_size_y = y;
+        this.court_size_x = x;
+        this.court_size_y = y;
 
+        // Playerの初期化 (既存の引数に合わせつつ、調整)
+        // ※ Playerクラスのコンストラクタに合わせて調整してください
         player1 = new Player(10, 10, offset, y / 2, 1, 20, 200, y, 5);
-        player2 = new Player(10, 10, x - offset - player1.getRadius(), y / 2, 1, 320, 580, y, 5);
+        player2 = new Player(10, 10, x - offset - 20, y / 2, 1, 320, 580, y, 5);
 
+        bullets = new ArrayList<>();
+        // items = new ArrayList<>();
+        // stars = new ArrayList<>();
+
+        // 通信オブジェクトの受け取り
         if (server) {
-            // サーバーの場合、ServerPanelで作ったCommServerを受け取る
             this.sv = (CommServer) comm;
+            // sv.setTimeout(1); // 必要なら設定
         } else {
-            // クライアントの場合、ClientPanelで作ったCommClientを受け取る
             this.cl = (CommClient) comm;
+            // cl.setTimeout(1);
         }
     }
 
+    // メインループ (ShooterModelのupdateに相当)
     public void update() {
+        if (!isRunning) return;
+
+        // 背景エフェクト更新などがあればここ
+        // for(Star s : stars) s.update(court_size_x, court_size_y, rand);
+
         if (server) {
+            // --- サーバー側の処理 ---
+            
+            // 1. クライアント(Player2)の操作を受信
             String msg = sv.recv();
             if (msg != null) {
-                String data[] = msg.split(" ");
-                player2.setXY(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
-                boolean IsP2Shot = Boolean.parseBoolean(data[2]);
-                if (IsP2Shot) {
-                    bullets.addAll(player2.tryShoot());
+                try {
+                    // クライアントからは "x y isShooting" が来る想定
+                    String[] data = msg.split(" ");
+                    int p2x = Integer.parseInt(data[0]);
+                    int p2y = Integer.parseInt(data[1]);
+                    boolean p2Shoot = Boolean.parseBoolean(data[2]);
+                    
+                    // 位置を同期
+                    player2.setXY(p2x, p2y);
+                    
+                    // 発射処理 (サーバー側で弾を生成してリストに追加)
+                    if (p2Shoot) {
+                        bullets.addAll(player2.tryShoot());
+                    }
+                } catch(Exception e) {
+                    e.printStackTrace();
                 }
-
             }
-            serverLogic();// サーバー側で現状の計算
-            sendServerData();// クライアントへの送信
+
+            // 2. ゲームロジック (弾の移動、当たり判定)
+            serverLogic();
+
+            // 3. 全データをクライアントへ送信
+            sendServerData();
+
         } else {
+            // --- クライアント側の処理 ---
+            
+            // サーバーからの全データを受信して反映
             String msg = cl.recv();
             if (msg != null) {
-                parseServerData(msg);// サーバーから送られた情報の解読
+                parseServerData(msg);
             }
         }
     }
 
-    public void serverLogic() {
+    // サーバーのみが実行する物理演算
+    private void serverLogic() {
+        // アイテム出現処理などがあればここ
+
+        // 弾の移動と当たり判定
         Iterator<Bullet> it = bullets.iterator();
         while (it.hasNext()) {
             Bullet b = it.next();
-            if ((b.getX() < 0 || b.getX() > court_size_x) || (b.getY() < 0 || b.getY() > court_size_y)) {
-                it.remove();
+            b.move(); // Bulletクラスのmove()を使用
+
+            // 画面外に出たら削除
+            if (b.getX() < -50 || b.getX() > court_size_x + 50 || 
+                b.getY() < -50 || b.getY() > court_size_y + 50) {
+                it.remove(); 
                 continue;
             }
 
             boolean hit = false;
-            if (b.getOwner() == player1 && (player1.getX() - b.getX()) * (player1.getX() - b.getX())
-                    + (player1.getY() - b.getY()) * (player1.getY() - b.getY()) <= (b.getRadius() + player1.getRadius())
-                            * (b.getRadius() + player1.getRadius())) {
-                player1.hit(b.getDamage());
+            // Player1への当たり判定
+            if (b.getOwner() != player1 && isHit(player1, b)) {
+                player1.hit(1); // 1ダメージ
                 hit = true;
-            } else if (b.getOwner() == player2 && (player2.getX() - b.getX()) * (player2.getX() - b.getX())
-                    + (player2.getY() - b.getY()) * (player2.getY() - b.getY()) <= (b.getRadius() + player2.getRadius())
-                            * (b.getRadius() + player2.getRadius())) {
-                player2.hit(b.getDamage());
+            }
+            // Player2への当たり判定
+            else if (b.getOwner() != player2 && isHit(player2, b)) {
+                player2.hit(1);
                 hit = true;
             }
 
-            if (hit)
-                it.remove();
-            // 球がプレイヤーに当たったら削除
-        }
-        if (player1.IsDead()) {
-            System.out.println("Winner is player1");
-            GameEnd();
-        }
-        if (player2.IsDead()) {
-            System.out.println("Winner is player2");
-            GameEnd();
+            if (hit) it.remove();
         }
 
+        // 勝敗判定
+        if (player1.IsDead()) {
+            isRunning = false;
+            winner = "Player 2 Win!";
+            gameEnd();
+        } else if (player2.IsDead()) {
+            isRunning = false;
+            winner = "Player 1 Win!";
+            gameEnd();
+        }
     }
 
-    public void sendServerData() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(player1.getX()).append(",").append(player1.getY()).append(",").append(player1.getHp())
-                .append(player2.getX()).append(",").append(player2.getY()).append(",").append(player2.getHp())
-                .append("#");
+    // 当たり判定の補助メソッド
+    private boolean isHit(Player p, Bullet b) {
+        // 距離の2乗で判定 (平方根計算を避けて高速化)
+        double dx = p.getX() - b.getX();
+        double dy = p.getY() - b.getY();
+        double rSum = p.getRadius() + b.getRadius();
+        return (dx * dx + dy * dy) <= (rSum * rSum);
+    }
 
+    // サーバーからクライアントへデータを送信
+    // フォーマット: "P1x,P1y,P1hp,P2x,P2y,P2hp,Winner # Bullet1;Bullet2;... # Items..."
+    private void sendServerData() {
+        StringBuilder sb = new StringBuilder();
+        
+        // 1. プレイヤー情報と勝敗
+        sb.append(player1.getX()).append(",").append(player1.getY()).append(",").append(player1.getHp()).append(",")
+          .append(player2.getX()).append(",").append(player2.getY()).append(",").append(player2.getHp()).append(",")
+          .append(winner).append("#");
+
+        // 2. 弾情報 (x, y, radius, colorRGB)
         for (Bullet b : bullets) {
+            // Color取得時にnullチェックを入れると安全
+            int rgb = (b.getColor() != null) ? b.getColor().getRGB() : Color.RED.getRGB();
+            
             sb.append(b.getX()).append(",").append(b.getY()).append(",")
-                    .append(b.getRadius()).append(",").append(b.getColor().getRGB()).append(";");
-            // 各弾丸は";"で区切られ、またその玉の情報は","で区切られる
+              .append(b.getRadius()).append(",").append(rgb).append(";");
         }
+        sb.append("#");
+
+        // 3. アイテム情報 (今回は空)
+        // for (Item i : items) { ... }
         sb.append("#");
 
         sv.send(sb.toString());
     }
 
-    public void parseServerData(String msg) {
-        String section[] = msg.split("#");
-        String chara_info[] = section[0].split(",");
-        player1.setXY(Integer.parseInt(chara_info[0]), Integer.parseInt(chara_info[1]));
-        player1.setHP(Integer.parseInt(chara_info[2]));
-        player2.setXY(Integer.parseInt(chara_info[3]), Integer.parseInt(chara_info[4]));
-        player2.setHP(Integer.parseInt(chara_info[5]));
+    // クライアント側でのデータ受信・解析
+    private void parseServerData(String msg) {
+        try {
+            String[] sections = msg.split("#", -1); // -1をつけると空文字も無視しない
+            if (sections.length < 2) return;
 
-        bullets.clear();
-        String bullet_kind[] = section[1].split(";");
-        for (String blt : bullet_kind) {
-            String bullt_info[] = blt.split(",");
-            int rgb = Integer.parseInt(bullt_info[3]);
-            Color color = new Color(rgb);
-            bullets.add(new Bullet(Integer.parseInt(bullt_info[0]), Integer.parseInt(bullt_info[1]),
-                    Integer.parseInt(bullt_info[2]), color));
+            // 1. プレイヤー情報
+            String[] basic = sections[0].split(",");
+            if (basic.length >= 7) {
+                player1.setXY(Integer.parseInt(basic[0]), Integer.parseInt(basic[1]));
+                player1.setHP(Integer.parseInt(basic[2]));
+                player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));
+                player2.setHP(Integer.parseInt(basic[5]));
+                winner = basic[6];
+                
+                if (!winner.isEmpty()) {
+                    isRunning = false;
+                    gameEnd();
+                }
+            }
+
+            // 2. 弾情報 (リストを毎回作り直す = 完全同期)
+            bullets.clear();
+            if (!sections[1].isEmpty()) {
+                String[] bList = sections[1].split(";");
+                for (String bStr : bList) {
+                    if (bStr.isEmpty()) continue;
+                    String[] val = bStr.split(",");
+                    if (val.length >= 4) {
+                        int bx = Integer.parseInt(val[0]);
+                        int by = Integer.parseInt(val[1]);
+                        int br = Integer.parseInt(val[2]);
+                        Color bc = new Color(Integer.parseInt(val[3]));
+                        
+                        // 受信専用のBulletを作る (コンストラクタ追加が必要)
+                        bullets.add(new Bullet(bx, by, br, bc));
+                    }
+                }
+            }
+            
+            // 3. アイテム情報 (実装時はここに追加)
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
     }
 
+    // クライアントからサーバーへ入力情報を送信
     public void sendClientInput(boolean isShooting) {
-        if (!isServer())
-            cl.send(player2.getX() + " " + player2.getY() + " " + isShooting);// player2の位置と射撃情報を空白文字で区切って送信
+        if (!server) {
+            // "x y isShooting"
+            cl.send(player2.getX() + " " + player2.getY() + " " + isShooting);
+        }
     }
 
-    public void GameEnd() {
+    // 終了通知
+    public void gameEnd() {
         setChanged();
         notifyObservers();
     }
 
-    public boolean isServer() {
-        return server;
-    }
+    public boolean isServer() { return server; }
 
     public void draw(Graphics g) {
+        // 背景など
+        // for(Star s : stars) s.draw(g);
+        
+        g.drawRect(0, 0, court_size_x, court_size_y);
         player1.draw(g);
         player2.draw(g);
-        g.drawRect(0, 0, court_size_x, court_size_y);
-    }
-}
-
-class ShootingView extends JPanel implements KeyListener, ActionListener {
-    private Timer timer;
-    private MoveManager tm;
-    final static int court_size_x = 600;
-    final static int court_size_y = 300;
-
-    public ShootingView(MoveManager tm) {
-        this.tm = tm;
-        setBackground(Color.white);
-        setPreferredSize(new Dimension(tm.court_size_x + 1, tm.court_size_y + 1));
-        setFocusable(true);
-
-        setFocusTraversalKeysEnabled(false);
-        addKeyListener(this);
-
-        timer = new Timer(10, this); // 10ミリ秒ごとにボールが移動
-        if (!tm.isServer())
-            timer.start();
-
-        requestFocusInWindow();
-
-    }
-
-    public void keyPressed(KeyEvent e) {
-
-        if (!timer.isRunning())
-            timer.start(); // キーを押すとゲーム開始
-
-        int k = e.getKeyCode();
-        if (k == KeyEvent.VK_DOWN) {
-            tm.myself.moveDown();
-            if (!tm.isServer())
-                tm.send();
-            repaint();
-        } else if (k == KeyEvent.VK_UP) {
-            tm.myself.moveUp();
-            if (!tm.isServer())
-                tm.send();
-            repaint();
-        } else if (k == KeyEvent.VK_RIGHT) {
-            tm.myself.moveRight();
-            if (!tm.isServer())
-                tm.send();
-            repaint();
-        } else if (k == KeyEvent.VK_LEFT) {
-            tm.myself.moveLeft();
-            if (!tm.isServer())
-                tm.send();
-            repaint();
+        
+        for (Bullet b : bullets) {
+            b.draw(g);
         }
-    }
-
-    public void keyReleased(KeyEvent e) {
-    }
-
-    public void keyTyped(KeyEvent e) {
-    }
-
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        tm.draw(g);
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        if (tm.isServer()) {
-            tm.send();
-            tm.recv();
-        } else {
-            tm.recv();
-        }
-        repaint();
+        
+        // items.draw(g);
     }
 }
 
