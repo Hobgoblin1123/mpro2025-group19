@@ -5,6 +5,8 @@ import java.util.Random;
 import java.util.Observable; // GameFrameとの連携に残しておきます
 
 // Observableを継承したまま、中身をShooterModel風に改造
+
+@SuppressWarnings("deprecation")
 class MoveManager extends Observable {
     // 通信関係
     private boolean server;
@@ -15,9 +17,9 @@ class MoveManager extends Observable {
     public int court_size_x, court_size_y;
     public Player player1, player2;
     public ArrayList<Bullet> bullets;
-    
+
     // public ArrayList<PowerUpItem> items; // アイテムクラスを作ったら有効化
-    // public ArrayList<Star> stars;        // 星クラスを作ったら有効化
+    // public ArrayList<Star> stars; // 星クラスを作ったら有効化
 
     public String winner = "";
     public boolean isRunning = true;
@@ -50,14 +52,15 @@ class MoveManager extends Observable {
 
     // メインループ (ShooterModelのupdateに相当)
     public void update() {
-        if (!isRunning) return;
+        if (!isRunning)
+            return;
 
         // 背景エフェクト更新などがあればここ
         // for(Star s : stars) s.update(court_size_x, court_size_y, rand);
 
         if (server) {
             // --- サーバー側の処理 ---
-            
+
             // 1. クライアント(Player2)の操作を受信
             String msg = sv.recv();
             if (msg != null) {
@@ -67,15 +70,15 @@ class MoveManager extends Observable {
                     int p2x = Integer.parseInt(data[0]);
                     int p2y = Integer.parseInt(data[1]);
                     boolean p2Shoot = Boolean.parseBoolean(data[2]);
-                    
+                    int bulletType = Integer.parseInt(data[3]);
                     // 位置を同期
                     player2.setXY(p2x, p2y);
-                    
+
                     // 発射処理 (サーバー側で弾を生成してリストに追加)
                     if (p2Shoot) {
-                        bullets.addAll(player2.tryShoot());
+                        bullets.addAll(player2.tryShoot(bulletType));
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -88,7 +91,7 @@ class MoveManager extends Observable {
 
         } else {
             // --- クライアント側の処理 ---
-            
+
             // サーバーからの全データを受信して反映
             String msg = cl.recv();
             if (msg != null) {
@@ -108,9 +111,9 @@ class MoveManager extends Observable {
             b.move(); // Bulletクラスのmove()を使用
 
             // 画面外に出たら削除
-            if (b.getX() < -50 || b.getX() > court_size_x + 50 || 
-                b.getY() < -50 || b.getY() > court_size_y + 50) {
-                it.remove(); 
+            if (b.getX() < -50 || b.getX() > court_size_x + 50 ||
+                    b.getY() < -50 || b.getY() > court_size_y + 50) {
+                it.remove();
                 continue;
             }
 
@@ -126,7 +129,8 @@ class MoveManager extends Observable {
                 hit = true;
             }
 
-            if (hit) it.remove();
+            if (hit)
+                it.remove();
         }
 
         // 勝敗判定
@@ -154,19 +158,20 @@ class MoveManager extends Observable {
     // フォーマット: "P1x,P1y,P1hp,P2x,P2y,P2hp,Winner # Bullet1;Bullet2;... # Items..."
     private void sendServerData() {
         StringBuilder sb = new StringBuilder();
-        
+
         // 1. プレイヤー情報と勝敗
         sb.append(player1.getX()).append(",").append(player1.getY()).append(",").append(player1.getHp()).append(",")
-          .append(player2.getX()).append(",").append(player2.getY()).append(",").append(player2.getHp()).append(",")
-          .append(winner).append("#");
+                .append(player2.getX()).append(",").append(player2.getY()).append(",").append(player2.getHp())
+                .append(",")
+                .append(winner).append("#");
 
         // 2. 弾情報 (x, y, radius, colorRGB)
         for (Bullet b : bullets) {
             // Color取得時にnullチェックを入れると安全
             int rgb = (b.getColor() != null) ? b.getColor().getRGB() : Color.RED.getRGB();
-            
+
             sb.append(b.getX()).append(",").append(b.getY()).append(",")
-              .append(b.getRadius()).append(",").append(rgb).append(";");
+                    .append(b.getRadius()).append(",").append(rgb).append(";");
         }
         sb.append("#");
 
@@ -181,7 +186,8 @@ class MoveManager extends Observable {
     private void parseServerData(String msg) {
         try {
             String[] sections = msg.split("#", -1); // -1をつけると空文字も無視しない
-            if (sections.length < 2) return;
+            if (sections.length < 2)
+                return;
 
             // 1. プレイヤー情報
             String[] basic = sections[0].split(",");
@@ -191,7 +197,7 @@ class MoveManager extends Observable {
                 player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));
                 player2.setHP(Integer.parseInt(basic[5]));
                 winner = basic[6];
-                
+
                 if (!winner.isEmpty()) {
                     isRunning = false;
                     gameEnd();
@@ -203,20 +209,21 @@ class MoveManager extends Observable {
             if (!sections[1].isEmpty()) {
                 String[] bList = sections[1].split(";");
                 for (String bStr : bList) {
-                    if (bStr.isEmpty()) continue;
+                    if (bStr.isEmpty())
+                        continue;
                     String[] val = bStr.split(",");
                     if (val.length >= 4) {
                         int bx = Integer.parseInt(val[0]);
                         int by = Integer.parseInt(val[1]);
                         int br = Integer.parseInt(val[2]);
                         Color bc = new Color(Integer.parseInt(val[3]));
-                        
+
                         // 受信専用のBulletを作る (コンストラクタ追加が必要)
                         bullets.add(new Bullet(bx, by, br, bc));
                     }
                 }
             }
-            
+
             // 3. アイテム情報 (実装時はここに追加)
 
         } catch (Exception e) {
@@ -225,10 +232,10 @@ class MoveManager extends Observable {
     }
 
     // クライアントからサーバーへ入力情報を送信
-    public void sendClientInput(boolean isShooting) {
+    public void sendClientInput(boolean isShooting, int bulletType) {
         if (!server) {
             // "x y isShooting"
-            cl.send(player2.getX() + " " + player2.getY() + " " + isShooting);
+            cl.send(player2.getX() + " " + player2.getY() + " " + isShooting + " " + bulletType);
         }
     }
 
@@ -238,20 +245,22 @@ class MoveManager extends Observable {
         notifyObservers();
     }
 
-    public boolean isServer() { return server; }
+    public boolean isServer() {
+        return server;
+    }
 
     public void draw(Graphics g) {
         // 背景など
         // for(Star s : stars) s.draw(g);
-        
+
         g.drawRect(0, 0, court_size_x, court_size_y);
         player1.draw(g);
         player2.draw(g);
-        
+
         for (Bullet b : bullets) {
             b.draw(g);
         }
-        
+
         // items.draw(g);
     }
 }
