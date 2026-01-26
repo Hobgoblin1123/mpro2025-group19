@@ -80,6 +80,7 @@ public class GameFrame extends JFrame implements Observer {
     }
 
     public void startGame(boolean isServer, Object comm) {
+        this.commSV = comm;
         System.out.println("ゲーム開始: " + (isServer ? "Server" : "Client"));
 
         // 1. MoveManager (ゲームロジック) の作成
@@ -95,22 +96,48 @@ public class GameFrame extends JFrame implements Observer {
         gamePanel.setLayout(new BorderLayout());
         gamePanel.add(view, BorderLayout.CENTER); // ShootingViewを追加
 
-        // ゲームのステージ
-        Stage stage = new Stage();
-        stage.addObserver(this);
-
         // リトライ後を考慮して古いキーリスナーは削除
         for (KeyListener kl : gamePanel.getKeyListeners()) {
             gamePanel.removeKeyListener(kl);
         }
 
-        gamePanel.addKeyListener(stage);
+        gamePanel.addKeyListener(view);
 
         showCard("GAME");
 
         SwingUtilities.invokeLater(() -> { // gamePanelの描画後に実行(実行予約リストの最後尾に回す)
-            gamePanel.requestFocusInWindow(); // キーボードの入力先をgamePanelに設定
+            view.requestFocusInWindow(); // キーボードの入力先をgamePanelに設定
         });
+    }
+
+     //  ------ リトライと終了機能 ------
+     public void retryGame() {
+        //  1度消して再生成
+        this.getContentPane().removeAll();
+        this.add(mainPanel, BorderLayout.CENTER);
+
+        boolean isServer = (commSV instanceof CommServer);
+        startGame(isServer, commSV);
+
+        this.revalidate();  // レイアウトの再計算
+        this.repaint();
+    }
+
+    public void backToStart() {
+        //  通信の切断
+        if (commSV instanceof CommServer) {
+            ((CommServer) commSV).close();      //  念のためキャスト(下も同じ)
+        } else if (commSV instanceof CommClient) {
+            ((CommClient) commSV).close();
+        }
+        commSV = null;
+
+        this.getContentPane().removeAll();
+        this.add(mainPanel, BorderLayout.CENTER);
+        showCard("START");
+
+        this.revalidate();
+        this.repaint();
     }
 
     @Override
@@ -121,7 +148,7 @@ public class GameFrame extends JFrame implements Observer {
 
         if (stage.isGameOver()) {
             this.getContentPane().removeAll();
-            ResultPanel result = new ResultPanel(true);
+            ResultPanel result = new ResultPanel(this, true);
             this.add(result, BorderLayout.CENTER);
 
             this.revalidate(); // レイアウトの再計算
