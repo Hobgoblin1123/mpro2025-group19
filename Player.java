@@ -138,6 +138,9 @@ class Player {
             newBullets.add(new Bullet(this, this.bounds_x_min == 20, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
         }else if(type == 1){
             newBullets.add(new CurveBullet(this, this.bounds_x_min == 20, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
+        }else if(type == 2){
+            newBullets.add(new UpDiagonalBullet(this, this.bounds_x_min == 20, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
+            newBullets.add(new DownDiagonalBullet(this, this.bounds_x_min == 20, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
         }
         return newBullets;
     }

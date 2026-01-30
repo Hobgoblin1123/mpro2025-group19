@@ -84,4 +84,8 @@ public class Bullet {
     public Color getColor() {
         return this.color;
     }
+
+    public int getSpeed() {
+        return speed;
+    }
 }
