@@ -10,6 +10,7 @@ public class ResultPanel extends JPanel implements ActionListener {
     private JLabel resLabel;
     private JButton retryButton;
     private JButton quitButton;
+    private GameFrame f;
 
     // --- アニメーション用の変数 ---
     private Timer timer;
@@ -17,7 +18,8 @@ public class ResultPanel extends JPanel implements ActionListener {
     private final int STAR_COUNT = 100; // 星の数
 
     //  コンストラクタ: ウィンドウの初期設定
-    public ResultPanel(boolean isWin) {
+    public ResultPanel(GameFrame f, boolean isWin) {
+        this.f = f;
         // --- 1. レイアウト設定 ---
         this.setLayout(new BorderLayout());
         
@@ -107,8 +109,10 @@ public class ResultPanel extends JPanel implements ActionListener {
         // ボタンが押された場合
         else if (e.getSource() == this.retryButton) {
             System.out.println("ゲームをもう一度行います");
+            f.retryGame();
         } else if (e.getSource() == this.quitButton) {
             System.out.println("ゲームを終了します");
+            f.backToStart();
         }
     }
 
