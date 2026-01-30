@@ -35,6 +35,18 @@ public class ClientPanel extends JPanel implements ActionListener {
         centerPanel.add(connectBtn);
         this.add(statusLbl, BorderLayout.NORTH);
         this.add(closeBtn, BorderLayout.SOUTH);
+
+        // --- +α. 画面が表示されるたびに状態をリセットするリスナー ---
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                // リセットする処理
+                statusLbl.setText(" ");
+                statusLbl.setForeground(Color.BLACK);
+                connectBtn.setEnabled(true);
+                idField.setText("");
+            }
+        });
     }
 
     @Override

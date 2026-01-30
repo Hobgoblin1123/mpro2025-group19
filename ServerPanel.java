@@ -28,7 +28,13 @@ public class ServerPanel extends JPanel implements ActionListener {
         this.add(portNum, BorderLayout.NORTH);
         this.add(closeBtn, BorderLayout.SOUTH);
 
+        // --- +α. 画面が表示されるたびに状態をリセットするリスナー ---
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
         serverWait();
+    }
+        });
     }
 
     //  サーバー待機ロジック
@@ -52,8 +58,9 @@ public class ServerPanel extends JPanel implements ActionListener {
             try {
                 //  --- 3. Commサーバーをインスタンス化 ---
                 CommServer sv = new CommServer(port);
-                System.out.println("接続に成功しました");
                 f.setCommSV(sv);
+
+                System.out.println("接続に成功しました");
 
                 // --- 4. 接続成功後、ゲームを実行 ---
                 SwingUtilities.invokeLater(() -> {

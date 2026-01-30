@@ -20,8 +20,9 @@ public class ResultPanel extends JPanel implements ActionListener {
     //  コンストラクタ: ウィンドウの初期設定
     public ResultPanel(GameFrame f, boolean isWin) {
         this.f = f;
+
         // --- 1. レイアウト設定 ---
-        this.setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout()); // BorderLayoutを採用
         
         // 背景色は描画メソッド(paintComponent)で塗るので、ここでは設定不要ですが、
         // コンポーネント自体を不透明にしておきます
@@ -108,10 +109,16 @@ public class ResultPanel extends JPanel implements ActionListener {
         } 
         // ボタンが押された場合
         else if (e.getSource() == this.retryButton) {
+            // 連打防止＆状態表示
+            this.retryButton.setEnabled(false);
+            this.quitButton.setEnabled(false);
+            this.retryButton.setText("相手の応答待ち...");
+
             System.out.println("ゲームをもう一度行います");
-            f.retryGame();
+            f.tryRetry();
         } else if (e.getSource() == this.quitButton) {
             System.out.println("ゲームを終了します");
+            f.sendMessage("QUIT");  //  backToStart()内に記述すると、リトライ失敗後にbackToStart()するので余計なメッセージ送信をしてしまう
             f.backToStart();
         }
     }

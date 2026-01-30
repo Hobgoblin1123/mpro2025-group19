@@ -110,8 +110,53 @@ public class GameFrame extends JFrame implements Observer {
         });
     }
 
-     //  ------ リトライと終了機能 ------
-     public void retryGame() {
+    //  ------ リトライと終了機能 -------------------------------
+
+    // 共通送信メソッド(これを作らないと以下メソッドの送受信のやり取りがめんどくさい(主語が設定がだるい))
+    public boolean sendMessage(String msg) {
+        if (commSV instanceof CommServer) return ((CommServer)commSV).send(msg);
+        else if (commSV instanceof CommClient) return ((CommClient)commSV).send(msg);
+        return false;
+    }
+
+    //  共通受信メソッド
+    public String receiveMessage() {
+        if (commSV instanceof CommServer) return ((CommServer)commSV).recv();
+        else if (commSV instanceof CommClient) return ((CommClient)commSV).recv();
+        return null;
+    }
+
+    public void tryRetry() {
+        //  通信待ち時のフリーズ回避のためにマルチスレッド
+        new Thread(() -> {
+            boolean isSend = sendMessage("RETRY");
+            System.out.println("リトライ要求を送信中・・・");
+
+            //  送信バッファに "RETRY" が置けてない
+            if (!isSend) {
+                SwingUtilities.invokeLater(() -> {
+                    //  ポップアップを表示
+                    JOptionPane.showMessageDialog(this, "通信が切断されています。");    //  自身側で通信が切断
+                    backToStart();
+                });
+                return;
+            }
+
+            //  相手の応答待機
+            String response = receiveMessage();
+            System.out.println("相手の応答: " + response);
+
+            SwingUtilities.invokeLater(() -> {
+                if (response.equals("RETRY")) {
+                    retryGame();
+                } else {
+                    JOptionPane.showMessageDialog(this, "相手がゲームを終了しました。");
+                    backToStart(); // 自分もスタートに戻る
+                }
+            });
+        }).start();
+    }
+    public void retryGame() {
         //  1度消して再生成
         this.getContentPane().removeAll();
         this.add(mainPanel, BorderLayout.CENTER);
@@ -139,6 +184,7 @@ public class GameFrame extends JFrame implements Observer {
         this.revalidate();
         this.repaint();
     }
+    //  ---------------------------------------------------
 
     @Override
     public void update(Observable o, Object arg) {
