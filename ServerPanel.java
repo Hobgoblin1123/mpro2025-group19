@@ -52,7 +52,6 @@ public class ServerPanel extends JPanel implements ActionListener {
             try {
                 //  --- 3. Commサーバーをインスタンス化 ---
                 CommServer sv = new CommServer(port);
-                System.out.println("接続に成功しました");
                 f.setCommSV(sv);
 
                 // --- 4. 接続成功後、ゲームを実行 ---
