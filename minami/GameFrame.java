@@ -10,6 +10,22 @@ import java.util.*;
 class Stage extends Observable implements KeyListener {
     private boolean gameOver = false;
 
+    private CommServer sv;
+    private CommClient cl;
+    private boolean isServer;
+
+    public Stage(Object comm) {
+        if (comm instanceof CommServer) {       //  次の行のキャスト時、commがCommClientだと困るからクラスの特定
+            this.sv = (CommServer) comm;
+            this.isServer = true;
+            System.out.println("Stage: サーバーモードで起動 (Port: " + sv.getPortNo() + ")");
+        } else if (comm instanceof CommClient) {
+            this.cl = (CommClient) comm;
+            this.isServer = false;
+            System.out.println("Stage: クライアントモードで起動");
+        }
+    }
+
     // gameOverのgetterメソッド
     public boolean isGameOver() {
         return this.gameOver;
@@ -79,11 +95,11 @@ public class GameFrame extends JFrame implements Observer {
         ((CardLayout) mainPanel.getLayout()).show(mainPanel, key);
     }
 
-    public void startGame(boolean isServer, int port, String host) {
+    public void startGame(boolean isServer, Object comm) {
         System.out.println("ゲーム開始: " + (isServer ? "Server" : "Client"));
 
         //  ゲームのステージ
-        Stage stage = new Stage();
+        Stage stage = new Stage(comm);
         stage.addObserver(this);
         
         //  リトライ後を考慮して古いキーリスナーは削除
@@ -117,6 +133,7 @@ public class GameFrame extends JFrame implements Observer {
     }
 
     public static void main(String argv[]) {
+        new GameFrame();
         new GameFrame();
     }
 }
