@@ -11,22 +11,22 @@ public class Bullet {
     private int bounds_x;
     private int radius;
     private int damage;
+    private int Shootdir;
     private Color color = new Color(255, 0, 0);
     private final static int dx = 5;
     private Timer timer;
     public boolean isActive = true;
 
-    public Bullet(Player owner, boolean server, int x, int y, int speed, int bounds_x, int radius, int damage,
+    public Bullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
             Color color) {
         this.ownerPlayer = owner;
-        this.server = server;
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.color = color;
-        this.bounds_x = bounds_x;
         this.radius = radius;
         this.damage = damage;
+        this.Shootdir = Shootdir;
     }
 
     public Bullet(int x, int y, int radius, Color color) {
@@ -42,11 +42,7 @@ public class Bullet {
     }
 
     public void move() {
-        if (this.server) {
-            x -= dx * speed;
-        } else {
-            x += dx * speed;
-        }
+        x += dx * speed * Shootdir;
     }
 
     public Player getOwner() {

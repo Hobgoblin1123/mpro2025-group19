@@ -3,18 +3,18 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class DownDiagonalBullet extends Bullet implements ActionListener{
+public class DownDiagonalBullet extends Bullet implements ActionListener {
     private final static int dy = 5;
 
-
-    public DownDiagonalBullet(Player owner, boolean server, int x, int y, int speed, int bounds_x, int radius, int damage, Color color){
-        super(owner, server, x, y, speed, bounds_x, radius, damage, color);
+    public DownDiagonalBullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
+            Color color) {
+        super(owner, x, y, speed, radius, damage, Shootdir, color);
     }
 
-    public void move(){
+    public void move() {
         super.move();
 
-        int  newY = super.getY() + dy * super.getSpeed();
+        int newY = super.getY() + dy * super.getSpeed();
         super.setY(newY);
 
     }

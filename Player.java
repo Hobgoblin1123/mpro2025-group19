@@ -13,13 +13,15 @@ class Player {
     private int bounds_x_min;
     private int bounds_y;
     private int radius;
+    private int Shootdir;
     private boolean isWin;
     private final static int dx = 5;
     private final static int dy = 5;
     private Image img;
+    private long beforeShootTime;
 
     public Player(int hp, int max_hp, int x, int y, int speed, int bounds_x_min, int bounds_x_max, int bounds_y,
-            int radius) {
+            int radius, int Shootdir) {
         this.hp = hp;
         this.max_hp = max_hp;
         this.x = x;
@@ -29,8 +31,9 @@ class Player {
         this.bounds_x_min = bounds_x_min;
         this.bounds_y = bounds_y;
         this.radius = radius;
+        this.Shootdir = Shootdir;
 
-        if (bounds_x_min == 0)
+        if (Shootdir == 1)
             this.img = new ImageIcon(getClass().getResource("player1.jpg")).getImage();
         else {
             this.img = new ImageIcon(getClass().getResource("player2.jpg")).getImage();
@@ -133,14 +136,23 @@ class Player {
     }
 
     public ArrayList<Bullet> tryShoot(int type) {
+
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - beforeShootTime < 1000) {
+            return null;
+        }
+
         ArrayList<Bullet> newBullets = new ArrayList<>();
-        if(type == 0){
-            newBullets.add(new Bullet(this, this.bounds_x_min == 20, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
-        }else if(type == 1){
-            newBullets.add(new CurveBullet(this, this.bounds_x_min == 20, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
-        }else if(type == 2){
-            newBullets.add(new UpDiagonalBullet(this, this.bounds_x_min == 20, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
-            newBullets.add(new DownDiagonalBullet(this, this.bounds_x_min == 20, dx, bounds_y, speed, bounds_x_min, radius, bounds_x_max, null));
+        if (type == 0) {
+            newBullets.add(new Bullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));
+            beforeShootTime = System.currentTimeMillis();
+        } else if (type == 1) {
+            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));
+            beforeShootTime = System.currentTimeMillis();
+        } else if (type == 2) {
+            newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));
+            newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));
+            beforeShootTime = System.currentTimeMillis();
         }
         return newBullets;
     }
