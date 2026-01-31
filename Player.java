@@ -137,11 +137,6 @@ class Player {
 
     public ArrayList<Bullet> tryShoot(int type) {
 
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - beforeShootTime < 1000) {
-            return null;
-        }
-
         ArrayList<Bullet> newBullets = new ArrayList<>();
         if (type == 0) {
             newBullets.add(new Bullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));

@@ -300,8 +300,8 @@ class MoveManager extends Observable {
 
         // Playerの初期化 (既存の引数に合わせつつ、調整)
         // ※ Playerクラスのコンストラクタに合わせて調整してください
-        player1 = new Player(10, 10, offset, y / 2, 1, 20, x / 2 - 20, y, 10, 1);
-        player2 = new Player(10, 10, x - offset - 20, y / 2, 1, x / 2 + 20, x - 20, y, 10, -1);
+        player1 = new Player(10, 10, offset, y / 2, 1, 20, x / 2 - 20, y, 20, 1);
+        player2 = new Player(10, 10, x - offset - 20, y / 2, 1, x / 2 + 20, x - 20, y, 20, -1);
 
         bullets = new ArrayList<>();
         // items = new ArrayList<>();

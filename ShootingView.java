@@ -140,11 +140,13 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 public class ShootingView extends JPanel implements Runnable, KeyListener {
 
     private MoveManager manager;
     private Thread gameThread;
+    private long beforeShootTime;
     private boolean[] keys = new boolean[256];
 
     private static final int WIDTH = 1200;
@@ -194,7 +196,25 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
             if (keys[KeyEvent.VK_DOWN])
                 manager.player1.moveDown();
             if (keys[KeyEvent.VK_SPACE]) {
-                manager.bullets.addAll(manager.player1.tryShoot(0));
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - beforeShootTime > 500) {
+                    manager.bullets.addAll(manager.player1.tryShoot(0));
+                    beforeShootTime = System.currentTimeMillis();
+                }
+            }
+            if (keys[KeyEvent.VK_Z]) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - beforeShootTime > 500) {
+                    manager.bullets.addAll(manager.player1.tryShoot(1));
+                    beforeShootTime = System.currentTimeMillis();
+                }
+            }
+            if (keys[KeyEvent.VK_Q]) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - beforeShootTime > 500) {
+                    manager.bullets.addAll(manager.player1.tryShoot(2));
+                    beforeShootTime = System.currentTimeMillis();
+                }
             }
             // Serverの発射処理はここに実装
         } else {
@@ -209,8 +229,33 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
                 manager.player2.moveDown();
             // ★重要: クライアントは「受信」する前に「送信」すること！
             // そうしないと、サーバー(受信待ち)とクライアント(受信待ち)で睨み合いになる
-            boolean isShooting = keys[KeyEvent.VK_SPACE];
-            manager.sendClientInput(isShooting, 0);
+            boolean isShooting = false;
+            int bulletType = 0;
+            if (keys[KeyEvent.VK_SPACE]) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - beforeShootTime > 500) {
+                    isShooting = true;
+                    bulletType = 0;
+                    beforeShootTime = System.currentTimeMillis();
+                }
+            }
+            if (keys[KeyEvent.VK_Z]) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - beforeShootTime > 500) {
+                    isShooting = true;
+                    bulletType = 1;
+                    beforeShootTime = System.currentTimeMillis();
+                }
+            }
+            if (keys[KeyEvent.VK_Q]) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - beforeShootTime > 500) {
+                    isShooting = true;
+                    bulletType = 2;
+                    beforeShootTime = System.currentTimeMillis();
+                }
+            }
+            manager.sendClientInput(isShooting, bulletType);
         }
     }
 
