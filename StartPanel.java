@@ -60,6 +60,7 @@ public class StartPanel extends JPanel implements ActionListener {
         // --- 4. リスナーの登録 ---
         serverBtn.addActionListener(this);
         clientBtn.addActionListener(this);
+        exitBtn.addActionListener(this);
 
         // --- 5. 構成要素を載せる ---
         this.add(bgPanel);
@@ -242,6 +243,9 @@ public class StartPanel extends JPanel implements ActionListener {
             f.showCard("SERVER");
         } else if (e.getSource() == clientBtn) {
             f.showCard("CLIENT");
+        } else if (e.getSource() == exitBtn) {
+            System.out.println("EXITボタンが選択されました.");
+            System.exit(0);
         }
     }
 }
