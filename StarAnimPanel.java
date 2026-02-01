@@ -14,6 +14,7 @@ public class StarAnimPanel extends JPanel implements ActionListener {
     // ★追加: 子クラスから変更できるように protected な変数にする
     protected float starMaxSize = 7.0f;   // 星の最大サイズ (デフォルト: 7px)
     protected int starMaxBrightness = 255; // 星の最大明るさ (0~255, デフォルト: 255)
+    protected double starMaxSpeed = 1;
 
     public StarAnimPanel() {
         // 背景色は描画メソッド(paintComponent)で塗るので、ここでは設定不要ですが、
@@ -70,7 +71,7 @@ public class StarAnimPanel extends JPanel implements ActionListener {
     // (継承先でクラス名が見えなくても動作はするのでprivateでも良いですが、もし調整したいならprotectedにします)
     protected class Star {
         double x, y, z; // 3次元座標的な扱い
-        double speed;
+        double speedFactor;
         
         Star() {
             reset(true);
@@ -87,12 +88,12 @@ public class StarAnimPanel extends JPanel implements ActionListener {
             } else {
                 z = 1000; // 遠くから出現
             }
-            speed = 5 + rand.nextInt(15); // スピードのばらつき
+            this.speedFactor = 5 + rand.nextInt(15); // スピードのばらつき
         }
 
         // 位置の更新
         void update() {
-            z -= speed; // 手前に近づく
+            z -= starMaxSpeed * speedFactor; // 手前に近づく
             if (z <= 0) {
                 reset(false); // 手前まで来たら奥に戻す
             }

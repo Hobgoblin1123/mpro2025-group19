@@ -81,7 +81,7 @@ public class StartPanel extends JPanel implements ActionListener {
         private boolean isflashed;
 
         public BackGroundPanel() {
-            this.starMaxSize = 10.0f;
+            this.starMaxSize = 12.0f;
             this.starMaxBrightness = 300;
             try {
                 bgImage_original = ImageIO.read(new File("images/start_image.jpg"));
@@ -93,6 +93,11 @@ public class StartPanel extends JPanel implements ActionListener {
         //  外部からの呼び出し関数
         public void flashImage(boolean isflashed) {
             this.isflashed = isflashed;
+            if (isflashed) {
+                starMaxSpeed = 0.1f;
+            } else {
+                starMaxSpeed = 1f;
+            }
             repaint();
         }
 
