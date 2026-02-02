@@ -14,7 +14,7 @@ public class DownDiagonalBullet extends Bullet implements ActionListener {
     public void move() {
         super.move();
 
-        int newY = super.getY() + dy * super.getSpeed();
+        int newY = (int)(super.getY() + 0.4 * dy * super.getSpeed());
         super.setY(newY);
 
     }
