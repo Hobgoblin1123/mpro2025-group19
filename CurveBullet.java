@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 public class CurveBullet extends Bullet implements ActionListener {
     double time = 0;
     double frequency = 0.3;
-    double amplitude = 20;
+    double amplitude = 40;
     int y = super.getY();
 
     public CurveBullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
