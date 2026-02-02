@@ -143,7 +143,7 @@ class Player {
             newBullets.add(new Bullet(this, this.getX(), this.getY(), 2, 5, 1, Shootdir, null));
         } else if (type == 1) {
             // 曲線弾
-            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 2, 5, 1, Shootdir, null));
+            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 4, 5, 1, Shootdir, null));
         } else if (type == 2) {
             // 斜め2方向弾
             newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 5, 1, Shootdir, null));
