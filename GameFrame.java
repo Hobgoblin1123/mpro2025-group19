@@ -202,7 +202,6 @@ public class GameFrame extends JFrame implements Observer {
             ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
             this.add(result, BorderLayout.CENTER);
 
-            this.revalidate(); // レイアウトの再計算
             this.repaint();
         });
     }

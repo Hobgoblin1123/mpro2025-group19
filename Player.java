@@ -19,6 +19,7 @@ class Player {
     private Image img;
     private long beforeShootTime;
     private boolean isWin = false;
+    private float shakeTime = 0;
 
     public Player(int hp, int max_hp, int x, int y, int speed, int bounds_x_min, int bounds_x_max, int bounds_y,
             int radius, int Shootdir) {
@@ -34,9 +35,9 @@ class Player {
         this.Shootdir = Shootdir;
 
         if (Shootdir == 1)
-            this.img = new ImageIcon(getClass().getResource("player1.jpg")).getImage();
+            this.img = new ImageIcon(getClass().getResource("player1T.png")).getImage();
         else {
-            this.img = new ImageIcon(getClass().getResource("player2.jpg")).getImage();
+            this.img = new ImageIcon(getClass().getResource("player2T.png")).getImage();
         }
     }
 
@@ -79,6 +80,7 @@ class Player {
 
     public int hit(int damage) {
         hp -= damage;
+        shakeTime = 15;
         if (hp < 0) {
             hp = 0;
         }
@@ -106,6 +108,10 @@ class Player {
         return (hp <= 0);
     }
 
+    public float getShakeTime() {
+        return this.shakeTime;
+    }
+
     public void setXY(int x, int y) {
         this.x = x;
         this.y = y;
@@ -127,6 +133,10 @@ class Player {
         return radius;
     }
 
+    public void passShakeTime() {
+        this.shakeTime -= 1;
+    }
+
     public void setIsWin(boolean isWin) {
         this.isWin = isWin;
     }
@@ -140,14 +150,14 @@ class Player {
         ArrayList<Bullet> newBullets = new ArrayList<>();
         if (type == 0) {
             // 直進弾
-            newBullets.add(new Bullet(this, this.getX(), this.getY(), 2, 5, 1, Shootdir, null));
+            newBullets.add(new Bullet(this, this.getX(), this.getY(), 2, 30, 1, Shootdir, null));
         } else if (type == 1) {
             // 曲線弾
-            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 2, 5, 1, Shootdir, null));
+            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 1, 30, 1, Shootdir, null));
         } else if (type == 2) {
             // 斜め2方向弾
-            newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 5, 1, Shootdir, null));
-            newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), 2, 5, 1, Shootdir, null));
+            newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 1, 20, 1, Shootdir, null));
+            newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), 1, 20, 1, Shootdir, null));
         }
         return newBullets;
     }

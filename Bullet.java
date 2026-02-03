@@ -16,6 +16,7 @@ public class Bullet {
     private final static int dx = 5;
     private Timer timer;
     public boolean isActive = true;
+    private Image img;
 
     public Bullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
             Color color) {
@@ -27,6 +28,8 @@ public class Bullet {
         this.radius = radius;
         this.damage = damage;
         this.Shootdir = Shootdir;
+        this.img = new ImageIcon(getClass().getResource("meteor.png")).getImage();
+
     }
 
     public Bullet(int x, int y, int radius, Color color) {
@@ -34,11 +37,13 @@ public class Bullet {
         this.y = y;
         this.color = color;
         this.radius = radius;
+        this.img = new ImageIcon(getClass().getResource("meteor.png")).getImage();
     }
 
     public void draw(Graphics g) {
         g.setColor(this.color);
-        g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        // g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+        g.drawImage(img, x - radius, y - radius, 2 * radius, 2 * radius, null);
     }
 
     public void move() {

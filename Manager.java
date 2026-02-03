@@ -2,13 +2,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.Observable; // GameFrameとの連携に残しておきます
+import java.util.Observable;
 
-// Observableを継承したまま、中身をShooterModel風に改造
-
-@SuppressWarnings("deprecation")
+@SuppressWarnings("deprecation") // 非推奨Componentを使用しても警告が出ないようにする
 class MoveManager extends Observable {
-    // 通信関係
     private boolean server;
     private CommServer sv = null;
     private CommClient cl = null;
@@ -17,9 +14,6 @@ class MoveManager extends Observable {
     public int court_size_x, court_size_y;
     public Player player1, player2;
     public ArrayList<Bullet> bullets;
-
-    // public ArrayList<PowerUpItem> items; // アイテムクラスを作ったら有効化
-    // public ArrayList<Star> stars; // 星クラスを作ったら有効化
 
     public String winner = "";
     public boolean isRunning = true;
@@ -195,7 +189,7 @@ class MoveManager extends Observable {
             String[] sections = msg.split("#", -1);
             if (sections.length < 2)
                 return;
-
+            int old_hp = player2.getHp();
             // 1. プレイヤー情報
             // split(",", -1) にして、末尾の空文字(winner)を消さないようにする
             String[] basic = sections[0].split(",", -1);
@@ -206,16 +200,17 @@ class MoveManager extends Observable {
                 player1.setHP(Integer.parseInt(basic[2]));
                 player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));
                 player2.setHP(Integer.parseInt(basic[5]));
+                if (Integer.parseInt(basic[5]) < old_hp) {
+                    player1.hit(0);
+                }
                 winner = basic[6]; // 空文字でもエラーにならず代入される
 
                 if (!winner.isEmpty()) {
 
                     if ("player1".equals(winner)) {
                         player1.setIsWin(false);
-                        System.out.println("1111111111");
                     }
                     if ("player2".equals(winner)) {
-                        System.out.println("2222222222");
                         player1.setIsWin(true);
                     }
                     isRunning = false;
@@ -261,7 +256,6 @@ class MoveManager extends Observable {
 
     // 終了通知
     public void gameEnd() {
-        System.out.println("vvvvvvvvvvvvvvvvvvvv\n");
         setChanged();
         notifyObservers();
     }
