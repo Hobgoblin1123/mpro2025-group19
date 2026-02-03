@@ -170,8 +170,19 @@ class MoveManager extends Observable {
             // Color取得時にnullチェックを入れると安全
             int rgb = (b.getColor() != null) ? b.getColor().getRGB() : Color.RED.getRGB();
 
+            //弾の型判定
+            int type = 0;
+            if (b instanceof CurveBullet) {
+                type = 1;
+            } else if (b instanceof UpDiagonalBullet) {
+                type = 2;
+            } else if (b instanceof DownDiagonalBullet) {
+                type = 3;
+            }
             sb.append(b.getX()).append(",").append(b.getY()).append(",")
-                    .append(b.getRadius()).append(",").append(rgb).append(";");
+                    .append(b.getRadius()).append(",").append(rgb).append(",")
+                    .append(b.getShootdir()).append(",")
+                    .append(type).append(";");
         }
         sb.append("#");
 
@@ -226,15 +237,28 @@ class MoveManager extends Observable {
                     if (bStr.isEmpty())
                         continue;
                     String[] val = bStr.split(",");
-                    if (val.length >= 4) {
+                    if (val.length >= 6) {
                         int bx = Integer.parseInt(val[0]);
                         int by = Integer.parseInt(val[1]);
                         int br = Integer.parseInt(val[2]);
                         // 色情報のパース
                         Color bc = new Color(Integer.parseInt(val[3]));
+                        //どちらの弾か
+                        int bs = Integer.parseInt(val[4]);
+                        //なんの弾か
+                        int type = Integer.parseInt(val[5]);
 
                         // 受信専用のBulletを作る
-                        bullets.add(new Bullet(bx, by, br, bc));
+
+                        if (type == 0) {
+                            bullets.add(new Bullet(bx, by, br, bc, bs));
+                        } else if(type == 1) {
+                            bullets.add(new CurveBullet(bx, by, br, bc, bs));
+                        } else if (type == 2) {
+                            bullets.add(new UpDiagonalBullet(bx, by, br, bc, bs));
+                        } else if (type == 3) {
+                            bullets.add(new DownDiagonalBullet(bx, by, br, bc, bs));
+                        }
                     }
                 }
             }

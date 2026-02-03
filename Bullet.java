@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import javax.swing.ImageIcon;
 
 public class Bullet {
     private Player ownerPlayer;
@@ -28,20 +29,28 @@ public class Bullet {
         this.radius = radius;
         this.damage = damage;
         this.Shootdir = Shootdir;
-        this.img = new ImageIcon(getClass().getResource("meteor.png")).getImage();
-
+        if (Shootdir == 1)
+            this.img = new ImageIcon(getClass().getResource("./images/Bullet1.png")).getImage();
+        else {
+            this.img = new ImageIcon(getClass().getResource("./images/Bullet2.png")).getImage();
+        }
     }
 
-    public Bullet(int x, int y, int radius, Color color) {
+    public Bullet(int x, int y, int radius, Color color, int Shootdir) {
         this.x = x;
         this.y = y;
         this.color = color;
         this.radius = radius;
-        this.img = new ImageIcon(getClass().getResource("meteor.png")).getImage();
+        this.Shootdir = Shootdir;
+        if (Shootdir == 1)
+            this.img = new ImageIcon(getClass().getResource("./images/Bullet1.png")).getImage();
+        else {
+            this.img = new ImageIcon(getClass().getResource("./images/Bullet2.png")).getImage();
+        }
     }
 
     public void draw(Graphics g) {
-        g.setColor(this.color);
+        // g.setColor(this.color);
         // g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
         g.drawImage(img, x - radius, y - radius, 2 * radius, 2 * radius, null);
     }
@@ -60,6 +69,10 @@ public class Bullet {
 
     public int getY() {
         return this.y;
+    }
+
+    public int getShootdir() {
+        return this.Shootdir;
     }
 
     public void setY(int y) {
