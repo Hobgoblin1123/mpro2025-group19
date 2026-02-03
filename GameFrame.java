@@ -1,7 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
+
+import java.util.Observable;
+import java.util.Observer;
 
 //  動作確認用
 @SuppressWarnings("deprecation")
@@ -38,6 +40,7 @@ public class GameFrame extends JFrame implements Observer {
     private JPanel gamePanel;
     private Object commSV;
     private MoveManager mm;
+    private ShootingView view;
 
     // setterメソッド
     public void setCommSV(Object comm) {
@@ -90,7 +93,7 @@ public class GameFrame extends JFrame implements Observer {
         mm.addObserver(this); // ゲーム終了監視用
 
         // 2. ShootingView (描画パネル) の作成
-        ShootingView view = new ShootingView(mm);
+        view = new ShootingView(mm);
 
         // 3. 画面への追加処理
         gamePanel.removeAll(); // 前のゲーム画面があれば消す
@@ -194,17 +197,19 @@ public class GameFrame extends JFrame implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        System.out.println("ゲームが終了しました");
         // stage変数を通じてStageクラスのメソッドやフィールドにアクセスできるようにする
-
-        SwingUtilities.invokeLater(() -> {
-            this.getContentPane().removeAll();
-            ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
-            this.add(result, BorderLayout.CENTER);
-
-            this.revalidate();// レイアウトの再計算
-            this.repaint();
+        Timer timer = new Timer(2000, e -> {
+            SwingUtilities.invokeLater(() -> {
+                this.getContentPane().removeAll();
+                ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
+                this.add(result, BorderLayout.CENTER);
+                this.revalidate();// レイアウトの再計算
+                this.repaint();
+            });
         });
+        timer.setRepeats(false); // 1回だけ
+        timer.start();
+
     }
 
     public static void main(String argv[]) {

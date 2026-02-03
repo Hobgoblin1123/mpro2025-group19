@@ -4,8 +4,11 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ShootingView extends JPanel implements Runnable, KeyListener {
+@SuppressWarnings("deprecation")
+public class ShootingView extends JPanel implements Runnable, KeyListener, Observer {
 
     private int shakeX, shakeY;
     private double shakeAngle = 0;
@@ -13,8 +16,10 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
     private MoveManager manager;
     private Thread gameThread;
     private long beforeShootTime;
-    private long nowTime, startedTime;
+    private long nowTime, startedTime, endTime;
     private Font pixelFont;
+    private Font fontLarge;
+    private Font fontSmall;
     private boolean[] keys = new boolean[256];
 
     private static final int WIDTH = 1200;
@@ -22,6 +27,7 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
 
     public ShootingView(MoveManager manager) {
         this.manager = manager;
+        manager.addObserver(this);
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
         setFocusable(true);
@@ -30,13 +36,29 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
         gameThread = new Thread(this);
         gameThread.start();
         startedTime = System.currentTimeMillis();
+        try {
+            File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
+            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+
+            fontLarge = baseFont.deriveFont(Font.BOLD, 60f);
+            fontSmall = baseFont.deriveFont(Font.BOLD, 10f);
+
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(baseFont);
+
+        } catch (Exception e) {
+            // フォールバック（失敗しても落ちない）
+            fontLarge = new Font("Monospaced", Font.BOLD, 200);
+            fontSmall = new Font("Monospaced", Font.BOLD, 10);
+        }
     }
 
     @Override
     public void run() {
         System.out.println("ゲームループ開始"); // ★デバッグ用
-        while (manager.isRunning) {
+        while (getpassedEndTime() > 4000) {
             try {
+
                 processInput();
 
                 // ★デバッグ用: どこで止まっているか確認
@@ -45,14 +67,14 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
                 // System.out.println("画面更新");
                 manager.update();
 
-                this.revalidate(); // レイアウトの再計算
-
                 repaint();
                 Thread.sleep(16);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
     }
 
     private void processInput() {
@@ -134,26 +156,31 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
 
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        if (manager.getPlayer().getShakeTime() > 0) {
-            shakeX = (int) (Math.cos(shakeAngle) * 30);
-            shakeY = (int) (Math.sin(shakeAngle) * 30);
-            shakeAngle += 1.0;
-            manager.getPlayer().passShakeTime();
-            g2.setColor(new Color(255, 0, 0, 80)); // 半透明赤
-            g2.fillRect(0, 0, getWidth(), getHeight());
-        } else {
-            shakeX = 0;
-            shakeY = 0;
-        }
-        g2.translate(shakeX, shakeY);
 
         if (manager != null) {
+
+            if (manager.getPlayer().getShakeTime() > 0) {
+                shakeX = (int) (Math.cos(shakeAngle) * 30);
+                shakeY = (int) (Math.sin(shakeAngle) * 30);
+                shakeAngle += 1.0;
+                manager.getPlayer().passShakeTime();
+                g2.setColor(new Color(255, 0, 0, 80)); // 半透明赤
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            } else {
+                shakeX = 0;
+                shakeY = 0;
+            }
+            g2.translate(shakeX, shakeY);
             manager.draw(g2);
             drawUI(g2);
 
             nowTime = System.currentTimeMillis();
             if (nowTime - startedTime < 800) {
+
                 drawStart(g2);
+            }
+            if (manager.isRunning == false) {
+                drawGameset(g2);
             }
         }
 
@@ -171,27 +198,9 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
 
     private void drawStart(Graphics g) {
         // フォントの登録
-        try {
-            // fontsフォルダに入れたファイル名を指定
-            File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
-            // フォントを作成 (サイズは後で deriveFont で変えられる)
-            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
-            // 太字(BOLD)でサイズ24にする
-            pixelFont = baseFont.deriveFont(Font.BOLD, 40);
-            // グラフィックス環境に登録（これをしておくとシステム全体で認識されることもある）
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(baseFont);
-
-        } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
-            // 読み込み失敗時はデフォルトのフォントを使うなどの保険
-            pixelFont = new Font("Monospaced", Font.BOLD, 60);
+        if (fontLarge != null) {
+            g.setFont(fontLarge);
         }
-
-        if (pixelFont != null) {
-            g.setFont(pixelFont);
-        }
-
         String text = "START";
         FontMetrics fm = g.getFontMetrics();
 
@@ -207,31 +216,35 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
         g.drawString(text, textX, textY);
     }
 
+    private void drawGameset(Graphics g) {
+        // フォントの登録
+        if (fontLarge != null) {
+            g.setFont(fontLarge);
+        }
+        String text = "GAMESET";
+        FontMetrics fm = g.getFontMetrics();
+
+        // 「手前の緑色のエリア」の中心を計算
+        // 左端(pad) + 傾き半分(skew/2) + 幅半分(shapeW/2)
+        float centerX = 600;
+        float centerY = 400;
+
+        int textX = (int) (centerX - fm.stringWidth(text) / 2);
+        int textY = (int) (centerY - fm.getAscent() / 2) + fm.getAscent() - offset;
+
+        g.setColor(Color.RED);
+        g.drawString(text, textX, textY);
+    }
+
     private void drawPlayerStatus(Graphics g, Player p, int x, int y) {
-        try {
-            // fontsフォルダに入れたファイル名を指定
-            File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
-            // フォントを作成 (サイズは後で deriveFont で変えられる)
-            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
-            // 太字(BOLD)でサイズ24にする
-            pixelFont = baseFont.deriveFont(Font.BOLD, 10);
-            // グラフィックス環境に登録（これをしておくとシステム全体で認識されることもある）
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(baseFont);
 
-        } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
-            // 読み込み失敗時はデフォルトのフォントを使うなどの保険
-            pixelFont = new Font("Monospaced", Font.BOLD, 10);
-        }
-
-        if (pixelFont != null) {
-            g.setFont(pixelFont);
-        }
         g.setColor(Color.WHITE);
-        g.drawString("HP: " + p.getHp(), x, y);
 
+        if (fontSmall != null) {
+            g.setFont(fontSmall);
+        }
         // HPバー
+        g.drawString("HP: " + p.getHp(), x, y);
         g.setColor(Color.GRAY);
         g.fillRect(x + 50, y - 10, 200, 10);
 
@@ -243,6 +256,11 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
             hpWidth = 0;
 
         g.fillRect(x + 50, y - 10, hpWidth, 10);
+    }
+
+    public long getpassedEndTime() {
+        nowTime = System.currentTimeMillis();
+        return this.nowTime - endTime;
     }
 
     @Override
@@ -262,4 +280,12 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
     public void keyTyped(KeyEvent e) {
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        System.out.println("ゲームが終了しました");
+        endTime = System.currentTimeMillis();
+
+        // stage変数を通じてStageクラスのメソッドやフィールドにアクセスできるようにする
+
+    }
 }
