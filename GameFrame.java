@@ -37,6 +37,7 @@ public class GameFrame extends JFrame implements Observer {
     private JPanel mainPanel;
     private JPanel gamePanel;
     private Object commSV;
+    private MoveManager mm;
 
     // setterメソッド
     public void setCommSV(Object comm) {
@@ -85,7 +86,7 @@ public class GameFrame extends JFrame implements Observer {
 
         // 1. MoveManager (ゲームロジック) の作成
         // 既存の通信オブジェクト(comm)を渡す
-        MoveManager mm = new MoveManager(1200, 800, 30, isServer, comm);
+        mm = new MoveManager(1200, 800, 30, isServer, comm);
         mm.addObserver(this); // ゲーム終了監視用
 
         // 2. ShootingView (描画パネル) の作成
@@ -110,39 +111,43 @@ public class GameFrame extends JFrame implements Observer {
         });
     }
 
-    //  ------ リトライと終了機能 -------------------------------
+    // ------ リトライと終了機能 -------------------------------
 
     // 共通送信メソッド(これを作らないと以下メソッドの送受信のやり取りがめんどくさい(主語が設定がだるい))
     public boolean sendMessage(String msg) {
-        if (commSV instanceof CommServer) return ((CommServer)commSV).send(msg);
-        else if (commSV instanceof CommClient) return ((CommClient)commSV).send(msg);
+        if (commSV instanceof CommServer)
+            return ((CommServer) commSV).send(msg);
+        else if (commSV instanceof CommClient)
+            return ((CommClient) commSV).send(msg);
         return false;
     }
 
-    //  共通受信メソッド
+    // 共通受信メソッド
     public String receiveMessage() {
-        if (commSV instanceof CommServer) return ((CommServer)commSV).recv();
-        else if (commSV instanceof CommClient) return ((CommClient)commSV).recv();
+        if (commSV instanceof CommServer)
+            return ((CommServer) commSV).recv();
+        else if (commSV instanceof CommClient)
+            return ((CommClient) commSV).recv();
         return null;
     }
 
     public void tryRetry() {
-        //  通信待ち時のフリーズ回避のためにマルチスレッド
+        // 通信待ち時のフリーズ回避のためにマルチスレッド
         new Thread(() -> {
             boolean isSend = sendMessage("RETRY");
             System.out.println("リトライ要求を送信中・・・");
 
-            //  送信バッファに "RETRY" が置けてない
+            // 送信バッファに "RETRY" が置けてない
             if (!isSend) {
                 SwingUtilities.invokeLater(() -> {
-                    //  ポップアップを表示
-                    JOptionPane.showMessageDialog(this, "通信が切断されています。");    //  自身側で通信が切断
+                    // ポップアップを表示
+                    JOptionPane.showMessageDialog(this, "通信が切断されています。"); // 自身側で通信が切断
                     backToStart();
                 });
                 return;
             }
 
-            //  相手の応答待機
+            // 相手の応答待機
             String response = receiveMessage();
             System.out.println("相手の応答: " + response);
 
@@ -156,22 +161,23 @@ public class GameFrame extends JFrame implements Observer {
             });
         }).start();
     }
+
     public void retryGame() {
-        //  1度消して再生成
+        // 1度消して再生成
         this.getContentPane().removeAll();
         this.add(mainPanel, BorderLayout.CENTER);
 
         boolean isServer = (commSV instanceof CommServer);
         startGame(isServer, commSV);
 
-        this.revalidate();  // レイアウトの再計算
+        this.revalidate(); // レイアウトの再計算
         this.repaint();
     }
 
     public void backToStart() {
-        //  通信の切断
+        // 通信の切断
         if (commSV instanceof CommServer) {
-            ((CommServer) commSV).close();      //  念のためキャスト(下も同じ)
+            ((CommServer) commSV).close(); // 念のためキャスト(下も同じ)
         } else if (commSV instanceof CommClient) {
             ((CommClient) commSV).close();
         }
@@ -184,22 +190,21 @@ public class GameFrame extends JFrame implements Observer {
         this.revalidate();
         this.repaint();
     }
-    //  ---------------------------------------------------
+    // ---------------------------------------------------
 
     @Override
     public void update(Observable o, Object arg) {
         System.out.println("ゲームが終了しました");
         // stage変数を通じてStageクラスのメソッドやフィールドにアクセスできるようにする
-        Stage stage = (Stage) o;
 
-        if (stage.isGameOver()) {
+        SwingUtilities.invokeLater(() -> {
             this.getContentPane().removeAll();
-            ResultPanel result = new ResultPanel(this, true);
+            ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
             this.add(result, BorderLayout.CENTER);
 
             this.revalidate(); // レイアウトの再計算
             this.repaint();
-        }
+        });
     }
 
     public static void main(String argv[]) {

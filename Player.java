@@ -14,11 +14,11 @@ class Player {
     private int bounds_y;
     private int radius;
     private int Shootdir;
-    private boolean isWin;
     private final static int dx = 5;
     private final static int dy = 5;
     private Image img;
     private long beforeShootTime;
+    private boolean isWin = false;
 
     public Player(int hp, int max_hp, int x, int y, int speed, int bounds_x_min, int bounds_x_max, int bounds_y,
             int radius, int Shootdir) {
@@ -127,11 +127,11 @@ class Player {
         return radius;
     }
 
-    public void setWin(boolean isWin) {
+    public void setIsWin(boolean isWin) {
         this.isWin = isWin;
     }
 
-    public boolean getWin() {
+    public boolean getIsWin() {
         return isWin;
     }
 
@@ -139,15 +139,15 @@ class Player {
 
         ArrayList<Bullet> newBullets = new ArrayList<>();
         if (type == 0) {
-            newBullets.add(new Bullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));
-            beforeShootTime = System.currentTimeMillis();
+            // 直進弾
+            newBullets.add(new Bullet(this, this.getX(), this.getY(), 2, 10, 1, Shootdir, null));
         } else if (type == 1) {
-            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));
-            beforeShootTime = System.currentTimeMillis();
+            // 曲線弾
+            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 4, 8, 1, Shootdir, null));
         } else if (type == 2) {
-            newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));
-            newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), speed, radius, 1, Shootdir, null));
-            beforeShootTime = System.currentTimeMillis();
+            // 斜め2方向弾
+            newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 10, 1, Shootdir, null));
+            newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), 2, 10, 1, Shootdir, null));
         }
         return newBullets;
     }

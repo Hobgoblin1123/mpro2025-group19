@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.net.InetAddress;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 
@@ -47,7 +49,18 @@ public class ServerPanel extends JPanel implements ActionListener {
         portNum.setText(String.valueOf(port));  //  int型をstring型に変換してラベル更新
         statusLbl.setText("接続待機中・・・");
 
-        //  --- 2. 別スレッドで接続待ちを開始 (マルチスレッドを実現 = 裏で処理を行う) ---
+        // --- 2. 自分のIPアドレスを取得して表示する ---
+        String myIP = "不明";
+        try {
+            myIP = InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // ラベルに IP と ポートの両方を表示してあげる
+        portNum.setText("IP: " + myIP + " / ID: " + port); 
+        statusLbl.setText("接続待機中・・・");
+
+        //  --- 3. 別スレッドで接続待ちを開始 (マルチスレッドを実現 = 裏で処理を行う) ---
         // new Thread(new Runnable() {
         //     @Override
         //     public void run() {  // ← カッコの中（引数）が空っぽ！
@@ -56,13 +69,13 @@ public class ServerPanel extends JPanel implements ActionListener {
         // });  以下の文はこれと同義
         new Thread(() -> {
             try {
-                //  --- 3. Commサーバーをインスタンス化 ---
+                //  --- 4. Commサーバーをインスタンス化 ---
                 CommServer sv = new CommServer(port);
                 f.setCommSV(sv);
 
                 System.out.println("接続に成功しました");
 
-                // --- 4. 接続成功後、ゲームを実行 ---
+                // --- 5. 接続成功後、ゲームを実行 ---
                 SwingUtilities.invokeLater(() -> {
                     // ここを変更: ポート番号ではなく、生成した sv (CommServer) を直接渡す
                     f.startGame(true, sv);
