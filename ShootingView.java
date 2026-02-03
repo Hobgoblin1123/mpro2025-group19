@@ -68,14 +68,14 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
             }
             if (keys[KeyEvent.VK_Z]) {
                 long currentTime = System.currentTimeMillis();
-                if (currentTime - beforeShootTime > 500) {
+                if (currentTime - beforeShootTime > 300) {
                     manager.bullets.addAll(manager.player1.tryShoot(1));
                     beforeShootTime = System.currentTimeMillis();
                 }
             }
             if (keys[KeyEvent.VK_Q]) {
                 long currentTime = System.currentTimeMillis();
-                if (currentTime - beforeShootTime > 500) {
+                if (currentTime - beforeShootTime > 300) {
                     manager.bullets.addAll(manager.player1.tryShoot(2));
                     beforeShootTime = System.currentTimeMillis();
                 }
@@ -97,7 +97,7 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
             int bulletType = 0;
             if (keys[KeyEvent.VK_SPACE]) {
                 long currentTime = System.currentTimeMillis();
-                if (currentTime - beforeShootTime > 300) {
+                if (currentTime - beforeShootTime > 500) {
                     isShooting = true;
                     bulletType = 0;
                     beforeShootTime = System.currentTimeMillis();
@@ -135,7 +135,6 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
             manager.getPlayer().passShakeTime();
             g2.setColor(new Color(255, 0, 0, 80)); // 半透明赤
             g2.fillRect(0, 0, getWidth(), getHeight());
-            System.out.println("OOOOOOOOOOOOOOOO");
         } else {
             shakeX = 0;
             shakeY = 0;

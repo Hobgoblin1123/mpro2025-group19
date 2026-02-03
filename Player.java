@@ -150,10 +150,10 @@ class Player {
         ArrayList<Bullet> newBullets = new ArrayList<>();
         if (type == 0) {
             // 直進弾
-            newBullets.add(new Bullet(this, this.getX(), this.getY(), 2, 10, 1, Shootdir, null));
+            newBullets.add(new Bullet(this, this.getX(), this.getY(), 4, 10, 1, Shootdir, null));
         } else if (type == 1) {
             // 曲線弾
-            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 4, 8, 1, Shootdir, null));
+            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 1, 8, 1, Shootdir, null));
         } else if (type == 2) {
             // 斜め2方向弾
             newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 10, 1, Shootdir, null));
