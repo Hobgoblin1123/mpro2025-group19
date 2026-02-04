@@ -8,8 +8,12 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+<<<<<<< HEAD
+public class ShootingView extends StarAnimPanel implements Runnable, KeyListener {
+=======
 @SuppressWarnings("deprecation")
 public class ShootingView extends JPanel implements Runnable, KeyListener, Observer {
+>>>>>>> da28a60c95314271d0fc6430517a638ea7feb4fd
 
     private int shakeX, shakeY;
     private double shakeAngle = 0;
@@ -30,6 +34,9 @@ public class ShootingView extends JPanel implements Runnable, KeyListener, Obser
         this.manager = manager;
         manager.addObserver(this);
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
+
+        this.setHorizontalMode(true);
+        this.starMaxSpeed = 0.3;
         setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
@@ -196,10 +203,10 @@ public class ShootingView extends JPanel implements Runnable, KeyListener, Obser
     // UI描画（NetworkShooterから移植）
     private void drawUI(Graphics g) {
         // Player1 (Server) のステータス
-        drawPlayerStatus(g, manager.player1, 20, HEIGHT - 100);
+        drawPlayerStatus(g, manager.player1, 20, HEIGHT - 80);
 
         // Player2 (Client) のステータス
-        drawPlayerStatus(g, manager.player2, 20, 50);
+        drawPlayerStatus(g, manager.player2, 20, 30);
     }
 
     private void drawStart(Graphics g) {
@@ -262,6 +269,8 @@ public class ShootingView extends JPanel implements Runnable, KeyListener, Obser
             hpWidth = 0;
 
         g.fillRect(x + 50, y - 10, hpWidth, 10);
+        g.setColor(Color.WHITE);
+        g.drawRect(x + 50, y - 10, 200, 10);
     }
 
     public long getpassedEndTime() {
