@@ -3,7 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
-public class ShootingView extends JPanel implements Runnable, KeyListener {
+public class ShootingView extends StarAnimPanel implements Runnable, KeyListener {
 
     private int shakeX, shakeY;
     private double shakeAngle = 0;
@@ -18,6 +18,9 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
     public ShootingView(MoveManager manager) {
         this.manager = manager;
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
+
+        this.setHorizontalMode(true);
+        this.starMaxSpeed = 0.3;
         setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
@@ -152,10 +155,10 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
     // UI描画（NetworkShooterから移植）
     private void drawUI(Graphics g) {
         // Player1 (Server) のステータス
-        drawPlayerStatus(g, manager.player1, 20, HEIGHT - 100);
+        drawPlayerStatus(g, manager.player1, 20, HEIGHT - 80);
 
         // Player2 (Client) のステータス
-        drawPlayerStatus(g, manager.player2, 20, 50);
+        drawPlayerStatus(g, manager.player2, 20, 30);
     }
 
     private void drawPlayerStatus(Graphics g, Player p, int x, int y) {
@@ -174,6 +177,8 @@ public class ShootingView extends JPanel implements Runnable, KeyListener {
             hpWidth = 0;
 
         g.fillRect(x + 50, y - 10, hpWidth, 10);
+        g.setColor(Color.WHITE);
+        g.drawRect(x + 50, y - 10, 200, 10);
     }
 
     @Override
