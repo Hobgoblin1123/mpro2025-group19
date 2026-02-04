@@ -20,16 +20,16 @@ public class UpDiagonalBullet extends Bullet implements ActionListener {
     public UpDiagonalBullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion, int AnimationFrames) {
         super(x, y, radius, color, Shootdir, state_explosion, AnimationFrames);
         if (state_explosion == 1) {
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion1.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/UpDownBulletExplosion1.png")).getImage();
             this.radius = 20;
         } else if (state_explosion == 2) {
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion2.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/UpDownBulletExplosion2.png")).getImage();
             this.radius += 3;
         } else if (state_explosion == 3) {
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion3.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/UpDownBulletExplosion3.png")).getImage();
             this.radius += 3;
         } else if (state_explosion == 4) {
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion4.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/UpDownBulletExplosion4.png")).getImage();
             this.radius = 10;
         } else if (state_explosion != 5 && Shootdir == 1)
             this.img = new ImageIcon(getClass().getResource("./images/UpDiagonalBullet1.png")).getImage();
@@ -39,7 +39,27 @@ public class UpDiagonalBullet extends Bullet implements ActionListener {
     }
 
     public boolean explosion() {
-        return super.explosion();
+        if(this.state_explosion == 1){
+            this.img = new ImageIcon(getClass().getResource("./images/UpDownBulletExplosion1.png")).getImage();
+            this.radius = 20;
+            return true;
+        }else if(this.state_explosion == 2 && this.AnimationFrames == 5){
+            this.img = new ImageIcon(getClass().getResource("./images/UpDownBulletExplosion2.png")).getImage();
+            this.radius += 3;
+            return true;
+        }else if(this.state_explosion == 3 && this.AnimationFrames == 5){
+            this.img = new ImageIcon(getClass().getResource("./images/UpDownBulletExplosion3.png")).getImage();
+            this.radius += 3;
+            return true;
+        }else if(this.state_explosion == 4 && this.AnimationFrames == 5){
+            this.img = new ImageIcon(getClass().getResource("./images/UpDownBulletExplosion4.png")).getImage();
+            this.radius = 10;
+            return true;
+        }else if(this.state_explosion == 5 && this.AnimationFrames == 5){
+            this.isActive = false;
+            return true;
+        }
+        return false;
     }
 
     public void draw(Graphics g) {
@@ -52,7 +72,7 @@ public class UpDiagonalBullet extends Bullet implements ActionListener {
         super.move();
 
         if(super.getStateExplosion() == 0){
-            int newY = (int)(super.getY() - 0.4 * dy * super.getSpeed());
+            int newY = (int)(super.getY() - 0.2 * dy * super.getSpeed());
             super.setY(newY);
         }
 

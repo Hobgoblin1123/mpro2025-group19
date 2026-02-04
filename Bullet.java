@@ -18,8 +18,8 @@ public class Bullet {
     private Timer timer;
     public boolean isActive = true;
     protected Image img;
-    private int state_explosion = 0;
-    private int AnimationFrames;
+    protected int state_explosion = 0;
+    protected int AnimationFrames;
 
     public Bullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
             Color color) {
@@ -48,16 +48,16 @@ public class Bullet {
         this.state_explosion = state_explosion;
 
         if (state_explosion == 1) {
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion1.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion1.png")).getImage();
             this.radius = 20;
         } else if (state_explosion == 2) {
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion2.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion2.png")).getImage();
             this.radius += 3;
         } else if (state_explosion == 3) {
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion3.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion3.png")).getImage();
             this.radius += 3;
         } else if (state_explosion == 4) {
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion4.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion4.png")).getImage();
             this.radius = 10;
         } else if (state_explosion != 5 && Shootdir == 1)
             this.img = new ImageIcon(getClass().getResource("./images/Bullet1.png")).getImage();
@@ -80,19 +80,19 @@ public class Bullet {
 
     public boolean explosion() {
         if(this.state_explosion == 1){
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion1.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion1.png")).getImage();
             this.radius = 20;
             return true;
         }else if(this.state_explosion == 2 && this.AnimationFrames == 5){
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion2.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion2.png")).getImage();
             this.radius += 3;
             return true;
         }else if(this.state_explosion == 3 && this.AnimationFrames == 5){
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion3.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion3.png")).getImage();
             this.radius += 3;
             return true;
         }else if(this.state_explosion == 4 && this.AnimationFrames == 5){
-            this.img = new ImageIcon(getClass().getResource("./images/Explosion4.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion4.png")).getImage();
             this.radius = 10;
             return true;
         }else if(this.state_explosion == 5 && this.AnimationFrames == 5){
