@@ -158,6 +158,7 @@ public class StartPanel extends JPanel implements ActionListener {
                 @Override
                 public void mouseEntered(MouseEvent e) {
                     isHover = true;
+                    f.playSE("music/hover.wav", 1);
                     StartPanel.this.flash(isHover);
                     repaint();
                 }

@@ -153,6 +153,7 @@ public class ResultPanel extends JPanel implements ActionListener {
                 @Override
                 public void mouseEntered(MouseEvent e) {
                     isHover = true;
+                    f.playSE("music/hover.wav", 1);
                     ResultPanel.this.flash(isHover); // ★ここが重要
                     repaint();
                 }
