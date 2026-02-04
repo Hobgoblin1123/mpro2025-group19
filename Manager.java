@@ -129,11 +129,13 @@ class MoveManager extends Observable {
             boolean hit = false;
             // Player1への当たり判定
             if (b.getOwner() != player1 && isHit(player1, b) && b.getStateExplosion() == 0) {
+                GameFrame.playSE("music/damaged.wav", 0.5f);
                 player1.hit(1); // 1ダメージ
                 hit = true;
             }
             // Player2への当たり判定
             else if (b.getOwner() != player2 && isHit(player2, b) && b.getStateExplosion() == 0) {
+                GameFrame.playSE("music/damaged.wav", 0.5f);
                 player2.hit(1);
                 hit = true;
             }

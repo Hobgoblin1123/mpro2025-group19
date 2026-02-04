@@ -286,7 +286,7 @@ public class GameFrame extends JFrame implements Observer {
     }
 
     // --- SE再生用メソッド -------
-    public void playSE(String filePath, float volumeLevel) {
+    public static void playSE(String filePath, float volumeLevel) {
         try {
             File soundFile = new File(filePath);
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);

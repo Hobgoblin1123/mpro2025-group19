@@ -1,7 +1,13 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineEvent;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.awt.geom.Ellipse2D;
+import java.io.File;
 
 class Player {
     private int hp;
@@ -150,12 +156,15 @@ class Player {
         ArrayList<Bullet> newBullets = new ArrayList<>();
         if (type == 0) {
             // 直進弾
+            GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
             newBullets.add(new Bullet(this, this.getX(), this.getY(), 4, 10, 1, Shootdir, null));
         } else if (type == 1) {
             // 曲線弾
+            GameFrame.playSE("music/Thunder_Shot.wav", 0.5f);
             newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 1, 8, 1, Shootdir, null));
         } else if (type == 2) {
             // 斜め2方向弾
+            GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
             newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 10, 1, Shootdir, null));
             newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), 2, 10, 1, Shootdir, null));
         }
