@@ -92,6 +92,7 @@ public class ServerPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == closeBtn) {
+            f.playSE("music/back.wav", 1);
             f.showCard("START");
             f.stopBGM();
             f.playBGM("music/main.wav", 1);

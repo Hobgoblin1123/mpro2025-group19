@@ -284,8 +284,36 @@ public class GameFrame extends JFrame implements Observer {
             clip.close(); // メモリ解放
         }
     }
-    // --------------------------------------------------------------
 
+    // --- : SE再生用メソッド -------
+    public void playSE(String filePath, float volumeLevel) {
+        try {
+            File soundFile = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            // 音量調整 (BGMと同じロジック)
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float db = (float) (Math.log10(volumeLevel) * 20.0);
+            float min = gainControl.getMinimum();
+            if (db < min) db = min;
+            gainControl.setValue(db);
+
+            // 再生終了時に自動で閉じるためのリスナーを追加 (メモリ節約)
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                }
+            });
+
+            clip.start(); // 再生開始
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    // ---------------------------------------------------------------------------
 
     @Override
     public void update(Observable o, Object arg) {

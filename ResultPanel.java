@@ -60,6 +60,7 @@ public class ResultPanel extends StarAnimPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // ボタンが押された場合
         if (e.getSource() == this.retryButton) {
+            f.playSE("music/go.wav", 1);
             // 連打防止＆状態表示
             this.retryButton.setEnabled(false);
             this.quitButton.setEnabled(false);
@@ -68,6 +69,7 @@ public class ResultPanel extends StarAnimPanel implements ActionListener {
             System.out.println("ゲームをもう一度行います");
             f.tryRetry();
         } else if (e.getSource() == this.quitButton) {
+            f.playSE("music/back.wav", 1);
             System.out.println("ゲームを終了します");
             f.sendMessage("QUIT");  //  backToStart()内に記述すると、リトライ失敗後にbackToStart()するので余計なメッセージ送信をしてしまう
             f.backToStart();
