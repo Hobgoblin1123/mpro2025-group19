@@ -111,20 +111,37 @@ class MoveManager extends Observable {
                 continue;
             }
 
+            //爆発
+            if (b.getStateExplosion() != 0) {
+                if(b.explosion()){
+                    b.setStateExplosion(b.getStateExplosion() + 1);
+                    b.setAnimationFrames(0);
+                } else {
+                    b.setAnimationFrames(b.getAnimationFrames() + 1);
+                }
+            }
+
+            if (!b.getIsActive()){
+                it.remove();
+                continue;
+            }
+
             boolean hit = false;
             // Player1への当たり判定
-            if (b.getOwner() != player1 && isHit(player1, b)) {
+            if (b.getOwner() != player1 && isHit(player1, b) && b.getStateExplosion() == 0) {
                 player1.hit(1); // 1ダメージ
                 hit = true;
             }
             // Player2への当たり判定
-            else if (b.getOwner() != player2 && isHit(player2, b)) {
+            else if (b.getOwner() != player2 && isHit(player2, b) && b.getStateExplosion() == 0) {
                 player2.hit(1);
                 hit = true;
             }
 
-            if (hit)
-                it.remove();
+            if (hit) {
+                b.setStateExplosion(1);
+                b.setAnimationFrames(0);
+            }
         }
 
         // 勝敗判定
@@ -182,7 +199,9 @@ class MoveManager extends Observable {
             sb.append(b.getX()).append(",").append(b.getY()).append(",")
                     .append(b.getRadius()).append(",").append(rgb).append(",")
                     .append(b.getShootdir()).append(",")
-                    .append(type).append(";");
+                    .append(type).append(",")
+                    .append(b.getStateExplosion()).append(",")
+                    .append(b.getAnimationFrames()).append(";");
         }
         sb.append("#");
 
@@ -237,7 +256,7 @@ class MoveManager extends Observable {
                     if (bStr.isEmpty())
                         continue;
                     String[] val = bStr.split(",");
-                    if (val.length >= 6) {
+                    if (val.length >= 8) {
                         int bx = Integer.parseInt(val[0]);
                         int by = Integer.parseInt(val[1]);
                         int br = Integer.parseInt(val[2]);
@@ -247,17 +266,21 @@ class MoveManager extends Observable {
                         int bs = Integer.parseInt(val[4]);
                         //なんの弾か
                         int type = Integer.parseInt(val[5]);
+                        //爆発の段階
+                        int se = Integer.parseInt(val[6]);
+                        //爆発アニメーションのフレーム
+                        int af = Integer.parseInt(val[7]);
 
                         // 受信専用のBulletを作る
 
                         if (type == 0) {
-                            bullets.add(new Bullet(bx, by, br, bc, bs));
+                            bullets.add(new Bullet(bx, by, br, bc, bs, se, af));
                         } else if(type == 1) {
-                            bullets.add(new CurveBullet(bx, by, br, bc, bs));
+                            bullets.add(new CurveBullet(bx, by, br, bc, bs, se, af));
                         } else if (type == 2) {
-                            bullets.add(new UpDiagonalBullet(bx, by, br, bc, bs));
+                            bullets.add(new UpDiagonalBullet(bx, by, br, bc, bs, se, af));
                         } else if (type == 3) {
-                            bullets.add(new DownDiagonalBullet(bx, by, br, bc, bs));
+                            bullets.add(new DownDiagonalBullet(bx, by, br, bc, bs, se, af));
                         }
                     }
                 }

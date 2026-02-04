@@ -10,14 +10,16 @@ public class Bullet {
     private int y;
     private int speed;
     private int bounds_x;
-    private int radius;
+    protected int radius;
     private int damage;
     private int Shootdir;
     private Color color = new Color(255, 0, 0);
     private final static int dx = 5;
     private Timer timer;
     public boolean isActive = true;
-    private Image img;
+    protected Image img;
+    private int state_explosion = 0;
+    private int AnimationFrames;
 
     public Bullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
             Color color) {
@@ -36,15 +38,30 @@ public class Bullet {
         }
     }
 
-    public Bullet(int x, int y, int radius, Color color, int Shootdir) {
+    public Bullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion, int AnimationFrames) {
         this.x = x;
         this.y = y;
         this.color = color;
         this.radius = radius;
         this.Shootdir = Shootdir;
-        if (Shootdir == 1)
+        this.AnimationFrames = AnimationFrames;
+        this.state_explosion = state_explosion;
+
+        if (state_explosion == 1) {
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion1.png")).getImage();
+            this.radius = 20;
+        } else if (state_explosion == 2) {
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion2.png")).getImage();
+            this.radius += 3;
+        } else if (state_explosion == 3) {
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion3.png")).getImage();
+            this.radius += 3;
+        } else if (state_explosion == 4) {
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion4.png")).getImage();
+            this.radius = 10;
+        } else if (state_explosion != 5 && Shootdir == 1)
             this.img = new ImageIcon(getClass().getResource("./images/Bullet1.png")).getImage();
-        else {
+        else if(state_explosion != 5){
             this.img = new ImageIcon(getClass().getResource("./images/Bullet2.png")).getImage();
         }
     }
@@ -56,7 +73,33 @@ public class Bullet {
     }
 
     public void move() {
-        x += dx * speed * Shootdir;
+        if(this.state_explosion == 0){
+            x += dx * speed * Shootdir;
+        }
+    }
+
+    public boolean explosion() {
+        if(this.state_explosion == 1){
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion1.png")).getImage();
+            this.radius = 20;
+            return true;
+        }else if(this.state_explosion == 2 && this.AnimationFrames == 5){
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion2.png")).getImage();
+            this.radius += 3;
+            return true;
+        }else if(this.state_explosion == 3 && this.AnimationFrames == 5){
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion3.png")).getImage();
+            this.radius += 3;
+            return true;
+        }else if(this.state_explosion == 4 && this.AnimationFrames == 5){
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion4.png")).getImage();
+            this.radius = 10;
+            return true;
+        }else if(this.state_explosion == 5 && this.AnimationFrames == 5){
+            this.isActive = false;
+            return true;
+        }
+        return false;
     }
 
     public Player getOwner() {
@@ -69,6 +112,26 @@ public class Bullet {
 
     public int getY() {
         return this.y;
+    }
+
+    public boolean getIsActive() {
+        return this.isActive;
+    }
+
+    public int getStateExplosion() {
+        return this.state_explosion;
+    }
+
+    public void setStateExplosion(int state_explosion) {
+        this.state_explosion = state_explosion;
+    }
+
+    public int getAnimationFrames() {
+        return this.AnimationFrames;
+    }
+
+    public void setAnimationFrames(int AnimationFrames) {
+        this.AnimationFrames = AnimationFrames;
     }
 
     public int getShootdir() {

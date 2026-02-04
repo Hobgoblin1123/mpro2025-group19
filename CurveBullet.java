@@ -8,7 +8,6 @@ public class CurveBullet extends Bullet implements ActionListener {
     double frequency = 0.1;
     double amplitude = 70;
     int y = super.getY();
-    private Image img;
 
     public CurveBullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
             Color color) {
@@ -20,13 +19,23 @@ public class CurveBullet extends Bullet implements ActionListener {
         }
     }
 
-    public CurveBullet(int x, int y, int radius, Color color, int Shootdir) {
-        super(x, y, radius, color, Shootdir);
-        if (Shootdir == 1)
+    public CurveBullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion, int AnimationFrames) {
+        super(x, y, radius, color, Shootdir, state_explosion, AnimationFrames);
+        if (state_explosion == 1) {
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion1.png")).getImage();
+        } else if (state_explosion == 2) {
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion2.png")).getImage();
+        } else if (state_explosion == 3) {
+            this.img = new ImageIcon(getClass().getResource("./images/Explosion3.png")).getImage();
+        } else if (state_explosion != 4 && Shootdir == 1)
             this.img = new ImageIcon(getClass().getResource("./images/CurveBullet1.png")).getImage();
-        else {
+        else if(state_explosion != 4){
             this.img = new ImageIcon(getClass().getResource("./images/CurveBullet2.png")).getImage();
         }
+    }
+
+    public boolean explosion() {
+        return super.explosion();
     }
 
     public void draw(Graphics g) {
@@ -39,10 +48,10 @@ public class CurveBullet extends Bullet implements ActionListener {
         super.move();
 
         time += 0.5;
-
-        int newY = (int) (y + Math.sin(time * frequency) * amplitude);
-        super.setY(newY);
-
+        if(super.getStateExplosion() == 0){
+            int newY = (int) (y + Math.sin(time * frequency) * amplitude);
+            super.setY(newY);
+        }
     }
 
     public void actionPerformed(ActionEvent e) {
