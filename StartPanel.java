@@ -10,6 +10,8 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 
 public class StartPanel extends JPanel implements ActionListener {
+    private Font pixelFont;
+
     private CustomButton serverBtn;
     private CustomButton clientBtn;
     private CustomButton exitBtn;
@@ -19,6 +21,18 @@ public class StartPanel extends JPanel implements ActionListener {
     // Null Pointer Exception回避のため、引数にGameFrameを指定
     public StartPanel(GameFrame f) {
         this.f = f;
+        try {
+            File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
+            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(baseFont);
+
+            // 基本サイズを40にしておく
+            pixelFont = baseFont.deriveFont(Font.BOLD, 40f); 
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+            pixelFont = new Font("Monospaced", Font.BOLD, 40); 
+        }
 
         // --- 1. レイアウト設定 ---
         this.setLayout(new BorderLayout());
@@ -33,30 +47,36 @@ public class StartPanel extends JPanel implements ActionListener {
         clientBtn = new CustomButton("JOIN");
         exitBtn = new CustomButton("EXIT");
 
+        JLabel credit = new JLabel("SE, 一部BGM: 魔王魂様");
+
         // --- 3. 装飾 ----
         btnPanel.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 50));
         btnPanel.setOpaque(false); // ボタンはデフォルトだと背景が不透明(Opaque)
+        credit.setForeground(Color.ORANGE);
+        credit.setFont(pixelFont.deriveFont(12f));
         // ---- 3.1. ボタンのサイズ感を調整 ----
         Dimension btnSize = new Dimension(400, 100);
         serverBtn.setPreferredSize(btnSize);
         clientBtn.setPreferredSize(btnSize);
         exitBtn.setPreferredSize(btnSize);
-
-        bgPanel.add(title, gbc);
         // ---- 3.2. タイトル部分の設定 ----
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.weightx = 1.0;
         gbc.weighty = 0.8; // 上部の空き・画像スペースの比率（大きくすると下に押し下げられる）
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(100, 0, 0, 0);
+        
+        bgPanel.add(title, gbc);
         // ---- 3.3. ボタン部分の設定 ----
         gbc.gridy = 1;
         gbc.weighty = 0.4; // 下部のボタンエリアの比率
         gbc.anchor = GridBagConstraints.CENTER;
 
         bgPanel.add(btnPanel, gbc);
-        
+        // ---- 3.4. クレジット部分の設定 ----
+        gbc.anchor = GridBagConstraints.SOUTHEAST;
+
+        bgPanel.add(credit, gbc);
         // --- 4. リスナーの登録 ---
         serverBtn.addActionListener(this);
         clientBtn.addActionListener(this);
@@ -77,7 +97,6 @@ public class StartPanel extends JPanel implements ActionListener {
     class BackGroundPanel extends StarAnimPanel {
         private Image bgImage_original;
         private Image bgImage_flashed;
-        private Color baseColor = Color.BLUE;
         private boolean isflashed;
 
         public BackGroundPanel() {
@@ -123,7 +142,6 @@ public class StartPanel extends JPanel implements ActionListener {
         private Color lineColor = new Color(147, 234, 237, 100); // 線の色
         private Color shadowColor = new Color(36, 46, 133, 220); // 影の色
         private float strokeWidth = 2.5f; // 線の太さ
-        private Font pixelFont;
         private boolean isHover = false;    
     
         public CustomButton(String text) {
@@ -133,24 +151,6 @@ public class StartPanel extends JPanel implements ActionListener {
             setBorderPainted(false);       // 標準の枠線
             setFocusPainted(false);        // フォーカス時の枠線
             setOpaque(false);       // ボタンの背景を透かす
-
-            //  フォントの登録
-            try {
-                // fontsフォルダに入れたファイル名を指定
-                File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
-                // フォントを作成 (サイズは後で deriveFont で変えられる)
-                Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
-                // 太字(BOLD)でサイズ24にする
-                pixelFont = baseFont.deriveFont(Font.BOLD, 40); 
-                // グラフィックス環境に登録（これをしておくとシステム全体で認識されることもある）
-                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                ge.registerFont(baseFont);
-    
-            } catch (FontFormatException | IOException e) {
-                e.printStackTrace();
-                // 読み込み失敗時はデフォルトのフォントを使うなどの保険
-                pixelFont = new Font("Monospaced", Font.BOLD, 40); 
-            }
 
             //  ホバー時の設定(リスナーの登録と処理の記述を一括)(paintComponent内でフラグの値によって色が決まる)
             this.addMouseListener(new MouseAdapter() {
