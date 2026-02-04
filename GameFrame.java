@@ -285,7 +285,7 @@ public class GameFrame extends JFrame implements Observer {
         }
     }
 
-    // --- : SE再生用メソッド -------
+    // --- SE再生用メソッド -------
     public void playSE(String filePath, float volumeLevel) {
         try {
             File soundFile = new File(filePath);
@@ -310,6 +310,7 @@ public class GameFrame extends JFrame implements Observer {
 
             clip.start(); // 再生開始
         } catch (Exception e) {
+            System.out.println("再生できませんでした");
             e.printStackTrace();
         }
     }
