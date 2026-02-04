@@ -227,7 +227,7 @@ public class ResultPanel extends JPanel implements ActionListener {
             // 連打防止＆状態表示
             this.retryButton.setEnabled(false);
             this.quitButton.setEnabled(false);
-            this.retryButton.setText("相手の応答待ち...");
+            this.retryButton.setText("WAITING...");
 
             System.out.println("ゲームをもう一度行います");
             f.tryRetry();
