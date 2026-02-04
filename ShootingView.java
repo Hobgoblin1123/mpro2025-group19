@@ -1,3 +1,4 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -17,7 +18,7 @@ public class ShootingView extends JPanel implements Runnable, KeyListener, Obser
     private Thread gameThread;
     private long beforeShootTime;
     private long nowTime, startedTime, endTime;
-    private Font pixelFont;
+    private Image bgImage;
     private Font fontLarge;
     private Font fontSmall;
     private boolean[] keys = new boolean[256];
@@ -36,6 +37,11 @@ public class ShootingView extends JPanel implements Runnable, KeyListener, Obser
         gameThread = new Thread(this);
         gameThread.start();
         startedTime = System.currentTimeMillis();
+        try {
+            bgImage = ImageIO.read(new File("images/GamePanelBG.jpg"));
+        } catch (IOException e) {
+            System.out.println("画像が見つかりません.");
+        }
         try {
             File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
@@ -158,7 +164,7 @@ public class ShootingView extends JPanel implements Runnable, KeyListener, Obser
         Graphics2D g2 = (Graphics2D) g;
 
         if (manager != null) {
-
+            g2.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
             if (manager.getPlayer().getShakeTime() > 0) {
                 shakeX = (int) (Math.cos(shakeAngle) * 30);
                 shakeY = (int) (Math.sin(shakeAngle) * 30);
