@@ -247,12 +247,12 @@ public class StartPanel extends JPanel implements ActionListener {
         if (e.getSource() == serverBtn) {
             f.playSE("music/go.wav", 1);
             f.stopBGM();
-            f.playBGM("music/waiting.wav", 1);
+            f.playBGM("music/waiting.wav", 0.3f);
             f.showCard("SERVER");
         } else if (e.getSource() == clientBtn) {
             f.playSE("music/go.wav", 1);
             f.stopBGM();
-            f.playBGM("music/waiting.wav", 1);
+            f.playBGM("music/waiting.wav", 0.3f);
             f.showCard("CLIENT");
         } else if (e.getSource() == exitBtn) {
             f.playSE("music/back.wav", 1);

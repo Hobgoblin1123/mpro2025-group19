@@ -151,7 +151,7 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
             f.playSE("music/back.wav", 1);
             f.showCard("START");
             f.stopBGM();
-            f.playBGM("music/main.wav", 1);
+            f.playBGM("music/main.wav", 0.3f);
         } else if (e.getSource() == connectBtn || e.getSource() == idField) {      //  JTextFieldは、Enter入力の機能を潜在的に持っているのでActionListenerでよい
             f.playSE("music/go.wav", 1);
             String id = idField.getText();

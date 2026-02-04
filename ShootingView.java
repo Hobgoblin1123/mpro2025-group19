@@ -8,13 +8,8 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
-<<<<<<< HEAD
-public class ShootingView extends StarAnimPanel implements Runnable, KeyListener {
-=======
 @SuppressWarnings("deprecation")
-public class ShootingView extends JPanel implements Runnable, KeyListener, Observer {
->>>>>>> da28a60c95314271d0fc6430517a638ea7feb4fd
-
+public class ShootingView extends StarAnimPanel implements Runnable, KeyListener, Observer {
     private int shakeX, shakeY;
     private double shakeAngle = 0;
     private int offset = 8;

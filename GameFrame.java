@@ -94,7 +94,7 @@ public class GameFrame extends JFrame implements Observer {
         this.add(mainPanel, BorderLayout.CENTER);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // ×を押したら閉じる
         ((CardLayout) mainPanel.getLayout()).show(mainPanel, "START");
-        playBGM("music/main.wav", 1);
+        playBGM("music/main.wav", 0.3f);
         this.setVisible(true);
     }
 
@@ -129,7 +129,7 @@ public class GameFrame extends JFrame implements Observer {
 
         showCard("GAME");
         stopBGM();
-        playBGM("music/battle.wav", 1);
+        playBGM("music/battle.wav", 0.5f);
 
         SwingUtilities.invokeLater(() -> { // gamePanelの描画後に実行(実行予約リストの最後尾に回す)
             view.requestFocusInWindow(); // キーボードの入力先をgamePanelに設定
@@ -324,7 +324,7 @@ public class GameFrame extends JFrame implements Observer {
                 ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
                 this.add(result, BorderLayout.CENTER);
                 stopBGM();
-                playBGM("music/main.wav", 1);
+                playBGM("music/main.wav", 0.3f);
 
                 this.revalidate();// レイアウトの再計算
                 this.repaint();

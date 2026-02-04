@@ -116,7 +116,7 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
             f.playSE("music/back.wav", 1);
             f.showCard("START");
             f.stopBGM();
-            f.playBGM("music/main.wav", 1);
+            f.playBGM("music/main.wav", 0.3f);
         }
         // 星のアニメーション用
         super.actionPerformed(e);
