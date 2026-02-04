@@ -114,6 +114,8 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
         if (e.getSource() == closeBtn) {
             // 待機キャンセル等の処理が必要ならここに記述
             f.showCard("START");
+            f.stopBGM();
+            f.playBGM("music/main.wav", 1);
         }
         // 星のアニメーション用
         super.actionPerformed(e);

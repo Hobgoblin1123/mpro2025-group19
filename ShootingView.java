@@ -1,15 +1,30 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
+<<<<<<< HEAD
 public class ShootingView extends StarAnimPanel implements Runnable, KeyListener {
+=======
+@SuppressWarnings("deprecation")
+public class ShootingView extends JPanel implements Runnable, KeyListener, Observer {
+>>>>>>> da28a60c95314271d0fc6430517a638ea7feb4fd
 
     private int shakeX, shakeY;
     private double shakeAngle = 0;
+    private int offset = 8;
     private MoveManager manager;
     private Thread gameThread;
     private long beforeShootTime;
+    private long nowTime, startedTime, endTime;
+    private Image bgImage;
+    private Font fontLarge;
+    private Font fontSmall;
     private boolean[] keys = new boolean[256];
 
     private static final int WIDTH = 1200;
@@ -17,6 +32,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
 
     public ShootingView(MoveManager manager) {
         this.manager = manager;
+        manager.addObserver(this);
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
         this.setHorizontalMode(true);
@@ -27,13 +43,35 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
 
         gameThread = new Thread(this);
         gameThread.start();
+        startedTime = System.currentTimeMillis();
+        try {
+            bgImage = ImageIO.read(new File("images/GamePanelBG.jpg"));
+        } catch (IOException e) {
+            System.out.println("画像が見つかりません.");
+        }
+        try {
+            File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
+            Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+
+            fontLarge = baseFont.deriveFont(Font.BOLD, 60f);
+            fontSmall = baseFont.deriveFont(Font.BOLD, 10f);
+
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(baseFont);
+
+        } catch (Exception e) {
+            // フォールバック（失敗しても落ちない）
+            fontLarge = new Font("Monospaced", Font.BOLD, 200);
+            fontSmall = new Font("Monospaced", Font.BOLD, 10);
+        }
     }
 
     @Override
     public void run() {
         System.out.println("ゲームループ開始"); // ★デバッグ用
-        while (manager.isRunning) {
+        while (getpassedEndTime() > 4000) {
             try {
+
                 processInput();
 
                 // ★デバッグ用: どこで止まっているか確認
@@ -42,14 +80,14 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
                 // System.out.println("画面更新");
                 manager.update();
 
-                this.revalidate(); // レイアウトの再計算
-
                 repaint();
                 Thread.sleep(16);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
     }
 
     private void processInput() {
@@ -131,22 +169,32 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
 
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        if (manager.getPlayer().getShakeTime() > 0) {
-            shakeX = (int) (Math.cos(shakeAngle) * 30);
-            shakeY = (int) (Math.sin(shakeAngle) * 30);
-            shakeAngle += 1.0;
-            manager.getPlayer().passShakeTime();
-            g2.setColor(new Color(255, 0, 0, 80)); // 半透明赤
-            g2.fillRect(0, 0, getWidth(), getHeight());
-        } else {
-            shakeX = 0;
-            shakeY = 0;
-        }
-        g2.translate(shakeX, shakeY);
 
         if (manager != null) {
+            g2.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+            if (manager.getPlayer().getShakeTime() > 0) {
+                shakeX = (int) (Math.cos(shakeAngle) * 30);
+                shakeY = (int) (Math.sin(shakeAngle) * 30);
+                shakeAngle += 1.0;
+                manager.getPlayer().passShakeTime();
+                g2.setColor(new Color(255, 0, 0, 80)); // 半透明赤
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            } else {
+                shakeX = 0;
+                shakeY = 0;
+            }
+            g2.translate(shakeX, shakeY);
             manager.draw(g2);
             drawUI(g2);
+
+            nowTime = System.currentTimeMillis();
+            if (nowTime - startedTime < 800) {
+
+                drawStart(g2);
+            }
+            if (manager.isRunning == false) {
+                drawGameset(g2);
+            }
         }
 
         g2.translate(-1 * shakeX, -1 * shakeY);
@@ -161,11 +209,55 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
         drawPlayerStatus(g, manager.player2, 20, 30);
     }
 
-    private void drawPlayerStatus(Graphics g, Player p, int x, int y) {
-        g.setColor(Color.WHITE);
-        g.drawString("HP: " + p.getHp(), x, y);
+    private void drawStart(Graphics g) {
+        // フォントの登録
+        if (fontLarge != null) {
+            g.setFont(fontLarge);
+        }
+        String text = "START";
+        FontMetrics fm = g.getFontMetrics();
 
+        // 「手前の緑色のエリア」の中心を計算
+        // 左端(pad) + 傾き半分(skew/2) + 幅半分(shapeW/2)
+        float centerX = 600;
+        float centerY = 400;
+
+        int textX = (int) (centerX - fm.stringWidth(text) / 2);
+        int textY = (int) (centerY - fm.getAscent() / 2) + fm.getAscent() - offset;
+
+        g.setColor(Color.RED);
+        g.drawString(text, textX, textY);
+    }
+
+    private void drawGameset(Graphics g) {
+        // フォントの登録
+        if (fontLarge != null) {
+            g.setFont(fontLarge);
+        }
+        String text = "GAMESET";
+        FontMetrics fm = g.getFontMetrics();
+
+        // 「手前の緑色のエリア」の中心を計算
+        // 左端(pad) + 傾き半分(skew/2) + 幅半分(shapeW/2)
+        float centerX = 600;
+        float centerY = 400;
+
+        int textX = (int) (centerX - fm.stringWidth(text) / 2);
+        int textY = (int) (centerY - fm.getAscent() / 2) + fm.getAscent() - offset;
+
+        g.setColor(Color.RED);
+        g.drawString(text, textX, textY);
+    }
+
+    private void drawPlayerStatus(Graphics g, Player p, int x, int y) {
+
+        g.setColor(Color.WHITE);
+
+        if (fontSmall != null) {
+            g.setFont(fontSmall);
+        }
         // HPバー
+        g.drawString("HP: " + p.getHp(), x, y);
         g.setColor(Color.GRAY);
         g.fillRect(x + 50, y - 10, 200, 10);
 
@@ -179,6 +271,11 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
         g.fillRect(x + 50, y - 10, hpWidth, 10);
         g.setColor(Color.WHITE);
         g.drawRect(x + 50, y - 10, 200, 10);
+    }
+
+    public long getpassedEndTime() {
+        nowTime = System.currentTimeMillis();
+        return this.nowTime - endTime;
     }
 
     @Override
@@ -196,5 +293,14 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
 
     @Override
     public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        System.out.println("ゲームが終了しました");
+        endTime = System.currentTimeMillis();
+
+        // stage変数を通じてStageクラスのメソッドやフィールドにアクセスできるようにする
+
     }
 }

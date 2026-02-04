@@ -1,7 +1,21 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+
 import javax.swing.*;
-import java.util.*;
+
+import java.util.Observable;
+import java.util.Observer;
+
+// // ---  MP3再生用  -----------------
+// import javazoom.jl.player.Player;
+// import java.io.BufferedInputStream;
+// import java.io.FileInputStream;
+// //  ----------------------------------
+
+// --- 標準ライブラリのみを使用 ---
+import javax.sound.sampled.*; 
+// ----------------------------------
 
 //  動作確認用
 @SuppressWarnings("deprecation")
@@ -38,6 +52,14 @@ public class GameFrame extends JFrame implements Observer {
     private JPanel gamePanel;
     private Object commSV;
     private MoveManager mm;
+    private ShootingView view;
+
+    // ---- BGM制御用 ----
+    // private Player player;
+    // private Thread bgmThread;
+    // private boolean isLoop = true;
+    private Clip clip;
+    // ------------------
 
     // setterメソッド
     public void setCommSV(Object comm) {
@@ -72,6 +94,7 @@ public class GameFrame extends JFrame implements Observer {
         this.add(mainPanel, BorderLayout.CENTER);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // ×を押したら閉じる
         ((CardLayout) mainPanel.getLayout()).show(mainPanel, "START");
+        playBGM("music/main.wav", 1);
         this.setVisible(true);
     }
 
@@ -90,7 +113,7 @@ public class GameFrame extends JFrame implements Observer {
         mm.addObserver(this); // ゲーム終了監視用
 
         // 2. ShootingView (描画パネル) の作成
-        ShootingView view = new ShootingView(mm);
+        view = new ShootingView(mm);
 
         // 3. 画面への追加処理
         gamePanel.removeAll(); // 前のゲーム画面があれば消す
@@ -105,6 +128,8 @@ public class GameFrame extends JFrame implements Observer {
         gamePanel.addKeyListener(view);
 
         showCard("GAME");
+        stopBGM();
+        playBGM("music/battle.wav", 1);
 
         SwingUtilities.invokeLater(() -> { // gamePanelの描画後に実行(実行予約リストの最後尾に回す)
             view.requestFocusInWindow(); // キーボードの入力先をgamePanelに設定
@@ -192,19 +217,94 @@ public class GameFrame extends JFrame implements Observer {
     }
     // ---------------------------------------------------
 
+    // --- BGM再生メソッド --------------------------------
+    // public void playBGM(String filePath) {
+    //     isLoop = true;
+    //     bgmThread = new Thread(() -> {
+    //         while (isLoop) { // ループ再生
+    //             try {
+    //                 FileInputStream fis = new FileInputStream(filePath);
+    //                 BufferedInputStream bis = new BufferedInputStream(fis);
+    //                 player = new Player(bis);
+    //                 player.play(); // 再生終了までブロックされる
+    //             } catch (Exception e) {
+    //                 System.out.println("BGM再生エラー: " + e.getMessage());
+    //                 isLoop = false; // エラー時はループを抜ける
+    //             }
+    //         }
+    //     });
+    //     bgmThread.start();
+    // }
+
+    // // --- BGM停止メソッド ---
+    // public void stopBGM() {
+    //     isLoop = false; // ループフラグを下ろす
+    //     if (player != null) {
+    //         player.close(); // 現在再生中のプレイヤーを閉じる
+    //     }
+    // }
+    // --- BGM再生メソッド (WAV版) ---
+    public void playBGM(String filePath, float volumeLevel) {
+        try {
+            File soundFile = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+            
+            // 音声データをロード
+            clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            // --- 音量調整処理 ---
+            // MASTER_GAIN というコントロールを取得
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            
+            // 0.0(消音) ～ 1.0(最大) の値を デシベル(dB) に変換する計算式
+            // dB = 20 * log10(volume)
+            float db = (float) (Math.log10(volumeLevel) * 20.0);
+            
+            // 設定可能な最小値より小さくならないように制限
+            float min = gainControl.getMinimum(); // 通常 -80.0dBくらい
+            if (db < min) db = min;
+            
+            gainControl.setValue(db);
+            // ------------------
+
+            // ループ設定して再生開始
+            clip.loop(Clip.LOOP_CONTINUOUSLY); 
+
+        } catch (Exception e) {
+            System.out.println("BGM再生エラー: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // --- 変更: BGM停止メソッド ---
+    public void stopBGM() {
+        if (clip != null && clip.isRunning()) {
+            clip.stop();
+            clip.close(); // メモリ解放
+        }
+    }
+    // --------------------------------------------------------------
+
+
     @Override
     public void update(Observable o, Object arg) {
-        System.out.println("ゲームが終了しました");
         // stage変数を通じてStageクラスのメソッドやフィールドにアクセスできるようにする
+        Timer timer = new Timer(2000, e -> {
+            SwingUtilities.invokeLater(() -> {
+                this.getContentPane().removeAll();
+                ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
+                this.add(result, BorderLayout.CENTER);
+                stopBGM();
+                playBGM("music/main.wav", 1);
 
-        SwingUtilities.invokeLater(() -> {
-            this.getContentPane().removeAll();
-            ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
-            this.add(result, BorderLayout.CENTER);
-
-            this.revalidate();// レイアウトの再計算
-            this.repaint();
+                this.revalidate();// レイアウトの再計算
+                this.repaint();
+            });
         });
+        timer.setRepeats(false); // 1回だけ
+        timer.start();
+
     }
 
     public static void main(String argv[]) {
