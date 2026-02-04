@@ -93,6 +93,8 @@ public class ServerPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == closeBtn) {
             f.showCard("START");
+            f.stopBGM();
+            f.playBGM("music/main.wav", 1);
         }
     }
 }

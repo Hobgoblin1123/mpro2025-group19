@@ -59,6 +59,8 @@ public class ClientPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == closeBtn) {
             f.showCard("START");
+            f.stopBGM();
+            f.playBGM("music/main.wav", 1);
         } else if (e.getSource() == connectBtn || e.getSource() == idField) {      //  JTextFieldは、Enter入力の機能を潜在的に持っているのでActionListenerでよい
             String id = idField.getText();
             String ip = ipField.getText();
