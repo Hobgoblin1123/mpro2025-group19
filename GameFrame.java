@@ -94,7 +94,7 @@ public class GameFrame extends JFrame implements Observer {
         this.add(mainPanel, BorderLayout.CENTER);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // ×を押したら閉じる
         ((CardLayout) mainPanel.getLayout()).show(mainPanel, "START");
-        playBGM("music/main.wav", 1);
+        playBGM("music/main.wav", 0.3f);
         this.setVisible(true);
     }
 
@@ -129,7 +129,7 @@ public class GameFrame extends JFrame implements Observer {
 
         showCard("GAME");
         stopBGM();
-        playBGM("music/battle.wav", 1);
+        playBGM("music/battle.wav", 0.5f);
 
         SwingUtilities.invokeLater(() -> { // gamePanelの描画後に実行(実行予約リストの最後尾に回す)
             view.requestFocusInWindow(); // キーボードの入力先をgamePanelに設定
@@ -284,8 +284,37 @@ public class GameFrame extends JFrame implements Observer {
             clip.close(); // メモリ解放
         }
     }
-    // --------------------------------------------------------------
 
+    // --- SE再生用メソッド -------
+    public void playSE(String filePath, float volumeLevel) {
+        try {
+            File soundFile = new File(filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            // 音量調整 (BGMと同じロジック)
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float db = (float) (Math.log10(volumeLevel) * 20.0);
+            float min = gainControl.getMinimum();
+            if (db < min) db = min;
+            gainControl.setValue(db);
+
+            // 再生終了時に自動で閉じるためのリスナーを追加 (メモリ節約)
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                }
+            });
+
+            clip.start(); // 再生開始
+        } catch (Exception e) {
+            System.out.println("再生できませんでした");
+            e.printStackTrace();
+        }
+    }
+    // ---------------------------------------------------------------------------
 
     @Override
     public void update(Observable o, Object arg) {
@@ -296,7 +325,7 @@ public class GameFrame extends JFrame implements Observer {
                 ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
                 this.add(result, BorderLayout.CENTER);
                 stopBGM();
-                playBGM("music/main.wav", 1);
+                playBGM("music/main.wav", 0.3f);
 
                 this.revalidate();// レイアウトの再計算
                 this.repaint();

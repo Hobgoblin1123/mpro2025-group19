@@ -158,6 +158,7 @@ public class StartPanel extends JPanel implements ActionListener {
                 @Override
                 public void mouseEntered(MouseEvent e) {
                     isHover = true;
+                    f.playSE("music/hover.wav", 1);
                     StartPanel.this.flash(isHover);
                     repaint();
                 }
@@ -245,14 +246,17 @@ public class StartPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == serverBtn) {
+            f.playSE("music/go.wav", 1);
             f.stopBGM();
-            f.playBGM("music/waiting.wav", 1);
+            f.playBGM("music/waiting.wav", 0.3f);
             f.showCard("SERVER");
         } else if (e.getSource() == clientBtn) {
+            f.playSE("music/go.wav", 1);
             f.stopBGM();
-            f.playBGM("music/waiting.wav", 1);
+            f.playBGM("music/waiting.wav", 0.3f);
             f.showCard("CLIENT");
         } else if (e.getSource() == exitBtn) {
+            f.playSE("music/back.wav", 1);
             System.out.println("EXITボタンが選択されました.");
             f.stopBGM();
             System.exit(0);
