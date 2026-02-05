@@ -169,14 +169,14 @@ class MoveManager extends Observable {
             if (isHit_Gimmick(player1, g) && player1.getStatePowerup() == 0) {
                 player1.setStatePowerup(1);
                 player1.setImg();
-                player1.setBiggerbullet(20);
+                player1.setBiggerbullet(10);
                 hit = true;
             }
             // Player2への当たり判定
             else if (isHit_Gimmick(player2, g) && player2.getStatePowerup() == 0) {
                 player2.setStatePowerup(1);
                 player2.setImg();
-                player2.setBiggerbullet(20);
+                player2.setBiggerbullet(10);
                 hit = true;
             }
 
