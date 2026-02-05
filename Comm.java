@@ -117,23 +117,25 @@ class CommClient {
     CommClient() {
     }
 
-    CommClient(String host, int port) {
+    CommClient(String host, int port) throws IOException {
         open(host, port);
     }
 
     // クライアントソケット(通信路)のオープン
     // 接続先のホスト名とポート番号が必要．
-    boolean open(String host, int port) {
+    boolean open(String host, int port) throws IOException {
         try {
             clientS = new Socket(InetAddress.getByName(host), port);
             in = new BufferedReader(new InputStreamReader(clientS.getInputStream()));
             out = new PrintWriter(clientS.getOutputStream(), true);
         } catch (UnknownHostException e) {
             System.err.println("ホストに接続できません。");
-            System.exit(1);
+            // System.exit(1);
+            throw new IOException("ホストが見つかりません: " + host);
         } catch (IOException e) {
-            System.err.println("IOコネクションを得られません。");
-            System.exit(1);
+            System.err.println("入力IPアドレスまたはポート番号が同一リンク内に存在しないかブロックされています");
+            // System.exit(1);
+            throw e;
         }
         return true;
     }
