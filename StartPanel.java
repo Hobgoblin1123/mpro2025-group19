@@ -41,7 +41,7 @@ public class StartPanel extends JPanel implements ActionListener {
         bgPanel = new BackGroundPanel();
         bgPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        JLabel title = new JLabel(new ImageIcon("images/title_image_transparent.png"), JLabel.CENTER);
+        JLabel title = new JLabel(new ImageIcon(getClass().getResource("./images/title_image_transparent.png")));
         JPanel btnPanel = new JPanel(new GridLayout(3, 1, 0, 20));
         serverBtn = new CustomButton("CREATE");
         clientBtn = new CustomButton("JOIN");
@@ -103,9 +103,9 @@ public class StartPanel extends JPanel implements ActionListener {
             this.starMaxSize = 12.0f;
             this.starMaxBrightness = 300;
             try {
-                bgImage_original = ImageIO.read(new File("images/start_image.jpg"));
-                bgImage_flashed = ImageIO.read(new File("images/start_image_flashed.jpg"));
-            } catch (IOException e) {
+                bgImage_original = new ImageIcon(getClass().getResource("./images/start_image.jpg")).getImage();
+                bgImage_flashed = new ImageIcon(getClass().getResource("./images/start_image_flashed.jpg")).getImage();
+            } catch (Exception e) {
                 System.out.println("画像が見つかりません.");
             }
         }

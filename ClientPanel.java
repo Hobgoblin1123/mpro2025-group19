@@ -24,8 +24,8 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         this.setLayout(new GridBagLayout()); // 中央寄せしやすいGridBagLayoutに変更
 
         try {
-            bgImage = ImageIO.read(new File("images/server-clientpanel.png"));
-        } catch (IOException e) {
+            bgImage = new ImageIcon(getClass().getResource("./images/server-clientpanel.png")).getImage();
+        } catch (Exception e) {
             System.out.println("背景画像が見つかりません: " + e.getMessage());
         }
 

@@ -40,8 +40,8 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
         gameThread.start();
         startedTime = System.currentTimeMillis();
         try {
-            bgImage = ImageIO.read(new File("images/GamePanelBG.jpg"));
-        } catch (IOException e) {
+            bgImage = new ImageIcon(getClass().getResource("./images/GamePanelBG.jpg")).getImage();
+        } catch (Exception e) {
             System.out.println("画像が見つかりません.");
         }
         try {

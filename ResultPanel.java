@@ -91,9 +91,9 @@ public class ResultPanel extends JPanel implements ActionListener {
             
             try {
                 // スタート画面と同じ画像を使うか、リザルト用の画像があれば変更してください
-                bgImage_original = ImageIO.read(new File("images/result.png"));
-                bgImage_flashed = ImageIO.read(new File("images/resultflashed.png"));
-            } catch (IOException e) {
+                bgImage_original = new ImageIcon(getClass().getResource("./images/result.png")).getImage();
+                bgImage_flashed = new ImageIcon(getClass().getResource("./images/resultflashed.png")).getImage();
+            } catch (Exception e) {
                 System.out.println("背景画像が見つかりません (ResultPanel)");
             }
         }
