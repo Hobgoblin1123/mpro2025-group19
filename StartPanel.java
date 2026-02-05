@@ -1,13 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.Border;
-import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
 
 public class StartPanel extends JPanel implements ActionListener {
     private Font pixelFont;
@@ -22,7 +17,7 @@ public class StartPanel extends JPanel implements ActionListener {
     public StartPanel(GameFrame f) {
         this.f = f;
         try {
-            File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
+            java.io.InputStream fontFile = getClass().getResourceAsStream("/Fonts/DotGothic16-Regular.ttf");
             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(baseFont);
@@ -41,7 +36,7 @@ public class StartPanel extends JPanel implements ActionListener {
         bgPanel = new BackGroundPanel();
         bgPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        JLabel title = new JLabel(new ImageIcon(getClass().getResource("./images/title_image_transparent.png")));
+        JLabel title = new JLabel(new ImageIcon(getClass().getResource("/images/title_image_transparent.png")));
         JPanel btnPanel = new JPanel(new GridLayout(3, 1, 0, 20));
         serverBtn = new CustomButton("CREATE");
         clientBtn = new CustomButton("JOIN");
@@ -103,8 +98,8 @@ public class StartPanel extends JPanel implements ActionListener {
             this.starMaxSize = 12.0f;
             this.starMaxBrightness = 300;
             try {
-                bgImage_original = new ImageIcon(getClass().getResource("./images/start_image.jpg")).getImage();
-                bgImage_flashed = new ImageIcon(getClass().getResource("./images/start_image_flashed.jpg")).getImage();
+                bgImage_original = new ImageIcon(getClass().getResource("/images/start_image.jpg")).getImage();
+                bgImage_flashed = new ImageIcon(getClass().getResource("/images/start_image_flashed.jpg")).getImage();
             } catch (Exception e) {
                 System.out.println("画像が見つかりません.");
             }

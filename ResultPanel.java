@@ -1,9 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
-import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class ResultPanel extends JPanel implements ActionListener {
@@ -91,8 +89,8 @@ public class ResultPanel extends JPanel implements ActionListener {
             
             try {
                 // スタート画面と同じ画像を使うか、リザルト用の画像があれば変更してください
-                bgImage_original = new ImageIcon(getClass().getResource("./images/result.png")).getImage();
-                bgImage_flashed = new ImageIcon(getClass().getResource("./images/resultflashed.png")).getImage();
+                bgImage_original = new ImageIcon(getClass().getResource("/images/result.png")).getImage();
+                bgImage_flashed = new ImageIcon(getClass().getResource("/images/resultflashed.png")).getImage();
             } catch (Exception e) {
                 System.out.println("背景画像が見つかりません (ResultPanel)");
             }
@@ -139,7 +137,7 @@ public class ResultPanel extends JPanel implements ActionListener {
 
             // フォント設定
             try {
-                File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
+                java.io.InputStream fontFile = getClass().getResourceAsStream("/Fonts/DotGothic16-Regular.ttf");
                 Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
                 pixelFont = baseFont.deriveFont(Font.BOLD, 40);
                 GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -240,5 +238,4 @@ public class ResultPanel extends JPanel implements ActionListener {
         }
         
     }
-    public ResultPanel(){}
 }

@@ -30,9 +30,9 @@ public class Bullet {
         this.damage = damage;
         this.Shootdir = Shootdir;
         if (Shootdir == 1) // サーバー側の弾の画像
-            this.img = new ImageIcon(getClass().getResource("./images/Bullet1.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/Bullet1.png")).getImage();
         else { // クライアント側の弾の画像
-            this.img = new ImageIcon(getClass().getResource("./images/Bullet2.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/Bullet2.png")).getImage();
         }
     }
 
@@ -48,21 +48,21 @@ public class Bullet {
 
         // 爆発状態に応じて画像を変更
         if (state_explosion == 1) { // 状態1
-            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion1.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();
             this.radius = 20; // 爆発時の半径は大きくする
         } else if (state_explosion == 2) { // 状態2
-            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion2.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion2.png")).getImage();
             this.radius += 3;
         } else if (state_explosion == 3) { // 状態3
-            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion3.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion3.png")).getImage();
             this.radius += 3;
         } else if (state_explosion == 4) { // 状態4
-            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion4.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion4.png")).getImage();
             this.radius = 10;
         } else if (state_explosion != 5 && Shootdir == 1) // 通常状態(サーバー側)
-            this.img = new ImageIcon(getClass().getResource("./images/Bullet1.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/Bullet1.png")).getImage();
         else if (state_explosion != 5) { // 通常状態(クライアント側)
-            this.img = new ImageIcon(getClass().getResource("./images/Bullet2.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/Bullet2.png")).getImage();
         }
     }
 
@@ -84,19 +84,19 @@ public class Bullet {
     // 爆発処理, 爆発が進むとtrueを返す
     public boolean explosion() {
         if (this.state_explosion == 1) { // 状態1
-            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion1.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();
             this.radius = 20; // 爆発時の半径は大きくする
             return true;
         } else if (this.state_explosion == 2 && this.AnimationFrames == 5) { // 状態2, 5フレームごとに更新
-            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion2.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion2.png")).getImage();
             this.radius += 3;
             return true;
         } else if (this.state_explosion == 3 && this.AnimationFrames == 5) { // 状態3
-            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion3.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion3.png")).getImage();
             this.radius += 3;
             return true;
         } else if (this.state_explosion == 4 && this.AnimationFrames == 5) { // 状態4
-            this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion4.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion4.png")).getImage();
             this.radius = 10;
             return true;
         } else if (this.state_explosion == 5 && this.AnimationFrames == 5) { // 状態5(爆発終了), 非アクティブ化

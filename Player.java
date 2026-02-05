@@ -45,20 +45,20 @@ class Player {
     // 画像読み込み
     public void setImg() {
         if (Shootdir == 1 && statePowerup == 0) { // サーバー側, 通常時
-            this.img = new ImageIcon(getClass().getResource("./images/player1T.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/player1T.png")).getImage();
         } else if (Shootdir == 1 && statePowerup > 0) { // サーバー側, 弾半径増加時
             if ((statePowerup / 10) % 2 == 0) { // 効果中2つの画像を切り替える
-                this.img = new ImageIcon(getClass().getResource("./images/player1PowerupT1.png")).getImage();
+                this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT1.png")).getImage();
             } else {
-                this.img = new ImageIcon(getClass().getResource("./images/player1PowerupT2.png")).getImage();
+                this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT2.png")).getImage();
             }
         } else if (Shootdir != 1 && statePowerup == 0) { // クライアント側, 通常時
-            this.img = new ImageIcon(getClass().getResource("./images/player2T.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/player2T.png")).getImage();
         } else if (Shootdir != 1 && statePowerup > 0) { // クライアント側, 弾半径増加時
             if ((statePowerup / 10) % 2 == 0) { // 効果中2つの画像を切り替える
-                this.img = new ImageIcon(getClass().getResource("./images/player2PowerupT1.png")).getImage();
+                this.img = new ImageIcon(getClass().getResource("/images/player2PowerupT1.png")).getImage();
             } else {
-                this.img = new ImageIcon(getClass().getResource("./images/player2PowerupT2.png")).getImage();
+                this.img = new ImageIcon(getClass().getResource("/images/player2PowerupT2.png")).getImage();
             }
         }
     }

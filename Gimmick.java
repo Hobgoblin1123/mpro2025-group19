@@ -21,9 +21,9 @@ public class Gimmick {
         this.time = time;
         this.type = type;
         if(type == 0){ //弾の半径拡大ギミックの画像読み込み
-            this.img = new ImageIcon(getClass().getResource("./images/BigRadius.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/BigRadius.png")).getImage();
         }else if(type == 1){ //回復ギミックの画像読み込み
-            this.img = new ImageIcon(getClass().getResource("./images/Heal.png")).getImage();
+            this.img = new ImageIcon(getClass().getResource("/images/Heal.png")).getImage();
         }
     }
 

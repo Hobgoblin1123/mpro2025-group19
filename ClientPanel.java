@@ -1,9 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 // ロジックはそのまま、見た目を宇宙船コックピット風に改装
@@ -24,7 +20,7 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         this.setLayout(new GridBagLayout()); // 中央寄せしやすいGridBagLayoutに変更
 
         try {
-            bgImage = new ImageIcon(getClass().getResource("./images/server-clientpanel.png")).getImage();
+            bgImage = new ImageIcon(getClass().getResource("/images/server-clientpanel.png")).getImage();
         } catch (Exception e) {
             System.out.println("背景画像が見つかりません: " + e.getMessage());
         }
@@ -60,7 +56,7 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         statusLbl.setFont(new Font("Monospaced", Font.BOLD, 14));
         statusLbl.setPreferredSize(new Dimension(300, 30));
         
-        ResultPanel dummy = new ResultPanel();
+        ResultPanel dummy = new ResultPanel(f, false);
         connectBtn = dummy.new CustomButton("CONNECT");
         connectBtn.setPreferredSize(new Dimension(200, 75));
         closeBtn = dummy.new CustomButton("BACK");

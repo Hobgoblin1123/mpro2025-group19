@@ -40,12 +40,12 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
         gameThread.start();
         startedTime = System.currentTimeMillis();
         try {
-            bgImage = new ImageIcon(getClass().getResource("./images/GamePanelBG.jpg")).getImage();
+            bgImage = new ImageIcon(getClass().getResource("/images/GamePanelBG.jpg")).getImage();
         } catch (Exception e) {
             System.out.println("画像が見つかりません.");
         }
         try {
-            File fontFile = new File("Fonts/DotGothic16-Regular.ttf");
+            java.io.InputStream fontFile = getClass().getResourceAsStream("/Fonts/DotGothic16-Regular.ttf");
             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
 
             fontLarge = baseFont.deriveFont(Font.BOLD, 60f);

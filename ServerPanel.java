@@ -1,7 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 
 import javax.imageio.ImageIO;
@@ -30,8 +28,8 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
         this.setLayout(new BorderLayout());
         
         try {
-            bgImage = ImageIO.read(new File("images/server-clientpanel.png"));
-        } catch (IOException e) {
+            bgImage = new ImageIcon(getClass().getResource("/images/server-clientpanel.png")).getImage();
+        } catch (Exception e) {
             System.out.println("背景画像が見つかりません: " + e.getMessage());
         }
 
@@ -40,7 +38,7 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
         JPanel bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);
 
-        ResultPanel dummy = new ResultPanel();
+        ResultPanel dummy = new ResultPanel(f, false);
         closeBtn = dummy.new CustomButton("CANCEL"); // "戻る" -> 英語表記に変更（機能は同じ）
         closeBtn.setPreferredSize(new Dimension(300, 100));
         
