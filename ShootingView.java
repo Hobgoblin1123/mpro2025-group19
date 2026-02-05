@@ -64,20 +64,28 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
     @Override
     public void run() {
         System.out.println("ゲームループ開始"); // ★デバッグ用
+        long error = 0;
+        int fps = 60;
+        long idealSleep = 1000 / fps; // 約16ms
+        long oldTime;
+        long newTime = System.currentTimeMillis();
         while (getpassedEndTime() > 4000) {
+            oldTime = newTime;
             try {
-
                 processInput();
 
-                // ★デバッグ用: どこで止まっているか確認
-                // System.out.println("受信待機中...");
-
-                // System.out.println("画面更新");
-                manager.update();
-
+                // ここで通信待ちが発生するが、以下の計算でその分スリープを削る
+                manager.update(); 
                 repaint();
-                Thread.sleep(16);
 
+                newTime = System.currentTimeMillis();
+                long processTime = newTime - oldTime; // 処理にかかった時間
+                long sleepTime = idealSleep - processTime; // 理想の時間から処理時間を引く
+
+                if (sleepTime < 2) {
+                    sleepTime = 2; // 最低でも2msは休ませてCPU負荷を下げる
+                }
+                Thread.sleep(sleepTime);
             } catch (Exception e) {
                 e.printStackTrace();
             }
