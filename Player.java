@@ -26,9 +26,11 @@ class Player {
     private long beforeShootTime;
     private boolean isWin = false;
     private float shakeTime = 0;
+    private int biggerbullet = 0;
+    private int statePowerup = 0;
 
     public Player(int hp, int max_hp, int x, int y, int speed, int bounds_x_min, int bounds_x_max, int bounds_y,
-            int radius, int Shootdir) {
+            int radius, int Shootdir, int biggerbullet, int statePowerup) {
         this.hp = hp;
         this.max_hp = max_hp;
         this.x = x;
@@ -39,11 +41,29 @@ class Player {
         this.bounds_y = bounds_y;
         this.radius = radius;
         this.Shootdir = Shootdir;
+        this.biggerbullet = biggerbullet;
+        this.statePowerup = statePowerup;
 
-        if (Shootdir == 1)
+        setImg();
+    }
+
+    public void setImg(){
+        if (Shootdir == 1 && statePowerup == 0){
             this.img = new ImageIcon(getClass().getResource("player1T.png")).getImage();
-        else {
+        }else if(Shootdir == 1 && statePowerup > 0){
+            if((statePowerup / 10) % 2 == 0){
+                this.img = new ImageIcon(getClass().getResource("./images/player1PowerupT1.png")).getImage();
+            }else{
+                this.img = new ImageIcon(getClass().getResource("./images/player1PowerupT2.png")).getImage();
+            }
+        }else if(Shootdir != 1 && statePowerup == 0){
             this.img = new ImageIcon(getClass().getResource("player2T.png")).getImage();
+        }else{
+            if((statePowerup / 10) % 2 == 0){
+                this.img = new ImageIcon(getClass().getResource("./images/player2PowerupT1.png")).getImage();
+            }else{
+                this.img = new ImageIcon(getClass().getResource("./images/player2PowerupT2.png")).getImage();
+            }
         }
     }
 
@@ -139,6 +159,22 @@ class Player {
         return radius;
     }
 
+    public int getBiggerbullet() {
+        return biggerbullet;
+    }
+
+    public void setBiggerbullet(int biggerbullet) {
+        this.biggerbullet = biggerbullet;
+    }
+
+    public int getStatePowerup() {
+        return statePowerup;
+    }
+
+    public void setStatePowerup(int statePowerup) {
+        this.statePowerup = statePowerup;
+    }
+
     public void passShakeTime() {
         this.shakeTime -= 1;
     }
@@ -157,16 +193,16 @@ class Player {
         if (type == 0) {
             // 直進弾
             GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
-            newBullets.add(new Bullet(this, this.getX(), this.getY(), 4, 20, 1, Shootdir, null));
+            newBullets.add(new Bullet(this, this.getX(), this.getY(), 4, 15 + this.getBiggerbullet(), 1, Shootdir, null));
         } else if (type == 1) {
             // 曲線弾
             GameFrame.playSE("music/Thunder_Shot.wav", 0.5f);
-            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 1, 16, 1, Shootdir, null));
+            newBullets.add(new CurveBullet(this, this.getX(), this.getY(), 1, 10 + this.getBiggerbullet(), 1, Shootdir, null));
         } else if (type == 2) {
             // 斜め2方向弾
             GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
-            newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 20, 1, Shootdir, null));
-            newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), 2, 20, 1, Shootdir, null));
+            newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 15 + this.getBiggerbullet(), 1, Shootdir, null));
+            newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), 2, 15 + this.getBiggerbullet(), 1, Shootdir, null));
         }
         return newBullets;
     }
