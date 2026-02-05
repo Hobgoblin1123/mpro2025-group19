@@ -117,7 +117,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
                     beforeShootTime = System.currentTimeMillis();
                 }
             }
-            if (keys[KeyEvent.VK_Q]) {
+            if (keys[KeyEvent.VK_X]) {
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - beforeShootTime > 300) {
                     manager.bullets.addAll(manager.player1.tryShoot(2));
@@ -155,7 +155,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
                     beforeShootTime = System.currentTimeMillis();
                 }
             }
-            if (keys[KeyEvent.VK_Q]) {
+            if (keys[KeyEvent.VK_X]) {
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - beforeShootTime > 300) {
                     isShooting = true;
