@@ -1,13 +1,7 @@
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineEvent;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.awt.geom.Ellipse2D;
-import java.io.File;
 
 class Player {
     private int hp;
@@ -23,7 +17,6 @@ class Player {
     private final static int dx = 5;
     private final static int dy = 5;
     private Image img;
-    private long beforeShootTime;
     private boolean isWin = false;
     private float shakeTime = 0;
     private int biggerbullet = 0;

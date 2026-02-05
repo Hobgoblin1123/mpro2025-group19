@@ -1,21 +1,17 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import javax.swing.ImageIcon;
 
 public class Bullet {
     private Player ownerPlayer;
-    private boolean server;
     private int x;
     private int y;
     private int speed;
-    private int bounds_x;
     protected int radius;
     private int damage;
     private int Shootdir;
     private Color color = new Color(255, 0, 0);
     private final static int dx = 5;
-    private Timer timer;
     public boolean isActive = true;
     protected Image img;
     protected int state_explosion = 0;
