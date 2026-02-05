@@ -35,10 +35,8 @@ class MoveManager extends Observable {
         player1 = new Player(10, 10, offset + 20, y / 2, 1, 20, x / 2 - 20, y, 20, 1, 0, 0);
         player2 = new Player(10, 10, x - offset - 20, y / 2, 1, x / 2 + 20, x - 20, y, 20, -1, 0, 0);
 
-        bullets = new ArrayList<>();
-        gimmicks = new ArrayList<>();
-        // items = new ArrayList<>();
-        // stars = new ArrayList<>();
+        bullets = new ArrayList<>(); //弾リストの初期化
+        gimmicks = new ArrayList<>(); //ギミックリストの初期化
 
         // 通信オブジェクトの受け取り
         if (server) {
@@ -70,7 +68,7 @@ class MoveManager extends Observable {
         recvThread.start();
     }
 
-    // メインループ (ShooterModelのupdateに相当)
+    // メインループ
     public void update() {
         if (!isRunning)
             return;
@@ -126,16 +124,18 @@ class MoveManager extends Observable {
 
     // サーバーのみが実行する物理演算
     private void serverLogic() {
-        // アイテム出現処理などがあればここ
+        // ギミックを確率1/450で生成
         if (rand.nextInt(450) < 1) {
-            int gx = rand.nextInt(court_size_x - 100) + 50;
-            int gy = rand.nextInt(court_size_y - 100) + 50;
+            int gx = rand.nextInt(court_size_x - 100) + 50; //ギミックのx座標をランダムに決定
+            int gy = rand.nextInt(court_size_y - 100) + 50; //ギミックのy座標をランダムに決定
+            //ギミックの種類0, 1をランダムに決定して配列に追加
             gimmicks.add(new Gimmick(gx, gy, 20, new Color(0, 255, 0), 0, rand.nextInt(2)));
         }
 
-        // 弾の移動と当たり判定
+        // 弾の移動と当たり判定, ギミックの判定
         Iterator<Bullet> it = bullets.iterator();
         Iterator<Gimmick> it2 = gimmicks.iterator();
+        // 弾の移動と当たり判定
         while (it.hasNext()) {
             Bullet b = it.next();
             b.move(); // Bulletクラスのmove()を使用
@@ -148,40 +148,43 @@ class MoveManager extends Observable {
             }
 
             // 爆発
-            if (b.getStateExplosion() != 0) {
-                if (b.explosion()) {
-                    b.setStateExplosion(b.getStateExplosion() + 1);
-                    b.setAnimationFrames(0);
-                } else {
+            if (b.getStateExplosion() != 0) { //爆発状態なら
+                if (b.explosion()) { //爆発が進んだら
+                    b.setStateExplosion(b.getStateExplosion() + 1); //状態を進める
+                    b.setAnimationFrames(0); //アニメーションフレームをリセット
+                } else { //爆発が進んでいなければ
+                    //アニメーションフレームを進める(これらの数字の判定はBulletクラス内で行う)
                     b.setAnimationFrames(b.getAnimationFrames() + 1);
                 }
             }
 
+            // 非アクティブなら削除
             if (!b.getIsActive()) {
                 it.remove();
                 continue;
             }
 
-            boolean hit = false;
+            boolean hit = false; //当たったか(初期値はfalse)
             // Player1への当たり判定
-            if (b.getOwner() != player1 && isHit(player1, b) && b.getStateExplosion() == 0) {
-                GameFrame.playSE("music/damaged.wav", 0.5f);
+            if (b.getOwner() != player1 && isHit(player1, b) && b.getStateExplosion() == 0) { //自分の弾でなく, 当たっていて, 爆発状態でなければ
+                GameFrame.playSE("music/damaged.wav", 0.5f); //SE再生
                 player1.hit(1); // 1ダメージ
-                hit = true;
+                hit = true; //当たったことを記録
             }
             // Player2への当たり判定
-            else if (b.getOwner() != player2 && isHit(player2, b) && b.getStateExplosion() == 0) {
-                GameFrame.playSE("music/damaged.wav", 0.5f);
-                player2.hit(1);
-                hit = true;
+            else if (b.getOwner() != player2 && isHit(player2, b) && b.getStateExplosion() == 0) { //自分の弾でなく, 当たっていて, 爆発状態でなければ
+                GameFrame.playSE("music/damaged.wav", 0.5f); //SE再生
+                player2.hit(1); // 1ダメージ
+                hit = true; //当たったことを記録
             }
 
-            if (hit) {
-                b.setStateExplosion(1);
-                b.setAnimationFrames(0);
+            if (hit) { //当たっていたら
+                b.setStateExplosion(1); //爆発状態を1(爆発初期)にする
+                b.setAnimationFrames(0); //アニメーションフレームをリセット
             }
         }
 
+        // ギミックの移動と当たり判定
         while (it2.hasNext()) {
             Gimmick g = it2.next();
 
@@ -192,44 +195,48 @@ class MoveManager extends Observable {
                 continue;
             }
 
-            boolean hit = false;
+            boolean hit = false; //当たったか(初期値はfalse)
             // Player1への当たり判定
-            if (isHit_Gimmick(player1, g) && player1.getStatePowerup() == 0 && g.getType() == 0) {
-                player1.setStatePowerup(1);
-                player1.setImg();
-                player1.setBiggerbullet(10);
-                hit = true;
-            } else if (isHit_Gimmick(player1, g) && g.getType() == 1) {
-                player1.heal(1);
-                hit = true;
+            if (isHit_Gimmick(player1, g) && player1.getStatePowerup() == 0 && g.getType() == 0) { //ギミックに当たっていて, 半径拡大の効果中でなく, 当たったのが弾の半径拡大ギミックなら
+                player1.setStatePowerup(1); //半径拡大中(初期)にする  
+                player1.setImg(); //画像更新
+                player1.setBiggerbullet(10); //弾の半径を10大きくする
+                hit = true; //当たったことを記録
+            } else if (isHit_Gimmick(player1, g) && g.getType() == 1) { //ギミックに当たっていて, 当たったのが回復ギミックなら
+                player1.heal(1); //1回復
+                hit = true; //当たったことを記録
             }
             // Player2への当たり判定
-            else if (isHit_Gimmick(player2, g) && player2.getStatePowerup() == 0 && g.getType() == 0) {
-                player2.setStatePowerup(1);
-                player2.setImg();
-                player2.setBiggerbullet(10);
-                hit = true;
-            } else if (isHit_Gimmick(player2, g) && g.getType() == 1) {
-                player2.heal(1);
-                hit = true;
+            else if (isHit_Gimmick(player2, g) && player2.getStatePowerup() == 0 && g.getType() == 0) { //ギミックに当たっていて, 半径拡大の効果中でなく, 当たったのが弾の半径拡大ギミックなら
+                player2.setStatePowerup(1); //半径拡大中(初期)にする
+                player2.setImg(); //画像更新
+                player2.setBiggerbullet(10); //弾の半径を10大きくする
+                hit = true; //当たったことを記録
+            } else if (isHit_Gimmick(player2, g) && g.getType() == 1) { //ギミックに当たっていて, 当たったのが回復ギミックなら
+                player2.heal(1); //1回復
+                hit = true; //当たったことを記録
             }
 
+            //ギミックが表示されている経過時間を進める
             g.setTime(g.getTime() + 1);
 
+            //ギミック表示時間が750より長いか, 当たっていたら削除
             if (g.getTime() > 750 || hit) {
                 it2.remove();
             }
         }
 
-        if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 600) {
-            player1.setStatePowerup(player1.getStatePowerup() + 1);
-            player1.setImg();
-        } else if (player1.getStatePowerup() >= 600) {
-            player1.setStatePowerup(0);
-            player1.setBiggerbullet(0);
-            player1.setImg();
+        // プレイヤーのパワーアップ状態の管理
+        if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 600) { //弾の半径拡大効果中
+            player1.setStatePowerup(player1.getStatePowerup() + 1); //効果時間を進める
+            player1.setImg(); //プレイヤーの画像更新
+        } else if (player1.getStatePowerup() >= 600) { //効果時間終了
+            player1.setStatePowerup(0); //効果終了
+            player1.setBiggerbullet(0); //弾の半径を元に戻す
+            player1.setImg(); //プレイヤーの画像更新
         }
 
+        // プレイヤー2のパワーアップ状態の管理
         if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 600) {
             player2.setStatePowerup(player2.getStatePowerup() + 1);
             player2.setImg();
@@ -257,7 +264,7 @@ class MoveManager extends Observable {
         return this.player1;
     }
 
-    // 当たり判定の補助メソッド
+    // 弾との当たり判定の補助メソッド
     private boolean isHit(Player p, Bullet b) {
         // 距離の2乗で判定 (平方根計算を避けて高速化)
         double dx = p.getX() - b.getX();
@@ -266,8 +273,8 @@ class MoveManager extends Observable {
         return (dx * dx + dy * dy) <= (rSum * rSum);
     }
 
+    //ギミックとの当たり判定の補助メソッド
     private boolean isHit_Gimmick(Player p, Gimmick g) {
-        // 距離の2乗で判定 (平方根計算を避けて高速化)
         double dx = p.getX() - g.getX();
         double dy = p.getY() - g.getY();
         double rSum = p.getRadius() + g.getRadius();
@@ -287,20 +294,20 @@ class MoveManager extends Observable {
                 .append(player2.getStatePowerup()).append(",")
                 .append(player1.getBiggerbullet()).append(",")
                 .append(player2.getBiggerbullet()).append(",")
-                .append(winner).append("#");
+                .append(winner).append("#"); //#でプレイヤーに関する情報, 弾に関する情報, ギミックに関する情報を区切る
 
-        // 2. 弾情報 (x, y, radius, colorRGB)
+        // 2. 弾情報
         for (Bullet b : bullets) {
-            // Color取得時にnullチェックを入れると安全
+            // Color取得(円で描画する場合)
             int rgb = (b.getColor() != null) ? b.getColor().getRGB() : Color.RED.getRGB();
 
             // 弾の型判定
-            int type = 0;
-            if (b instanceof CurveBullet) {
+            int type = 0; //通常の弾
+            if (b instanceof CurveBullet) { //曲線弾
                 type = 1;
-            } else if (b instanceof UpDiagonalBullet) {
+            } else if (b instanceof UpDiagonalBullet) { //斜め上弾
                 type = 2;
-            } else if (b instanceof DownDiagonalBullet) {
+            } else if (b instanceof DownDiagonalBullet) { //斜め下弾
                 type = 3;
             }
             sb.append(b.getX()).append(",").append(b.getY()).append(",")
@@ -308,18 +315,19 @@ class MoveManager extends Observable {
                     .append(b.getShootdir()).append(",")
                     .append(type).append(",")
                     .append(b.getStateExplosion()).append(",")
-                    .append(b.getAnimationFrames()).append(";");
+                    .append(b.getAnimationFrames()).append(";"); //;で弾同士を区切る
         }
         sb.append("#");
 
         // 3 Gimmick情報
         for (Gimmick g : gimmicks) {
+            // Color取得(円で描画する場合)
             int rgb = (g.getColor() != null) ? g.getColor().getRGB() : Color.RED.getRGB();
 
             sb.append(g.getX()).append(",").append(g.getY()).append(",")
                     .append(g.getRadius()).append(",").append(rgb).append(",")
                     .append(g.getTime()).append(",")
-                    .append(g.getType()).append(";");
+                    .append(g.getType()).append(";"); //;でギミック同士を区切る
 
         }
         sb.append("#");
@@ -354,7 +362,7 @@ class MoveManager extends Observable {
                 }
                 winner = basic[10]; // 空文字でもエラーにならず代入される
 
-                player1.setImg();
+                player1.setImg(); //プレイヤーの画像更新
                 player2.setImg();
 
                 if (!winner.isEmpty()) {
@@ -370,7 +378,7 @@ class MoveManager extends Observable {
                 }
             }
 
-            // 2. 弾情報 (リストを毎回作り直す = 完全同期)
+            // 2. 弾情報 (リストを毎回作り直す)
             bullets.clear();
             if (!sections[1].isEmpty()) {
                 String[] bList = sections[1].split(";");
@@ -379,11 +387,11 @@ class MoveManager extends Observable {
                         continue;
                     String[] val = bStr.split(",");
                     if (val.length >= 8) {
-                        int bx = Integer.parseInt(val[0]);
-                        int by = Integer.parseInt(val[1]);
-                        int br = Integer.parseInt(val[2]);
+                        int bx = Integer.parseInt(val[0]); //弾のx座標
+                        int by = Integer.parseInt(val[1]); //弾のy座標
+                        int br = Integer.parseInt(val[2]); //弾の半径
                         // 色情報のパース
-                        Color bc = new Color(Integer.parseInt(val[3]));
+                        Color bc = new Color(Integer.parseInt(val[3])); //弾の色(円で描画する場合)
                         // どちらの弾か
                         int bs = Integer.parseInt(val[4]);
                         // なんの弾か
@@ -395,20 +403,20 @@ class MoveManager extends Observable {
 
                         // 受信専用のBulletを作る
 
-                        if (type == 0) {
+                        if (type == 0) { //通常の弾
                             bullets.add(new Bullet(bx, by, br, bc, bs, se, af));
-                        } else if (type == 1) {
+                        } else if (type == 1) { //曲線弾
                             bullets.add(new CurveBullet(bx, by, br, bc, bs, se, af));
-                        } else if (type == 2) {
+                        } else if (type == 2) { //斜め上弾
                             bullets.add(new UpDiagonalBullet(bx, by, br, bc, bs, se, af));
-                        } else if (type == 3) {
+                        } else if (type == 3) { //斜め下弾
                             bullets.add(new DownDiagonalBullet(bx, by, br, bc, bs, se, af));
                         }
                     }
                 }
             }
 
-            // 3. アイテム情報 (実装時はここに追加)
+            // 3. Gimmick情報
             gimmicks.clear();
             if (!sections[2].isEmpty()) {
                 String[] gList = sections[2].split(";");
@@ -417,12 +425,14 @@ class MoveManager extends Observable {
                         continue;
                     String[] val = gStr.split(",");
                     if (val.length >= 6) {
-                        int gx = Integer.parseInt(val[0]);
-                        int gy = Integer.parseInt(val[1]);
-                        int gr = Integer.parseInt(val[2]);
-                        // 色情報のパース
+                        int gx = Integer.parseInt(val[0]); //ギミックのx座標
+                        int gy = Integer.parseInt(val[1]); //ギミックのy座標
+                        int gr = Integer.parseInt(val[2]); //ギミックの半径
+                        // 色情報のパース(円で描画する場合)
                         Color gc = new Color(Integer.parseInt(val[3]));
+                        // 表示されてからの経過時間
                         int gt = Integer.parseInt(val[4]);
+                        // ギミックの種類
                         int gty = Integer.parseInt(val[5]);
 
                         // 受信専用のGimmickを作る
@@ -466,11 +476,11 @@ class MoveManager extends Observable {
         player1.draw(g);
         player2.draw(g);
 
-        for (Bullet b : bullets) {
+        for (Bullet b : bullets) { //すべての弾の描画
             b.draw(g);
         }
 
-        for (Gimmick gm : gimmicks) {
+        for (Gimmick gm : gimmicks) { //すべてのギミックの描画
             gm.draw(g);
         }
     }
