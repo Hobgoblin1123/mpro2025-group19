@@ -8,7 +8,7 @@ public class Bullet {
     private boolean server;
     private int x;
     private int y;
-    private int speed;
+    private float speed;
     private int bounds_x;
     protected int radius;
     private int damage;
@@ -21,7 +21,7 @@ public class Bullet {
     protected int state_explosion = 0;
     protected int AnimationFrames;
 
-    public Bullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
+    public Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
             Color color) {
         this.ownerPlayer = owner;
         this.x = x;
@@ -61,7 +61,7 @@ public class Bullet {
             this.radius = 10;
         } else if (state_explosion != 5 && Shootdir == 1)
             this.img = new ImageIcon(getClass().getResource("./images/Bullet1.png")).getImage();
-        else if(state_explosion != 5){
+        else if (state_explosion != 5) {
             this.img = new ImageIcon(getClass().getResource("./images/Bullet2.png")).getImage();
         }
     }
@@ -73,29 +73,29 @@ public class Bullet {
     }
 
     public void move() {
-        if(this.state_explosion == 0){
+        if (this.state_explosion == 0) {
             x += dx * speed * Shootdir;
         }
     }
 
     public boolean explosion() {
-        if(this.state_explosion == 1){
+        if (this.state_explosion == 1) {
             this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion1.png")).getImage();
             this.radius = 20;
             return true;
-        }else if(this.state_explosion == 2 && this.AnimationFrames == 5){
+        } else if (this.state_explosion == 2 && this.AnimationFrames == 5) {
             this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion2.png")).getImage();
             this.radius += 3;
             return true;
-        }else if(this.state_explosion == 3 && this.AnimationFrames == 5){
+        } else if (this.state_explosion == 3 && this.AnimationFrames == 5) {
             this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion3.png")).getImage();
             this.radius += 3;
             return true;
-        }else if(this.state_explosion == 4 && this.AnimationFrames == 5){
+        } else if (this.state_explosion == 4 && this.AnimationFrames == 5) {
             this.img = new ImageIcon(getClass().getResource("./images/BulletExplosion4.png")).getImage();
             this.radius = 10;
             return true;
-        }else if(this.state_explosion == 5 && this.AnimationFrames == 5){
+        } else if (this.state_explosion == 5 && this.AnimationFrames == 5) {
             this.isActive = false;
             return true;
         }
@@ -162,7 +162,7 @@ public class Bullet {
         return this.color;
     }
 
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 }

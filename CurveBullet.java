@@ -9,7 +9,7 @@ public class CurveBullet extends Bullet implements ActionListener {
     double amplitude = 70;
     int y = super.getY();
 
-    public CurveBullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
+    public CurveBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
             Color color) {
         super(owner, x, y, speed, radius, damage, Shootdir, color);
         if (Shootdir == 1)
@@ -35,29 +35,29 @@ public class CurveBullet extends Bullet implements ActionListener {
             this.radius = 10;
         } else if (state_explosion != 5 && Shootdir == 1)
             this.img = new ImageIcon(getClass().getResource("./images/CurveBullet1.png")).getImage();
-        else if(state_explosion != 5){
+        else if (state_explosion != 5) {
             this.img = new ImageIcon(getClass().getResource("./images/CurveBullet2.png")).getImage();
         }
     }
 
     public boolean explosion() {
-        if(this.state_explosion == 1){
+        if (this.state_explosion == 1) {
             this.img = new ImageIcon(getClass().getResource("./images/CurveBulletExplosion1.png")).getImage();
             this.radius = 20;
             return true;
-        }else if(this.state_explosion == 2 && this.AnimationFrames == 5){
+        } else if (this.state_explosion == 2 && this.AnimationFrames == 5) {
             this.img = new ImageIcon(getClass().getResource("./images/CurveBulletExplosion2.png")).getImage();
             this.radius += 3;
             return true;
-        }else if(this.state_explosion == 3 && this.AnimationFrames == 5){
+        } else if (this.state_explosion == 3 && this.AnimationFrames == 5) {
             this.img = new ImageIcon(getClass().getResource("./images/CurveBulletExplosion3.png")).getImage();
             this.radius += 3;
             return true;
-        }else if(this.state_explosion == 4 && this.AnimationFrames == 5){
+        } else if (this.state_explosion == 4 && this.AnimationFrames == 5) {
             this.img = new ImageIcon(getClass().getResource("./images/CurveBulletExplosion4.png")).getImage();
             this.radius = 10;
             return true;
-        }else if(this.state_explosion == 5 && this.AnimationFrames == 5){
+        } else if (this.state_explosion == 5 && this.AnimationFrames == 5) {
             this.isActive = false;
             return true;
         }
@@ -74,7 +74,7 @@ public class CurveBullet extends Bullet implements ActionListener {
         super.move();
 
         time += 0.5;
-        if(super.getStateExplosion() == 0){
+        if (super.getStateExplosion() == 0) {
             int newY = (int) (y + Math.sin(time * frequency) * amplitude);
             super.setY(newY);
         }

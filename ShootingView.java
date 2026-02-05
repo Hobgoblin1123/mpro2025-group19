@@ -209,7 +209,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
         drawPlayerStatus(g, manager.player1, 20, HEIGHT - 80);
 
         // Player2 (Client) のステータス
-        drawPlayerStatus(g, manager.player2, 20, 30);
+        drawPlayerStatus(g, manager.player2, 980, 30);
     }
 
     private void drawStart(Graphics g) {

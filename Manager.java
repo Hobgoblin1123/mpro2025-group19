@@ -32,8 +32,8 @@ class MoveManager extends Observable {
 
         // Playerの初期化 (既存の引数に合わせつつ、調整)
         // ※ Playerクラスのコンストラクタに合わせて調整してください
-        player1 = new Player(10, 10, offset + 20, y / 2, 1, 20, x / 2 - 20, y, 20, 1, 0, 0);
-        player2 = new Player(10, 10, x - offset - 20, y / 2, 1, x / 2 + 20, x - 20, y, 20, -1, 0, 0);
+        player1 = new Player(10, 10, offset + 20, y / 2, 0.5f, 20, x / 2 - 20, y, 20, 1, 0, 0);
+        player2 = new Player(10, 10, x - offset - 20, y / 2, 0.5f, x / 2 + 20, x - 20, y, 20, -1, 0, 0);
 
         bullets = new ArrayList<>();
         gimmicks = new ArrayList<>();
@@ -291,7 +291,6 @@ class MoveManager extends Observable {
 
         // 2. 弾情報 (x, y, radius, colorRGB)
         for (Bullet b : bullets) {
-            // Color取得時にnullチェックを入れると安全
             int rgb = (b.getColor() != null) ? b.getColor().getRGB() : Color.RED.getRGB();
 
             // 弾の型判定
@@ -339,8 +338,8 @@ class MoveManager extends Observable {
             // split(",", -1) にして、末尾の空文字(winner)を消さないようにする
             String[] basic = sections[0].split(",", -1);
 
-            // これで空文字があっても配列の長さは 11 になるので、if文の中に入れる
-            if (basic.length >= 11) {
+            // 空文字があっても配列の長さは 11 になるので、if文の中に入れる
+            if (basic.length >= 11) {// クライアント側での情報の入力
                 player1.setXY(Integer.parseInt(basic[0]), Integer.parseInt(basic[1]));
                 player1.setHP(Integer.parseInt(basic[2]));
                 // player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));
