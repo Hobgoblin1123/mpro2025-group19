@@ -69,13 +69,13 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
         long idealSleep = 1000 / fps; // 約16ms
         long oldTime;
         long newTime = System.currentTimeMillis();
-        while (getpassedEndTime() > 4000) {
+        while (getpassedEndTime() > 2000) {
             oldTime = newTime;
             try {
                 processInput();
 
                 // ここで通信待ちが発生するが、以下の計算でその分スリープを削る
-                manager.update(); 
+                manager.update();
                 repaint();
 
                 newTime = System.currentTimeMillis();
