@@ -64,7 +64,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
     @Override
     public void run() {
         System.out.println("ゲームループ開始"); // ★デバッグ用
-        while (getpassedEndTime() > 4000) {
+        while (manager.isRunning) {
             try {
 
                 processInput();
@@ -109,7 +109,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
                     beforeShootTime = System.currentTimeMillis();
                 }
             }
-            if (keys[KeyEvent.VKXX]) {
+            if (keys[KeyEvent.VK_X]) {
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - beforeShootTime > 300) {
                     manager.bullets.addAll(manager.player1.tryShoot(2));
