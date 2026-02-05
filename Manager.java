@@ -199,7 +199,7 @@ class MoveManager extends Observable {
                 player1.setImg();
                 player1.setBiggerbullet(10);
                 hit = true;
-            }else if (isHit_Gimmick(player1, g) && g.getType() == 1) {
+            } else if (isHit_Gimmick(player1, g) && g.getType() == 1) {
                 player1.heal(1);
                 hit = true;
             }
@@ -209,7 +209,7 @@ class MoveManager extends Observable {
                 player2.setImg();
                 player2.setBiggerbullet(10);
                 hit = true;
-            }else if (isHit_Gimmick(player2, g) && g.getType() == 1) {
+            } else if (isHit_Gimmick(player2, g) && g.getType() == 1) {
                 player2.heal(1);
                 hit = true;
             }
@@ -222,22 +222,22 @@ class MoveManager extends Observable {
         }
 
         if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 400) {
-                player1.setStatePowerup(player1.getStatePowerup() + 1);
-                player1.setImg();
-            }else if (player1.getStatePowerup() >= 400) {
-                player1.setStatePowerup(0);
-                player1.setBiggerbullet(0);
-                player1.setImg();
-            }
+            player1.setStatePowerup(player1.getStatePowerup() + 1);
+            player1.setImg();
+        } else if (player1.getStatePowerup() >= 400) {
+            player1.setStatePowerup(0);
+            player1.setBiggerbullet(0);
+            player1.setImg();
+        }
 
-            if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 400) {
-                player2.setStatePowerup(player2.getStatePowerup() + 1);
-                player2.setImg();
-            }else if (player2.getStatePowerup() >= 400) {
-                player2.setStatePowerup(0);
-                player2.setBiggerbullet(0);
-                player2.setImg();
-            }
+        if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 400) {
+            player2.setStatePowerup(player2.getStatePowerup() + 1);
+            player2.setImg();
+        } else if (player2.getStatePowerup() >= 400) {
+            player2.setStatePowerup(0);
+            player2.setBiggerbullet(0);
+            player2.setImg();
+        }
 
         // 勝敗判定
         if (player1.IsDead()) {
@@ -312,7 +312,7 @@ class MoveManager extends Observable {
         }
         sb.append("#");
 
-        //3 Gimmick情報
+        // 3 Gimmick情報
         for (Gimmick g : gimmicks) {
             int rgb = (g.getColor() != null) ? g.getColor().getRGB() : Color.RED.getRGB();
 
@@ -343,7 +343,7 @@ class MoveManager extends Observable {
             if (basic.length >= 11) {
                 player1.setXY(Integer.parseInt(basic[0]), Integer.parseInt(basic[1]));
                 player1.setHP(Integer.parseInt(basic[2]));
-                player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));
+                // player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));
                 player2.setHP(Integer.parseInt(basic[5]));
                 player1.setStatePowerup(Integer.parseInt(basic[6]));
                 player2.setStatePowerup(Integer.parseInt(basic[7]));
