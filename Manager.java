@@ -221,19 +221,19 @@ class MoveManager extends Observable {
             }
         }
 
-        if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 400) {
+        if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 600) {
             player1.setStatePowerup(player1.getStatePowerup() + 1);
             player1.setImg();
-        } else if (player1.getStatePowerup() >= 400) {
+        } else if (player1.getStatePowerup() >= 600) {
             player1.setStatePowerup(0);
             player1.setBiggerbullet(0);
             player1.setImg();
         }
 
-        if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 400) {
+        if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 600) {
             player2.setStatePowerup(player2.getStatePowerup() + 1);
             player2.setImg();
-        } else if (player2.getStatePowerup() >= 400) {
+        } else if (player2.getStatePowerup() >= 600) {
             player2.setStatePowerup(0);
             player2.setBiggerbullet(0);
             player2.setImg();
