@@ -169,7 +169,7 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         }
     }
 
-    // ★クライアント接続ロジック (元のコードを維持)
+    // クライアント接続ロジック
     private void connecToServer(String ip, int port) {
         statusLbl.setText("CONNECTING (" + ip + ":" + port + ")...");
         statusLbl.setForeground(Color.YELLOW);
