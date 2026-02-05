@@ -8,8 +8,8 @@ import javax.swing.*;
 
 // ロジックはそのまま、見た目を宇宙船コックピット風に改装
 public class ClientPanel extends StarAnimPanel implements ActionListener {
-    private CustomButton closeBtn;
-    private CustomButton connectBtn;
+    private ResultPanel.CustomButton closeBtn;
+    private ResultPanel.CustomButton connectBtn;
     private JTextField idField;
     private JTextField ipField;
     private JLabel statusLbl;
@@ -59,10 +59,11 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         statusLbl.setForeground(Color.GRAY);
         statusLbl.setFont(new Font("Monospaced", Font.BOLD, 14));
         statusLbl.setPreferredSize(new Dimension(300, 30));
-
-        connectBtn = new CustomButton("CONNECT");
+        
+        ResultPanel dummy = new ResultPanel();
+        connectBtn = dummy.new CustomButton("CONNECT");
         connectBtn.setPreferredSize(new Dimension(200, 75));
-        closeBtn = new CustomButton("BACK");
+        closeBtn = dummy.new CustomButton("BACK");
         closeBtn.setPreferredSize(new Dimension(200, 75));
 
         // --- 3. リスナーの登録 ---

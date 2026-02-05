@@ -9,7 +9,7 @@ import javax.swing.*;
 
 // ロジックはそのまま、見た目を宇宙・レーダー風に改装
 public class ServerPanel extends StarAnimPanel implements ActionListener {
-    private CustomButton closeBtn; // JButton -> CustomButton
+    private ResultPanel.CustomButton closeBtn; // JButton -> CustomButton
     private GameFrame f;
     private boolean isWaiting = false;
 
@@ -39,8 +39,9 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
         // --- 2. 構成要素 (ボタンのみ配置、テキストはpaintComponentで描画) ---
         JPanel bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);
-        
-        closeBtn = new CustomButton("CANCEL"); // "戻る" -> 英語表記に変更（機能は同じ）
+
+        ResultPanel dummy = new ResultPanel();
+        closeBtn = dummy.new CustomButton("CANCEL"); // "戻る" -> 英語表記に変更（機能は同じ）
         closeBtn.setPreferredSize(new Dimension(300, 100));
         
         bottomPanel.add(closeBtn);

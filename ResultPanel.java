@@ -240,4 +240,5 @@ public class ResultPanel extends JPanel implements ActionListener {
         }
         
     }
+    public ResultPanel(){}
 }
