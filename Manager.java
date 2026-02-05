@@ -15,6 +15,7 @@ class MoveManager extends Observable {
     public int court_size_x, court_size_y;
     public Player player1, player2;
     public ArrayList<Bullet> bullets;
+    public ArrayList<Gimmick> gimmicks;
 
     public String winner = "";
     public boolean isRunning = true;
@@ -31,10 +32,11 @@ class MoveManager extends Observable {
 
         // Playerの初期化 (既存の引数に合わせつつ、調整)
         // ※ Playerクラスのコンストラクタに合わせて調整してください
-        player1 = new Player(10, 10, offset + 20, y / 2, 1, 20, x / 2 - 20, y, 20, 1);
-        player2 = new Player(10, 10, x - offset - 20, y / 2, 1, x / 2 + 20, x - 20, y, 20, -1);
+        player1 = new Player(10, 10, offset + 20, y / 2, 1, 20, x / 2 - 20, y, 20, 1, 0, 0);
+        player2 = new Player(10, 10, x - offset - 20, y / 2, 1, x / 2 + 20, x - 20, y, 20, -1, 0, 0);
 
         bullets = new ArrayList<>();
+        gimmicks = new ArrayList<>();
         // items = new ArrayList<>();
         // stars = new ArrayList<>();
 
@@ -125,9 +127,15 @@ class MoveManager extends Observable {
     // サーバーのみが実行する物理演算
     private void serverLogic() {
         // アイテム出現処理などがあればここ
+        if (rand.nextInt(500) < 1) {
+            int gx = rand.nextInt(court_size_x - 100) + 50;
+            int gy = rand.nextInt(court_size_y - 100) + 50;
+            gimmicks.add(new Gimmick(gx, gy, 20, new Color(0, 255, 0), 0));
+        }
 
         // 弾の移動と当たり判定
         Iterator<Bullet> it = bullets.iterator();
+        Iterator<Gimmick> it2 = gimmicks.iterator();
         while (it.hasNext()) {
             Bullet b = it.next();
             b.move(); // Bulletクラスのmove()を使用
@@ -174,6 +182,57 @@ class MoveManager extends Observable {
             }
         }
 
+        while (it2.hasNext()) {
+            Gimmick g = it2.next();
+
+            // 画面外に出たら削除
+            if (g.getX() < -50 || g.getX() > court_size_x + 50 ||
+                    g.getY() < -50 || g.getY() > court_size_y + 50) {
+                it2.remove();
+                continue;
+            }
+
+            boolean hit = false;
+            // Player1への当たり判定
+            if (isHit_Gimmick(player1, g) && player1.getStatePowerup() == 0) {
+                player1.setStatePowerup(1);
+                player1.setImg();
+                player1.setBiggerbullet(10);
+                hit = true;
+            }
+            // Player2への当たり判定
+            else if (isHit_Gimmick(player2, g) && player2.getStatePowerup() == 0) {
+                player2.setStatePowerup(1);
+                player2.setImg();
+                player2.setBiggerbullet(10);
+                hit = true;
+            }
+
+            g.setTime(g.getTime() + 1);
+
+            if (g.getTime() > 750 || hit) {
+                it2.remove();
+            }
+        }
+
+        if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 400) {
+                player1.setStatePowerup(player1.getStatePowerup() + 1);
+                player1.setImg();
+            }else if (player1.getStatePowerup() >= 400) {
+                player1.setStatePowerup(0);
+                player1.setBiggerbullet(0);
+                player1.setImg();
+            }
+
+            if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 400) {
+                player2.setStatePowerup(player2.getStatePowerup() + 1);
+                player2.setImg();
+            }else if (player2.getStatePowerup() >= 400) {
+                player2.setStatePowerup(0);
+                player2.setBiggerbullet(0);
+                player2.setImg();
+            }
+
         // 勝敗判定
         if (player1.IsDead()) {
             isRunning = false;
@@ -201,6 +260,14 @@ class MoveManager extends Observable {
         return (dx * dx + dy * dy) <= (rSum * rSum);
     }
 
+    private boolean isHit_Gimmick(Player p, Gimmick g) {
+        // 距離の2乗で判定 (平方根計算を避けて高速化)
+        double dx = p.getX() - g.getX();
+        double dy = p.getY() - g.getY();
+        double rSum = p.getRadius() + g.getRadius();
+        return (dx * dx + dy * dy) <= (rSum * rSum);
+    }
+
     // サーバーからクライアントへデータを送信
     // フォーマット: "P1x,P1y,P1hp,P2x,P2y,P2hp,Winner # Bullet1;Bullet2;... # Items..."
     private void sendServerData() {
@@ -210,6 +277,10 @@ class MoveManager extends Observable {
         sb.append(player1.getX()).append(",").append(player1.getY()).append(",").append(player1.getHp()).append(",")
                 .append(player2.getX()).append(",").append(player2.getY()).append(",").append(player2.getHp())
                 .append(",")
+                .append(player1.getStatePowerup()).append(",")
+                .append(player2.getStatePowerup()).append(",")
+                .append(player1.getBiggerbullet()).append(",")
+                .append(player2.getBiggerbullet()).append(",")
                 .append(winner).append("#");
 
         // 2. 弾情報 (x, y, radius, colorRGB)
@@ -235,8 +306,14 @@ class MoveManager extends Observable {
         }
         sb.append("#");
 
-        // 3. アイテム情報 (今回は空)
-        // for (Item i : items) { ... }
+        //3 Gimmick情報
+        for (Gimmick g : gimmicks) {
+            int rgb = (g.getColor() != null) ? g.getColor().getRGB() : Color.RED.getRGB();
+
+            sb.append(g.getX()).append(",").append(g.getY()).append(",")
+                    .append(g.getRadius()).append(",").append(rgb).append(",")
+                    .append(g.getTime()).append(";");
+        }
         sb.append("#");
 
         sv.send("Data:" + sb.toString());
@@ -247,23 +324,30 @@ class MoveManager extends Observable {
         try {
             // # で分割
             String[] sections = msg.split("#", -1);
-            if (sections.length < 2)
+            if (sections.length < 3)
                 return;
             int old_hp = player2.getHp();
             // 1. プレイヤー情報
             // split(",", -1) にして、末尾の空文字(winner)を消さないようにする
             String[] basic = sections[0].split(",", -1);
 
-            // これで空文字があっても配列の長さは 7 になるので、if文の中に入れる
-            if (basic.length >= 7) {
+            // これで空文字があっても配列の長さは 11 になるので、if文の中に入れる
+            if (basic.length >= 11) {
                 player1.setXY(Integer.parseInt(basic[0]), Integer.parseInt(basic[1]));
                 player1.setHP(Integer.parseInt(basic[2]));
                 player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));
                 player2.setHP(Integer.parseInt(basic[5]));
+                player1.setStatePowerup(Integer.parseInt(basic[6]));
+                player2.setStatePowerup(Integer.parseInt(basic[7]));
+                player1.setBiggerbullet(Integer.parseInt(basic[8]));
+                player2.setBiggerbullet(Integer.parseInt(basic[9]));
                 if (Integer.parseInt(basic[5]) < old_hp) {
                     player1.hit(0);
                 }
-                winner = basic[6]; // 空文字でもエラーにならず代入される
+                winner = basic[10]; // 空文字でもエラーにならず代入される
+
+                player1.setImg();
+                player2.setImg();
 
                 if (!winner.isEmpty()) {
 
@@ -317,6 +401,26 @@ class MoveManager extends Observable {
             }
 
             // 3. アイテム情報 (実装時はここに追加)
+            gimmicks.clear();
+            if (!sections[2].isEmpty()) {
+                String[] gList = sections[2].split(";");
+                for (String gStr : gList) {
+                    if (gStr.isEmpty())
+                        continue;
+                    String[] val = gStr.split(",");
+                    if (val.length >= 5) {
+                        int gx = Integer.parseInt(val[0]);
+                        int gy = Integer.parseInt(val[1]);
+                        int gr = Integer.parseInt(val[2]);
+                        // 色情報のパース
+                        Color gc = new Color(Integer.parseInt(val[3]));
+                        int gt = Integer.parseInt(val[4]);
+
+                        // 受信専用のGimmickを作る
+                        gimmicks.add(new Gimmick(gx, gy, gr, gc, gt));
+                    }
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -357,6 +461,8 @@ class MoveManager extends Observable {
             b.draw(g);
         }
 
-        // items.draw(g);
+        for (Gimmick gm : gimmicks) {
+            gm.draw(g);
+        }
     }
 }
