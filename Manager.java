@@ -99,7 +99,7 @@ class MoveManager extends Observable {
     // サーバーのみが実行する物理演算
     private void serverLogic() {
         // アイテム出現処理などがあればここ
-        if (rand.nextInt(400) < 1) {
+        if (rand.nextInt(500) < 1) {
             int gx = rand.nextInt(court_size_x - 100) + 50;
             int gy = rand.nextInt(court_size_y - 100) + 50;
             gimmicks.add(new Gimmick(gx, gy, 20, new Color(0, 255, 0), 0));
@@ -180,30 +180,30 @@ class MoveManager extends Observable {
                 hit = true;
             }
 
-            if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 1000) {
+            g.setTime(g.getTime() + 1);
+
+            if (g.getTime() > 750 || hit) {
+                it2.remove();
+            }
+        }
+
+        if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 400) {
                 player1.setStatePowerup(player1.getStatePowerup() + 1);
                 player1.setImg();
-            }else if (player1.getStatePowerup() >= 1000) {
+            }else if (player1.getStatePowerup() >= 400) {
                 player1.setStatePowerup(0);
                 player1.setBiggerbullet(0);
                 player1.setImg();
             }
 
-            if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 1000) {
+            if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 400) {
                 player2.setStatePowerup(player2.getStatePowerup() + 1);
                 player2.setImg();
-            }else if (player2.getStatePowerup() >= 1000) {
+            }else if (player2.getStatePowerup() >= 400) {
                 player2.setStatePowerup(0);
                 player2.setBiggerbullet(0);
                 player2.setImg();
             }
-
-            g.setTime(g.getTime() + 1);
-
-            if (hit || g.getTime() > 500) {
-                it2.remove();
-            }
-        }
 
         // 勝敗判定
         if (player1.IsDead()) {
