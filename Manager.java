@@ -99,10 +99,10 @@ class MoveManager extends Observable {
     // サーバーのみが実行する物理演算
     private void serverLogic() {
         // アイテム出現処理などがあればここ
-        if (rand.nextInt(500) < 1) {
+        if (rand.nextInt(450) < 1) {
             int gx = rand.nextInt(court_size_x - 100) + 50;
             int gy = rand.nextInt(court_size_y - 100) + 50;
-            gimmicks.add(new Gimmick(gx, gy, 20, new Color(0, 255, 0), 0));
+            gimmicks.add(new Gimmick(gx, gy, 20, new Color(0, 255, 0), 0, rand.nextInt(2)));
         }
 
         // 弾の移動と当たり判定
@@ -166,17 +166,23 @@ class MoveManager extends Observable {
 
             boolean hit = false;
             // Player1への当たり判定
-            if (isHit_Gimmick(player1, g) && player1.getStatePowerup() == 0) {
+            if (isHit_Gimmick(player1, g) && player1.getStatePowerup() == 0 && g.getType() == 0) {
                 player1.setStatePowerup(1);
                 player1.setImg();
                 player1.setBiggerbullet(10);
                 hit = true;
+            }else if (isHit_Gimmick(player1, g) && g.getType() == 1) {
+                player1.heal(1);
+                hit = true;
             }
             // Player2への当たり判定
-            else if (isHit_Gimmick(player2, g) && player2.getStatePowerup() == 0) {
+            else if (isHit_Gimmick(player2, g) && player2.getStatePowerup() == 0 && g.getType() == 0) {
                 player2.setStatePowerup(1);
                 player2.setImg();
                 player2.setBiggerbullet(10);
+                hit = true;
+            }else if (isHit_Gimmick(player2, g) && g.getType() == 1) {
+                player2.heal(1);
                 hit = true;
             }
 
@@ -284,7 +290,9 @@ class MoveManager extends Observable {
 
             sb.append(g.getX()).append(",").append(g.getY()).append(",")
                     .append(g.getRadius()).append(",").append(rgb).append(",")
-                    .append(g.getTime()).append(";");
+                    .append(g.getTime()).append(",")
+                    .append(g.getType()).append(";");
+
         }
         sb.append("#");
 
@@ -380,16 +388,17 @@ class MoveManager extends Observable {
                     if (gStr.isEmpty())
                         continue;
                     String[] val = gStr.split(",");
-                    if (val.length >= 5) {
+                    if (val.length >= 6) {
                         int gx = Integer.parseInt(val[0]);
                         int gy = Integer.parseInt(val[1]);
                         int gr = Integer.parseInt(val[2]);
                         // 色情報のパース
                         Color gc = new Color(Integer.parseInt(val[3]));
                         int gt = Integer.parseInt(val[4]);
+                        int gty = Integer.parseInt(val[5]);
 
                         // 受信専用のGimmickを作る
-                        gimmicks.add(new Gimmick(gx, gy, gr, gc, gt));
+                        gimmicks.add(new Gimmick(gx, gy, gr, gc, gt, gty));
                     }
                 }
             }

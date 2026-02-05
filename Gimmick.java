@@ -10,14 +10,20 @@ public class Gimmick {
     private Color color = new Color(255, 0, 0);
     protected Image img;
     private int time;
+    private int type;
 
-    public Gimmick(int x, int y, int radius, Color color, int time) {
+    public Gimmick(int x, int y, int radius, Color color, int time, int type) {
         this.x = x;
         this.y = y;
         this.color = color;
         this.radius = radius;
         this.time = time;
-        this.img = new ImageIcon(getClass().getResource("./images/Gimmick.png")).getImage();
+        this.type = type;
+        if(type == 0){
+            this.img = new ImageIcon(getClass().getResource("./images/BigRadius.png")).getImage();
+        }else if(type == 1){
+            this.img = new ImageIcon(getClass().getResource("./images/Heal.png")).getImage();
+        }
     }
 
     public void draw(Graphics g) {
@@ -40,6 +46,14 @@ public class Gimmick {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public int getType() {
+        return this.type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public void setY(int y) {
