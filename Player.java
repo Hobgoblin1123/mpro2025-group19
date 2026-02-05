@@ -24,7 +24,7 @@ class Player {
     private int statePowerup = 0; // パワーアップ状態(0:通常, 1以上:パワーアップ中)
 
     // コンストラクタ
-    public Player(int hp, int max_hp, int x, int y, int speed, int bounds_x_min, int bounds_x_max, int bounds_y,
+    public Player(int hp, int max_hp, int x, int y, float speed, int bounds_x_min, int bounds_x_max, int bounds_y,
             int radius, int Shootdir, int biggerbullet, int statePowerup) {
         this.hp = hp;
         this.max_hp = max_hp;

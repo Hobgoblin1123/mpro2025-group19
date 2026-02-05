@@ -9,7 +9,7 @@ public class CurveBullet extends Bullet {
     int y = super.getY(); // 初期のy座標(元のBulletで計算した値)
 
     // サーバー用のコンストラクタ
-    public CurveBullet(Player owner, int x, int y, flaot speed, int radius, int damage, int Shootdir,
+    public CurveBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
             Color color) {
         super(owner, x, y, speed, radius, damage, Shootdir, color);
         if (Shootdir == 1) // サーバー側の弾の画像

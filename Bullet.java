@@ -7,7 +7,7 @@ public class Bullet {
     private Player ownerPlayer; // 弾の所有者
     private int x; // 弾のx座標
     private int y; // 弾のy座標
-    private flaot speed; // 弾の速度
+    private float speed; // 弾の速度
     protected int radius; // 弾の半径
     private int damage; // 弾が持つダメージ
     private int Shootdir; // 弾の向き(1:サーバー側)

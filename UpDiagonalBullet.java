@@ -6,7 +6,6 @@ public class UpDiagonalBullet extends Bullet {
     private final static int dy = 5; // y方向の移動量
 
     // サーバー用のコンストラクタ
-    public UpDiagonalBullet(Player owner, int x, int y, int speed, int radius, int damage, int Shootdir,
 
     public UpDiagonalBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
             Color color) {
