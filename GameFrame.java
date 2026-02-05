@@ -14,7 +14,7 @@ import java.util.Observer;
 // //  ----------------------------------
 
 // --- 標準ライブラリのみを使用 ---
-import javax.sound.sampled.*; 
+import javax.sound.sampled.*;
 // ----------------------------------
 
 //  動作確認用
@@ -149,6 +149,13 @@ public class GameFrame extends JFrame implements Observer {
 
     // 共通受信メソッド
     public String receiveMessage() {
+
+        if (mm != null) {
+            String queuedMsg = mm.msgQueue.poll(); // 後述のメソッドを追加
+            if (queuedMsg != null)
+                return queuedMsg;
+        }
+
         if (commSV instanceof CommServer)
             return ((CommServer) commSV).recv();
         else if (commSV instanceof CommClient)
@@ -159,7 +166,7 @@ public class GameFrame extends JFrame implements Observer {
     public void tryRetry() {
         // 通信待ち時のフリーズ回避のためにマルチスレッド
         new Thread(() -> {
-            boolean isSend = sendMessage("RETRY");
+            boolean isSend = sendMessage("Retry:RETRY");
             System.out.println("リトライ要求を送信中・・・");
 
             // 送信バッファに "RETRY" が置けてない
@@ -173,11 +180,16 @@ public class GameFrame extends JFrame implements Observer {
             }
 
             // 相手の応答待機
+
             String response = receiveMessage();
-            System.out.println("相手の応答: " + response);
+            while (response != null && !response.startsWith("Retry:")) {
+                response = receiveMessage();
+            }
+            String actualResponse = response.substring(6);
+            System.out.println("相手の応答: " + actualResponse);
 
             SwingUtilities.invokeLater(() -> {
-                if (response.equals("RETRY")) {
+                if (actualResponse.equals("RETRY")) {
                     retryGame();
                 } else {
                     JOptionPane.showMessageDialog(this, "相手がゲームを終了しました。");
@@ -219,36 +231,36 @@ public class GameFrame extends JFrame implements Observer {
 
     // --- BGM再生メソッド --------------------------------
     // public void playBGM(String filePath) {
-    //     isLoop = true;
-    //     bgmThread = new Thread(() -> {
-    //         while (isLoop) { // ループ再生
-    //             try {
-    //                 FileInputStream fis = new FileInputStream(filePath);
-    //                 BufferedInputStream bis = new BufferedInputStream(fis);
-    //                 player = new Player(bis);
-    //                 player.play(); // 再生終了までブロックされる
-    //             } catch (Exception e) {
-    //                 System.out.println("BGM再生エラー: " + e.getMessage());
-    //                 isLoop = false; // エラー時はループを抜ける
-    //             }
-    //         }
-    //     });
-    //     bgmThread.start();
+    // isLoop = true;
+    // bgmThread = new Thread(() -> {
+    // while (isLoop) { // ループ再生
+    // try {
+    // FileInputStream fis = new FileInputStream(filePath);
+    // BufferedInputStream bis = new BufferedInputStream(fis);
+    // player = new Player(bis);
+    // player.play(); // 再生終了までブロックされる
+    // } catch (Exception e) {
+    // System.out.println("BGM再生エラー: " + e.getMessage());
+    // isLoop = false; // エラー時はループを抜ける
+    // }
+    // }
+    // });
+    // bgmThread.start();
     // }
 
     // // --- BGM停止メソッド ---
     // public void stopBGM() {
-    //     isLoop = false; // ループフラグを下ろす
-    //     if (player != null) {
-    //         player.close(); // 現在再生中のプレイヤーを閉じる
-    //     }
+    // isLoop = false; // ループフラグを下ろす
+    // if (player != null) {
+    // player.close(); // 現在再生中のプレイヤーを閉じる
+    // }
     // }
     // --- BGM再生メソッド (WAV版) ---
     public void playBGM(String filePath, float volumeLevel) {
         try {
             File soundFile = new File(filePath);
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
-            
+
             // 音声データをロード
             clip = AudioSystem.getClip();
             clip.open(audioStream);
@@ -256,20 +268,21 @@ public class GameFrame extends JFrame implements Observer {
             // --- 音量調整処理 ---
             // MASTER_GAIN というコントロールを取得
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            
+
             // 0.0(消音) ～ 1.0(最大) の値を デシベル(dB) に変換する計算式
             // dB = 20 * log10(volume)
             float db = (float) (Math.log10(volumeLevel) * 20.0);
-            
+
             // 設定可能な最小値より小さくならないように制限
             float min = gainControl.getMinimum(); // 通常 -80.0dBくらい
-            if (db < min) db = min;
-            
+            if (db < min)
+                db = min;
+
             gainControl.setValue(db);
             // ------------------
 
             // ループ設定して再生開始
-            clip.loop(Clip.LOOP_CONTINUOUSLY); 
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
 
         } catch (Exception e) {
             System.out.println("BGM再生エラー: " + e.getMessage());
@@ -298,7 +311,8 @@ public class GameFrame extends JFrame implements Observer {
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             float db = (float) (Math.log10(volumeLevel) * 20.0);
             float min = gainControl.getMinimum();
-            if (db < min) db = min;
+            if (db < min)
+                db = min;
             gainControl.setValue(db);
 
             // 再生終了時に自動で閉じるためのリスナーを追加 (メモリ節約)

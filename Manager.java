@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Observable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @SuppressWarnings("deprecation") // 非推奨Componentを使用しても警告が出ないようにする
 class MoveManager extends Observable {
@@ -18,12 +19,15 @@ class MoveManager extends Observable {
     public String winner = "";
     public boolean isRunning = true;
     private Random rand = new Random();
+    public ConcurrentLinkedQueue<String> msgQueue;
 
     // コンストラクタ
     public MoveManager(int x, int y, int offset, boolean server, Object comm) {
+
         this.server = server;
         this.court_size_x = x;
         this.court_size_y = y;
+        msgQueue = new ConcurrentLinkedQueue<>();
 
         // Playerの初期化 (既存の引数に合わせつつ、調整)
         // ※ Playerクラスのコンストラクタに合わせて調整してください
@@ -42,6 +46,26 @@ class MoveManager extends Observable {
             this.cl = (CommClient) comm;
             // cl.setTimeout(1);
         }
+
+        Thread recvThread = new Thread(() -> {
+            while (isRunning) {
+                String msg = null;
+                // サーバーかクライアントかで使い分け
+                if (server && sv != null) {
+                    msg = sv.recv();
+                } else if (!server && cl != null) {
+                    msg = cl.recv();
+                }
+
+                if (msg != null) {
+                    // 受信したらメッセージをキューに保存
+                    msgQueue.add(msg);
+                } else {
+                    // エラーや切断時の処理（必要ならisRunningをfalseにする等）
+                }
+            }
+        });
+        recvThread.start();
     }
 
     // メインループ (ShooterModelのupdateに相当)
@@ -49,28 +73,29 @@ class MoveManager extends Observable {
         if (!isRunning)
             return;
 
-        // 背景エフェクト更新などがあればここ
-        // for(Star s : stars) s.update(court_size_x, court_size_y, rand);
-
         if (server) {
             // --- サーバー側の処理 ---
 
             // 1. クライアント(Player2)の操作を受信
-            String msg = sv.recv();
-            if (msg != null) {
+            String msg;
+            while ((msg = msgQueue.poll()) != null) {
                 try {
-                    // クライアントからは "x y isShooting" が来る想定
-                    String[] data = msg.split(" ");
-                    int p2x = Integer.parseInt(data[0]);
-                    int p2y = Integer.parseInt(data[1]);
-                    boolean p2Shoot = Boolean.parseBoolean(data[2]);
-                    int bulletType = Integer.parseInt(data[3]);
-                    // 位置を同期
-                    player2.setXY(p2x, p2y);
 
-                    // 発射処理 (サーバー側で弾を生成してリストに追加)
-                    if (p2Shoot) {
-                        bullets.addAll(player2.tryShoot(bulletType));
+                    if (msg.startsWith("Data:")) {
+                        String actualData = msg.substring(5);
+                        // クライアントからは "x y isShooting" が来る想定
+                        String[] data = actualData.split(" ");
+                        int p2x = Integer.parseInt(data[0]);
+                        int p2y = Integer.parseInt(data[1]);
+                        boolean p2Shoot = Boolean.parseBoolean(data[2]);
+                        int bulletType = Integer.parseInt(data[3]);
+                        // 位置を同期
+                        player2.setXY(p2x, p2y);
+
+                        // 発射処理 (サーバー側で弾を生成してリストに追加)
+                        if (p2Shoot) {
+                            bullets.addAll(player2.tryShoot(bulletType));
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -87,9 +112,12 @@ class MoveManager extends Observable {
             // --- クライアント側の処理 ---
 
             // サーバーからの全データを受信して反映
-            String msg = cl.recv();
-            if (msg != null) {
-                parseServerData(msg);
+            String msg;
+            while ((msg = msgQueue.poll()) != null) {
+                if (msg.startsWith("Data:")) {
+                    String actualData = msg.substring(5);
+                    parseServerData(actualData);
+                }
             }
         }
     }
@@ -211,7 +239,7 @@ class MoveManager extends Observable {
         // for (Item i : items) { ... }
         sb.append("#");
 
-        sv.send(sb.toString());
+        sv.send("Data:" + sb.toString());
     }
 
     // クライアント側でのデータ受信・解析
@@ -299,7 +327,7 @@ class MoveManager extends Observable {
     public void sendClientInput(boolean isShooting, int bulletType) {
         if (!server) {
             // "x y isShooting"
-            cl.send(player2.getX() + " " + player2.getY() + " " + isShooting + " " + bulletType);
+            cl.send("Data:" + player2.getX() + " " + player2.getY() + " " + isShooting + " " + bulletType);
         }
     }
 
