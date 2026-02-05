@@ -28,7 +28,7 @@ class MoveManager extends Observable {
 
         // Playerの初期化 (既存の引数に合わせつつ、調整)
         // ※ Playerクラスのコンストラクタに合わせて調整してください
-        player1 = new Player(10, 10, offset, y / 2, 1, 20, x / 2 - 20, y, 20, 1, 0, 0);
+        player1 = new Player(10, 10, offset + 20, y / 2, 1, 20, x / 2 - 20, y, 20, 1, 0, 0);
         player2 = new Player(10, 10, x - offset - 20, y / 2, 1, x / 2 + 20, x - 20, y, 20, -1, 0, 0);
 
         bullets = new ArrayList<>();
@@ -119,9 +119,9 @@ class MoveManager extends Observable {
                 continue;
             }
 
-            //爆発
+            // 爆発
             if (b.getStateExplosion() != 0) {
-                if(b.explosion()){
+                if (b.explosion()) {
                     b.setStateExplosion(b.getStateExplosion() + 1);
                     b.setAnimationFrames(0);
                 } else {
@@ -129,7 +129,7 @@ class MoveManager extends Observable {
                 }
             }
 
-            if (!b.getIsActive()){
+            if (!b.getIsActive()) {
                 it.remove();
                 continue;
             }
@@ -260,7 +260,7 @@ class MoveManager extends Observable {
             // Color取得時にnullチェックを入れると安全
             int rgb = (b.getColor() != null) ? b.getColor().getRGB() : Color.RED.getRGB();
 
-            //弾の型判定
+            // 弾の型判定
             int type = 0;
             if (b instanceof CurveBullet) {
                 type = 1;
@@ -348,20 +348,20 @@ class MoveManager extends Observable {
                         int br = Integer.parseInt(val[2]);
                         // 色情報のパース
                         Color bc = new Color(Integer.parseInt(val[3]));
-                        //どちらの弾か
+                        // どちらの弾か
                         int bs = Integer.parseInt(val[4]);
-                        //なんの弾か
+                        // なんの弾か
                         int type = Integer.parseInt(val[5]);
-                        //爆発の段階
+                        // 爆発の段階
                         int se = Integer.parseInt(val[6]);
-                        //爆発アニメーションのフレーム
+                        // 爆発アニメーションのフレーム
                         int af = Integer.parseInt(val[7]);
 
                         // 受信専用のBulletを作る
 
                         if (type == 0) {
                             bullets.add(new Bullet(bx, by, br, bc, bs, se, af));
-                        } else if(type == 1) {
+                        } else if (type == 1) {
                             bullets.add(new CurveBullet(bx, by, br, bc, bs, se, af));
                         } else if (type == 2) {
                             bullets.add(new UpDiagonalBullet(bx, by, br, bc, bs, se, af));
