@@ -29,8 +29,6 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
         this.manager = manager;
         manager.addObserver(this);
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-
-        this.setHorizontalMode(true);
         this.starMaxSpeed = 0.3;
         setBackground(Color.BLACK);
         setFocusable(true);
