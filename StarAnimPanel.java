@@ -13,9 +13,6 @@ public class StarAnimPanel extends JPanel implements ActionListener {
     protected float starMaxSize = 7.0f;
     protected int starMaxBrightness = 255;
     protected double starMaxSpeed = 1;
-    
-    // ★追加: 横移動モードかどうかのフラグ
-    protected boolean isHorizontal = false; 
 
     public StarAnimPanel() {
         this.setOpaque(true);
@@ -28,19 +25,10 @@ public class StarAnimPanel extends JPanel implements ActionListener {
         timer = new Timer(16, this);
         timer.start();
     }
-    
-    // ★追加: 横移動モードをセットするメソッド
-    public void setHorizontalMode(boolean enable) {
-        this.isHorizontal = enable;
-        // モード切替時に星の位置を再配置する
-        for (Star s : stars) {
-            s.reset(true);
-        }
-    }
 
     @Override
     protected void paintComponent(Graphics g) {
-        // 背景の描画 (ShootingViewでsetBackgroundしてあればそれが使われる)
+        // 背景の描画
         super.paintComponent(g);
         
         Graphics2D g2d = (Graphics2D) g;
@@ -69,80 +57,46 @@ public class StarAnimPanel extends JPanel implements ActionListener {
             reset(true);
         }
 
+        // 星の位置を初期化（randomize: 最初から散らばらせるかどうか）
         void reset(boolean randomize) {
             Random rand = new Random();
+            x = rand.nextInt(2000) - 1000; // -1000 ~ 1000
+            y = rand.nextInt(2000) - 1000;
             
-            if (isHorizontal) {
-                // --- 横移動用の初期化 ---
-                // 画面全体に散らす
-                x = rand.nextInt(2000) - 1000; 
-                y = rand.nextInt(1200) - 600;
-                // zは「奥行き（遠近感）」として使う（1〜1000）
-                z = rand.nextInt(1000) + 1; 
+            if (randomize) {
+                z = rand.nextInt(1000); // 奥行き
             } else {
-                // --- ワープ用の初期化 (元のロジック) ---
-                x = rand.nextInt(2000) - 1000;
-                y = rand.nextInt(2000) - 1000;
-                if (randomize) {
-                    z = rand.nextInt(1000);
-                } else {
-                    z = 1000;
-                }
+                z = 1000; // 遠くから出現
             }
-            this.speedFactor = 5 + rand.nextInt(10);
+            this.speedFactor = 5 + rand.nextInt(10); // スピードのばらつき
         }
 
+        // 位置の更新
         void update() {
-            if (isHorizontal) {
-                // --- 横移動のロジック ---
-                // 近く(zが小さい)ほど速く動く（パララックス効果）
-                double parallaxSpeed = starMaxSpeed * speedFactor * (1000.0 / z) * 0.1;
-                x -= parallaxSpeed; // 左へ移動
-
-                // 左端(画面外)に行ったら右端に戻す
-                if (x < -1000) {
-                    x = 1000;
-                    y = new Random().nextInt(1200) - 600; // Y座標もランダムに変える
-                }
-            } else {
-                // --- ワープのロジック (元のまま) ---
-                z -= starMaxSpeed * speedFactor;
-                if (z <= 0) {
-                    reset(false);
-                }
+            z -= starMaxSpeed * speedFactor; // 手前に近づく
+            if (z <= 0) {
+                reset(false); // 手前まで来たら奥に戻す
             }
         }
 
+        // 描画
         void draw(Graphics2D g2d, int centerX, int centerY) {
-            double sx, sy, size;
-            int brightness;
+            // 遠近法の計算
+            if (z <= 0) z = 0.1; // ゼロ除算防止
+            
+            double sx = (x / z) * 150 + centerX;
+            double sy = (y / z) * 150 + centerY;
 
-            if (isHorizontal) {
-                // --- 横移動の描画 ---
-                // 3D割算をせず、そのまま座標として使う
-                sx = x + centerX;
-                sy = y + centerY;
+            // 近いほど大きく、遠いほど小さく
+            double size = (1000 - z) / 1000 * starMaxSize; 
+            // 最小サイズ保証はないほうが遠くで消えて綺麗に見える場合もありますが、
+            // 元のロジックに合わせて調整してください
 
-                // 遠く(zが大きい)ほど小さく、暗く
-                double scale = (1000.0 - z) / 1000.0; // 0.0 ~ 1.0
-                size = starMaxSize * scale;
-                // 最小サイズ保証
-                if (size < 1.0) size = 1.0;
-
-                brightness = (int)(starMaxBrightness * scale);
-
-            } else {
-                // --- ワープの描画 (元のまま) ---
-                if (z <= 0) z = 0.1; 
-                sx = (x / z) * 150 + centerX;
-                sy = (y / z) * 150 + centerY;
-                size = (1000 - z) / 1000 * starMaxSize;
-                brightness = (int) ((1000 - z) / 1000 * starMaxBrightness);
-            }
+            int brightness = (int) ((1000 - z) / 1000 * starMaxBrightness);
 
             if (brightness < 0) brightness = 0;
             if (brightness > 255) brightness = 255;
-
+            
             g2d.setColor(new Color(255, 255, 255, brightness));
             g2d.fillOval((int) sx, (int) sy, (int) size, (int) size);
         }
