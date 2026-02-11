@@ -1,0 +1,77 @@
+\documentclass[a4paper,10pt]{jarticle}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{ascmac}
+\usepackage{amssymb}
+\usepackage{fancybox}
+\usepackage{float}
+\usepackage{mathcomp}
+\usepackage{lmodern}
+\usepackage{upgreek}
+\usepackage{enumitem}
+\usepackage{amsthm}
+\setlength{\textwidth}{165mm}
+\setlength{\marginparwidth}{40mm}
+\setlength{\textheight}{255mm}
+\setlength{\topmargin}{-15mm}
+\setlength{\oddsidemargin}{-3.5mm}
+
+\def\vector#1{\mbox{\boldmath $#1$}}
+\newcommand{\AmSLaTeX}{%
+ $\mathcal A$\lower.4ex\hbox{$\!\mathcal M\!$}$\mathcal S$-\LaTeX}
+\newcommand{\PS}{{\scshape Post\-Script}}
+\def\BibTeX{{\rmfamily B\kern-.05em{\scshape i\kern-.025em b}\kern-.08em
+ T\kern-.1667em\lower.7ex\hbox{E}\kern-.125em X}}
+\newcommand{\pderiv}[2]{{\partial#1\over\partial#2}}
+\newcommand{\deriv}[2]{{{\rm d}#1\over{\rm d}#2}}
+\newcommand{\dderiv}[2]{{{\rm d}^2#1\over{\rm d}#2^2}}
+\newcommand{\DeLta}{{\mit\Delta}}
+\renewcommand{\d}{{\rm d}}
+\def\wcaption#1{\caption[]{\parbox[t]{100mm}{#1}}}
+\def\rm#1{\mathrm{#1}}
+\def\tempC{^\circ \rm{C}}
+
+\makeatletter
+\def\section{\@startsection {section}{1}{\z@}{-3.5ex plus -1ex minus
+-.2ex}{2.3ex plus .2ex}{\normalsize\bf}}
+\makeatother
+
+\makeatletter
+\def\subsection{\@startsection {subsection}{1}{\z@}{-3.5ex plus -1ex minus
+-.2ex}{2.3ex plus .2ex}{\normalsize\bf}}
+\makeatother
+
+\makeatletter
+\def\@seccntformat#1{\@ifundefined{#1@cntformat}
+   {\csname the#1\endcsname\quad}
+   {\csname #1@cntformat\endcsname}
+}
+\makeatother
+
+\begin{document}
+　
+\vspace{5cm}
+\begin{center}
+{\Huge{\bf メディア情報学プログラミング演習 \\グループプログラミングレポート}} \\
+\Large{{\bf グループ19\\
+2411516 池崎文哉\\
+2411540 大谷華景\\
+2411548 奥野椋太\\
+2411730 南悠莞} \\
+%{\bf 2026年2月〇日}
+}
+\end{center}
+\clearpage
+
+\section*{概要説明}
+\section*{設計方針}
+\section*{プログラムの説明}
+\section*{実行例}
+\section*{考察}
+\section*{感想}
+\section*{付録1}
+\section*{付録2}
+\end{document}
