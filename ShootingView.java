@@ -123,6 +123,9 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
                 }
             }
             // Serverの発射処理はここに実装
+            // currentTimeに現在時刻を代入
+            // beforeShootTimeとの差を計算して発射クールダウンを設定
+
         } else {
             // Client
             if (keys[KeyEvent.VK_LEFT])
@@ -162,6 +165,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
                 }
             }
             manager.sendClientInput(isShooting, bulletType);
+            // Client側では球が発射されたかとどの球が発射されたかは別フラグで管理
         }
     }
 
@@ -173,32 +177,33 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
 
         if (manager != null) {
             g2.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+            // 以下で画面の揺れ方を設定
             if (manager.getPlayer().getShakeTime() > 0) {
                 shakeX = (int) (Math.cos(shakeAngle) * 30);
                 shakeY = (int) (Math.sin(shakeAngle) * 30);
-                shakeAngle += 1.0;
-                manager.getPlayer().passShakeTime();
-                g2.setColor(new Color(255, 0, 0, 80)); // 半透明赤
+                shakeAngle += 1.0;// 揺れ方は三角関数に従う
+                manager.getPlayer().passShakeTime();// Player側ではhit時にShakeTimeを設定
+                g2.setColor(new Color(255, 0, 0, 80)); // 半透明赤の長方形を置いて画面を赤く
                 g2.fillRect(0, 0, getWidth(), getHeight());
             } else {
                 shakeX = 0;
                 shakeY = 0;
             }
-            g2.translate(shakeX, shakeY);
+            g2.translate(shakeX, shakeY);// 画面の原点座標をずらす
             manager.draw(g2);
             drawUI(g2);
 
             nowTime = System.currentTimeMillis();
             if (nowTime - startedTime < 800) {
-
-                drawStart(g2);
+                drawStart(g2);// ゲームスタート直後はGameStartの文字を描画
             }
             if (manager.isRunning == false) {
-                drawGameset(g2);
+                drawGameset(g2);// ゲーム終了後はGamesetの文字を描画
+                                // ゲーム終了後一定時間したらこのスレッドは描画されなくなるので描画終了時刻は考えなくてよい
             }
         }
 
-        g2.translate(-1 * shakeX, -1 * shakeY);
+        g2.translate(-1 * shakeX, -1 * shakeY);// 画面揺れのずれをもとに戻す
     }
 
     // UI描画（NetworkShooterから移植）
@@ -210,6 +215,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
         drawPlayerStatus(g, manager.player2, 980, 30);
     }
 
+    // GameStartの文字の描画
     private void drawStart(Graphics g) {
         // フォントの登録
         if (fontLarge != null) {
@@ -225,7 +231,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
 
         int textX = (int) (centerX - fm.stringWidth(text) / 2);
         int textY = (int) (centerY - fm.getAscent() / 2) + fm.getAscent() - offset;
-
+        // フォントサイズを計算して画面の真ん中に文字が来るように
         g.setColor(Color.RED);
         g.drawString(text, textX, textY);
     }
@@ -245,7 +251,7 @@ public class ShootingView extends StarAnimPanel implements Runnable, KeyListener
 
         int textX = (int) (centerX - fm.stringWidth(text) / 2);
         int textY = (int) (centerY - fm.getAscent() / 2) + fm.getAscent() - offset;
-
+        // フォントサイズを計算して画面の真ん中に文字が来るように
         g.setColor(Color.RED);
         g.drawString(text, textX, textY);
     }
