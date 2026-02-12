@@ -1,77 +1,164 @@
-\documentclass[a4paper,10pt]{jarticle}
-\usepackage[dvipdfmx]{graphicx}
-\usepackage{amsmath}
-\usepackage{latexsym}
-\usepackage{multirow}
-\usepackage{url}
-\usepackage{ascmac}
-\usepackage{amssymb}
+%
+% PDFを生成するには
+% platex sample　// sample.tex から sample.dvi が生成される
+% platex sample  // 2回実行すること．
+% dvipdfmx sample // sample.dvi から sample.pdf が生成される．
+%
+%\documentstyle[11pt,a4j]{jarticle} 
+\documentclass[11pt,a4j]{jarticle}
+\usepackage[dvips]{graphicx}
 \usepackage{fancybox}
-\usepackage{float}
-\usepackage{mathcomp}
-\usepackage{lmodern}
-\usepackage{upgreek}
-\usepackage{enumitem}
-\usepackage{amsthm}
-\setlength{\textwidth}{165mm}
-\setlength{\marginparwidth}{40mm}
-\setlength{\textheight}{255mm}
-\setlength{\topmargin}{-15mm}
-\setlength{\oddsidemargin}{-3.5mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\textwidth}{170mm} 
+\setlength{\topmargin}{-5mm}
+\setlength{\textheight}{240mm}
+\setlength{\columnsep}{8mm}
 
-\def\vector#1{\mbox{\boldmath $#1$}}
-\newcommand{\AmSLaTeX}{%
- $\mathcal A$\lower.4ex\hbox{$\!\mathcal M\!$}$\mathcal S$-\LaTeX}
-\newcommand{\PS}{{\scshape Post\-Script}}
-\def\BibTeX{{\rmfamily B\kern-.05em{\scshape i\kern-.025em b}\kern-.08em
- T\kern-.1667em\lower.7ex\hbox{E}\kern-.125em X}}
-\newcommand{\pderiv}[2]{{\partial#1\over\partial#2}}
-\newcommand{\deriv}[2]{{{\rm d}#1\over{\rm d}#2}}
-\newcommand{\dderiv}[2]{{{\rm d}^2#1\over{\rm d}#2^2}}
-\newcommand{\DeLta}{{\mit\Delta}}
-\renewcommand{\d}{{\rm d}}
-\def\wcaption#1{\caption[]{\parbox[t]{100mm}{#1}}}
-\def\rm#1{\mathrm{#1}}
-\def\tempC{^\circ \rm{C}}
-
-\makeatletter
-\def\section{\@startsection {section}{1}{\z@}{-3.5ex plus -1ex minus
--.2ex}{2.3ex plus .2ex}{\normalsize\bf}}
-\makeatother
-
-\makeatletter
-\def\subsection{\@startsection {subsection}{1}{\z@}{-3.5ex plus -1ex minus
--.2ex}{2.3ex plus .2ex}{\normalsize\bf}}
-\makeatother
-
-\makeatletter
-\def\@seccntformat#1{\@ifundefined{#1@cntformat}
-   {\csname the#1\endcsname\quad}
-   {\csname #1@cntformat\endcsname}
-}
-\makeatother
-
-\begin{document}
-　
-\vspace{5cm}
+\begin {document}
+\thispagestyle{empty}
+\begin{flushright}
+\begin{tabular}{|c|}\hline
+\hspace*{2cm} \\
+\hspace*{2cm} \\
+\hspace*{1.7cm} \\ \hline
+\end{tabular}\\
+{\huge\tt 2011-後学期}
+\end{flushright}
 \begin{center}
-{\Huge{\bf メディア情報学プログラミング演習 \\グループプログラミングレポート}} \\
-\Large{{\bf グループ19\\
-2411516 池崎文哉\\
-2411540 大谷華景\\
-2411548 奥野椋太\\
-2411730 南悠莞} \\
-%{\bf 2026年2月〇日}
-}
-\end{center}
-\clearpage
+\begin{Huge}
+{\bf 平成23年度 プログラミング演習}\\
+\vspace{0.5cm}
+{\bf グループプログラミング レポート}\\
+\vspace{1.5cm}
+{\bf 「ネットワーク対戦型テニスゲーム」}\\
+\vspace{5cm}
 
-\section*{概要説明}
-\section*{設計方針}
-\section*{プログラムの説明}
-\section*{実行例}
-\section*{考察}
-\section*{感想}
-\section*{付録1}
-\section*{付録2}
+\begin{tabular}{|c|c|}\hline
+学科&総合情報学専攻\\ \hline
+クラス&  J1    \\ \hline
+グループ番号& 25 \\ \hline
+000000& 電通 太郎 \\ \hline
+000001& 電通 次郎 \\ \hline
+000002& 電通 花子 \\ \hline
+000003& 電通 三郎 \\ \hline
+\end{tabular}
+\end{Huge}
+\end{center}
+\newpage
+
+\section{プログラムの概要}
+どの様な目的のプログラムを実現したか，どのような機能を実装したか，
+をまず最初に説明してください．
+必要に応じてスクリーンキャプチャした画像も張り付けてください．
+
+「ドローエディタ」ならば，どのような機能を持ったドローエディタを作ったか
+説明してください．
+
+作業の分担など，作業をどのように進めたかも説明して下さい．
+
+\section{設計方針}
+プログラムの基本構想を述べる．
+どのようなアルゴリズム，データ構造を用いて，目的の処理を実現するのか説明する．
+なぜ，そのようなアルゴリズム，データ構造を用いたかという考察も含める．
+ここでは，プログラムの細部には触れない．
+
+今回は，Javaのプログラミングなので，どのようなクラスを用意して，どのように利用するかを説明する．
+クラス図を使用してください．発表会のプレゼンで作成したクラス図を流用して
+構いません．
+
+例を 図\ref{fig:class}に示す．
+
+%\begin{figure}[htbp]
+%  \begin{center}
+%    \leavevmode
+%    \includegraphics[width=0.4\textwidth]{class_samp.eps}
+%    \caption{例．クラス図．}
+%    \label{fig:class}
+%  \end{center}
+%\end{figure}
+
+\section{プログラムの説明}
+メンバー全員が各自の担当した部分を説明．工夫点を述べる．
+
+実際に作成した主要なクラスの主なメソッド，フィールドの説明を行う．
+必要に応じてプログラムリストを抜粋して説明する．
+
+
+\section{実行例}
+実行画面を示す．結果のみでなく，分かりやすく説明する．
+
+必要に応じてグラフや図などを用いる．
+
+例を 図\ref{fig:graph}に示す．
+
+%\begin{figure}[htbp]
+%  \begin{center}
+%    \leavevmode
+%    \includegraphics[width=0.6\textwidth]{graph.eps} 
+% width=0.6\textwidth は図の横幅を全体の横幅の0.6倍に設定しています．
+% 0.6 を変えると図の大きさを自由に変えることができます．
+%    \caption{例．sin(x)のグラフ．}
+%    \label{fig:graph}
+%  \end{center}
+%\end{figure}
+
+今回の場合は，グラフの代わりにスクリーンショットをつけて，説明すること．
+特に，アピールしたい点については丁寧に実行例を説明すること．
+
+\section{考察}
+完成したプログラムに対する考察，コメントを述べてください．
+当初予定していた通りの物ができたか考察してください．
+また，考察を踏まえて，今後の改良点についても述べてください．
+
+
+\section{各自の反省と感想}
+以下のような内容に関して，
+メンバ全員がそれぞれ書いてください．メンバ間で
+内容が重複しても構いません．必ず，それぞれ誰の
+感想か分かるようにしてください．
+\begin{itemize}
+  \item グループでの作業を通しての反省や感想，それから考察できること．
+  \item 今後の各自の担当部分の課題．やり残したこと．
+  \item Javaやオブジェクト指向，MVCモデルなど学習内容に関する感想．
+  \item 「プログラミング演習」の授業に関する感想や要望．
+\end{itemize}
+
+\newpage
+\section*{付録１：操作法マニュアル (ユーザーズマニュアル)}
+そのプログラムを初めて使う人向けの説明書を書いてください．
+ドローエディタなら操作法の説明，ゲームならキー操作の
+説明などを書いてください．スクリーンキャプチャした画像に
+説明を書き込んだりしてもいいでしょう．
+2ページ程度の簡潔な説明書で構いません．
+
+なお，付録は始まる直前で必ず改ページして下さい．
+
+\newpage
+\section*{付録２：プログラムリスト}
+プログラムリストは本文中には説明に必要な部分だけ抜粋して掲載して，
+プログラムリスト全体はレポートの最後に「付録」として付ける．
+プログラムコードには，主なメソッド，フィールドの説明など
+最低限のコメントは付ける．
+
+\verb|cat -n hash.c| などとして，行番号付きのプログラムリスト
+を生成して，
+
+\noindent
+\verb|\begin{verbatim}....\end{verbatim}|を用いて記述すると読みやすい．
+ページ数が多くなる場合は，
+\verb|\small|や\verb|\footnotesize|を
+用いるとよい．
+
+\begin{small}
+\begin{verbatim}
+    1  struct item* insert(struct item s){
+    2    int i; struct entry *p, *chain; 
+    3    i=h(s.key);
+    4    chain=H[i];
+    5    if(chain){
+    6      while(chain && comparekeytype(chain->term.key, s.key)) chain=chain->next; 
+    7      if(chain) return &(chain->term);  /* 同じ鍵が見つかった 場合*/
+    8    }
+\end{verbatim}
+\end{small}
 \end{document}
