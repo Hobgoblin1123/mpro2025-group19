@@ -3,10 +3,10 @@
 % platex sample　// sample.tex から sample.dvi が生成される
 % platex sample  // 2回実行すること．
 % dvipdfmx sample // sample.dvi から sample.pdf が生成される．
-%
-%\documentstyle[11pt,a4j]{jarticle} 
+
+% \documentstyle[11pt,a4j]{jarticle} 
 \documentclass[11pt,a4j]{jarticle}
-\usepackage[dvips]{graphicx}
+\usepackage[dvipdfmx]{graphicx}
 \usepackage{fancybox}
 \setlength{\oddsidemargin}{0mm}
 \setlength{\textwidth}{170mm} 
@@ -26,18 +26,18 @@
 \end{flushright}
 \begin{center}
 \begin{Huge}
-{\bf 平成23年度 プログラミング演習}\\
+{\bf 令和6年度 プログラミング演習}\\
 \vspace{0.5cm}
 {\bf グループプログラミング レポート}\\
 \vspace{1.5cm}
-{\bf 「ネットワーク対戦型テニスゲーム」}\\
+{\bf 「ネットワーク対戦型2Dシューティングゲーム」}\\
 \vspace{5cm}
 
 \begin{tabular}{|c|c|}\hline
 学科&総合情報学専攻\\ \hline
 クラス&  J1    \\ \hline
 グループ番号& 25 \\ \hline
-000000& 電通 太郎 \\ \hline
+2411516& 池崎　文哉 \\ \hline
 000001& 電通 次郎 \\ \hline
 000002& 電通 花子 \\ \hline
 000003& 電通 三郎 \\ \hline
@@ -54,8 +54,11 @@
 「ドローエディタ」ならば，どのような機能を持ったドローエディタを作ったか
 説明してください．
 
-作業の分担など，作業をどのように進めたかも説明して下さい．
+作業の分担など，作業をどのように進めたかも説明して下さい．\\
+------------------------------------------
 
+私たちのグループでは、対戦型の2Dシューティングゲームを作成した。本ゲームではスペースキー、Zキー、Xキーによって異なる3種類の球を発射し相手の体力を削りきることが目的である。マップ上にはランダムな位置にアイテムが生成され、取得すると回復効果や弾丸のパワーアップ効果を得られる。作業の分担として、池崎は全体のゲームの動きを統括するModelを作成した。\\
+---------------------------------------------
 \section{設計方針}
 プログラムの基本構想を述べる．
 どのようなアルゴリズム，データ構造を用いて，目的の処理を実現するのか説明する．
@@ -68,14 +71,19 @@
 
 例を 図\ref{fig:class}に示す．
 
-%\begin{figure}[htbp]
-%  \begin{center}
-%    \leavevmode
-%    \includegraphics[width=0.4\textwidth]{class_samp.eps}
-%    \caption{例．クラス図．}
-%    \label{fig:class}
-%  \end{center}
-%\end{figure}
+\begin{figure}[htbp]
+ \begin{center}
+   \includegraphics[width=18cm]{class_figure.eps}
+   \caption{クラス図．}
+   \label{fig:class}
+ \end{center}
+\end{figure}
+
+
+\\--------------------------------------
+ゲームの描画の画面遷移は主にGameflame.javaによって実装される。Gameflame.javaはStartPanel、ServerPanel、ClientPanel、GamePanel、ResultPanelの5種類の画面の遷移を行う。Player、各Bullet、Gimmickの実装は他のファイルが行い。それらを用いて全体を統括するManager.javaを実装した。Shooting.javaではこのManager.javaを用いてゲーム画面の実装を行った。
+
+\\---------------------------------------
 
 \section{プログラムの説明}
 メンバー全員が各自の担当した部分を説明．工夫点を述べる．
@@ -83,6 +91,14 @@
 実際に作成した主要なクラスの主なメソッド，フィールドの説明を行う．
 必要に応じてプログラムリストを抜粋して説明する．
 
+
+\\-------------------------------------------
+
+
+
+
+\\
+\\--------------------------------------------
 
 \section{実行例}
 実行画面を示す．結果のみでなく，分かりやすく説明する．
@@ -110,6 +126,10 @@
 当初予定していた通りの物ができたか考察してください．
 また，考察を踏まえて，今後の改良点についても述べてください．
 
+\\--------------------------------------
+\\
+
+\\--------------------------------------
 
 \section{各自の反省と感想}
 以下のような内容に関して，

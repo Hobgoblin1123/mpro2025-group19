@@ -106,7 +106,7 @@ class Player {
         x += dx * speed;
     }
 
-    // ダメージ
+    // ダメージ、画面揺れの時間管理も担当
     public int hit(int damage) {
         hp -= damage;
         shakeTime = 15;
