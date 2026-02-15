@@ -229,33 +229,7 @@ public class GameFrame extends JFrame implements Observer {
     }
     // ---------------------------------------------------
 
-    // --- BGM再生メソッド --------------------------------
-    // public void playBGM(String filePath) {
-    // isLoop = true;
-    // bgmThread = new Thread(() -> {
-    // while (isLoop) { // ループ再生
-    // try {
-    // FileInputStream fis = new FileInputStream(filePath);
-    // BufferedInputStream bis = new BufferedInputStream(fis);
-    // player = new Player(bis);
-    // player.play(); // 再生終了までブロックされる
-    // } catch (Exception e) {
-    // System.out.println("BGM再生エラー: " + e.getMessage());
-    // isLoop = false; // エラー時はループを抜ける
-    // }
-    // }
-    // });
-    // bgmThread.start();
-    // }
-
-    // // --- BGM停止メソッド ---
-    // public void stopBGM() {
-    // isLoop = false; // ループフラグを下ろす
-    // if (player != null) {
-    // player.close(); // 現在再生中のプレイヤーを閉じる
-    // }
-    // }
-    // --- BGM再生メソッド (WAV版) ---
+    // --- 　B　G　M　再　生　メ　ソ　ッ　ド　 ---
     public void playBGM(String filePath, float volumeLevel) {
         try {
             File soundFile = new File(filePath);
@@ -290,7 +264,7 @@ public class GameFrame extends JFrame implements Observer {
         }
     }
 
-    // --- 変更: BGM停止メソッド ---
+    // ---　 B　G　M　停　止　メ　ソ　ッ　ド　 ---
     public void stopBGM() {
         if (clip != null && clip.isRunning()) {
             clip.stop();
@@ -298,7 +272,7 @@ public class GameFrame extends JFrame implements Observer {
         }
     }
 
-    // --- SE再生用メソッド -------
+    // --- 　S　E　再　生　用　メ　ソ　ッ　ド　 -------
     public static void playSE(String filePath, float volumeLevel) {
         try {
             File soundFile = new File(filePath);
