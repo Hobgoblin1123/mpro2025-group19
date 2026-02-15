@@ -7,7 +7,7 @@ import javax.swing.*;
 
 // ロジックはそのまま、見た目を宇宙・レーダー風に改装
 public class ServerPanel extends StarAnimPanel implements ActionListener {
-    private ResultPanel.CustomButton closeBtn; // JButton -> CustomButton
+    private CustomButton closeBtn;
     private GameFrame f;
     private boolean isWaiting = false;
 
@@ -23,8 +23,9 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
     public ServerPanel(GameFrame f) {
         super(); // 星のアニメーション開始
         this.f = f;
+        Font pixelFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 40f);
         
-        // --- 1. レイアウト設定 ---
+        // --- 1. 　レ　イ　ア　ウ　ト　設　定　 ---
         this.setLayout(new BorderLayout());
         
         try {
@@ -34,22 +35,21 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
         }
 
 
-        // --- 2. 構成要素 (ボタンのみ配置、テキストはpaintComponentで描画) ---
+        // --- 2. 　構　成　要　素　 (ボタンのみ配置、テキストはpaintComponentで描画) ---
         JPanel bottomPanel = new JPanel();
         bottomPanel.setOpaque(false);
 
-        ResultPanel dummy = new ResultPanel(f, false);
-        closeBtn = dummy.new CustomButton("CANCEL"); // "戻る" -> 英語表記に変更（機能は同じ）
+        closeBtn = new CustomButton("CANCEL", pixelFont); // "戻る" -> 英語表記に変更（機能は同じ）
         closeBtn.setPreferredSize(new Dimension(300, 100));
-        
+        closeBtn.setSound(f);
         bottomPanel.add(closeBtn);
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 0)); // 下に余白
         this.add(bottomPanel, BorderLayout.SOUTH);
 
-        // --- 3. リスナーの登録 ---
+        // --- 3. 　リ　ス　ナ　ー　の　登　録　 ---
         closeBtn.addActionListener(this);
 
-        // --- 4. 画面表示時のイベント (元のコードと同じ) ---
+        // --- 4. 　画　面　表　示　時　の　イ　ベ　ン　ト　 ---
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
@@ -58,19 +58,19 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
         });
     }
 
-    // ★サーバー待機ロジック (元のコードを完全に維持)
+    // サーバー待機ロジック
     public void serverWait() {
         if (isWaiting) return;  // 二重起動防止
         isWaiting = true;
 
-        // --- 1. ランダムポート番号設定 ---
+        // --- 1. ラ　ン　ダ　ム　ポ　ー　ト　番　号　設　定　 ---
         int port = (int) (Math.random() * 64511) + 1024;    // 65535 - 1024 = 64511
         
-        // ★変更点: ラベルではなく描画用変数にセット
+        // ラベルではなく描画用変数にセット
         this.displayPort = String.valueOf(port);
         this.displayStatus = "WAITING FOR CONNECTION..."; 
 
-        // --- 2. 自分のIPアドレスを取得 ---
+        // --- 2. 自　分　の　I　P　ア　ド　レ　ス　を　取　得　 ---
         String myIP = "UNKNOWN";
         try {
             myIP = InetAddress.getLocalHost().getHostAddress();
@@ -79,7 +79,7 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
         }
         this.displayIP = myIP;
 
-        // --- 3. 別スレッドで接続待ちを開始 ---
+        // --- 3. 別　ス　レ　ッ　ド　で　接　続　待　ち　を　開　始　 ---
         new Thread(() -> {
             try {
                 // --- 4. Commサーバーをインスタンス化 ---
@@ -106,24 +106,6 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
                 });
             }
         }).start();     // Threadの起動
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == closeBtn) {
-            // 待機キャンセル等の処理が必要ならここに記述
-            f.playSE("music/back.wav", 1);
-            f.showCard("START");
-            f.stopBGM();
-            f.playBGM("music/main.wav", 0.3f);
-        }
-        // 星のアニメーション用
-        super.actionPerformed(e);
-        
-        // レーダーの回転
-        radarAngle += 0.05;
-        if(radarAngle > Math.PI * 2) radarAngle = 0;
-        repaint();
     }
 
     // --- 描画処理 (ラベルの代わりに直接描画) ---
@@ -177,5 +159,23 @@ public class ServerPanel extends StarAnimPanel implements ActionListener {
     private void drawCenteredString(Graphics2D g, String text, int x, int y) {
         FontMetrics fm = g.getFontMetrics();
         g.drawString(text, x - fm.stringWidth(text) / 2, y);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == closeBtn) {
+            // 待機キャンセル等の処理が必要ならここに記述
+            f.playSE("music/back.wav", 1);
+            f.showCard("START");
+            f.stopBGM();
+            f.playBGM("music/main.wav", 0.3f);
+        }
+        // 星のアニメーション用
+        updateStars();
+        
+        // レーダーの回転
+        radarAngle += 0.05;
+        if(radarAngle > Math.PI * 2) radarAngle = 0;
+        repaint();
     }
 }

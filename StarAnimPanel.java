@@ -38,14 +38,22 @@ public class StarAnimPanel extends JPanel implements ActionListener {
         int centerY = getHeight() / 2;
 
         for (Star star : stars) {
-            star.update();
+            // star.update();   updateStars()に分離
             star.draw(g2d, centerX, centerY);
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        repaint();
+        updateStars(); // 計算
+        repaint();     // 再描画要求
+    }
+
+    // 継承先からも呼べるように protected に分離
+    protected void updateStars() {
+        for (Star star : stars) {
+            star.update();
+        }
     }
 
     // 内部クラス: 星

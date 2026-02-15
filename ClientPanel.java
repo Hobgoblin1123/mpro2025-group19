@@ -4,8 +4,8 @@ import javax.swing.*;
 
 // ロジックはそのまま、見た目を宇宙船コックピット風に改装
 public class ClientPanel extends StarAnimPanel implements ActionListener {
-    private ResultPanel.CustomButton closeBtn;
-    private ResultPanel.CustomButton connectBtn;
+    private CustomButton closeBtn;
+    private CustomButton connectBtn;
     private JTextField idField;
     private JTextField ipField;
     private JLabel statusLbl;
@@ -15,8 +15,11 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
     public ClientPanel(GameFrame f) {
         super(); // 星のアニメーション開始
         this.f = f;
+        Font pixelFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 40f);
+        Font titleFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 24f);
+        Font statusFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 14f);
         
-        // --- 1. レイアウト設定 ---
+        // --- 1. 　レ　イ　ア　ウ　ト　設　定　 ---
         this.setLayout(new GridBagLayout()); // 中央寄せしやすいGridBagLayoutに変更
 
         try {
@@ -36,16 +39,18 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         ));
         consolePanel.setBackground(new Color(0, 0, 30, 200)); // 半透明黒
 
-        // --- 2. 構成要素の作成とデザイン ---
+        // --- 2. 　構　成　要　素　の　作　成　と　デ　ザ　イ　ン　 ---
         JLabel titleLabel = new JLabel("ESTABLISH CONNECTION");
         titleLabel.setForeground(Color.CYAN);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        titleLabel.setFont(titleFont);
 
         JLabel ipLabel = new JLabel("TARGET IP:");
         ipLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(pixelFont);
         
         JLabel idLabel = new JLabel("ROOM ID (PORT):");
         idLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(pixelFont);
 
         // テキストフィールドのカスタムデザイン
         ipField = createCustomTextField("localhost");
@@ -53,15 +58,16 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
 
         statusLbl = new JLabel("READY", JLabel.CENTER);
         statusLbl.setForeground(Color.GRAY);
-        statusLbl.setFont(new Font("Monospaced", Font.BOLD, 14));
+        statusLbl.setFont(statusFont);
         statusLbl.setPreferredSize(new Dimension(300, 30));
-        
-        ResultPanel dummy = new ResultPanel(f, false);
-        connectBtn = dummy.new CustomButton("CONNECT");
+
+        connectBtn = new CustomButton("CONNECT", titleFont);
         connectBtn.setPreferredSize(new Dimension(200, 75));
-        closeBtn = dummy.new CustomButton("BACK");
+        closeBtn = new CustomButton("BACK", titleFont);
         closeBtn.setPreferredSize(new Dimension(200, 75));
 
+        connectBtn.setSound(f);
+        closeBtn.setSound(f);
         // --- 3. リスナーの登録 ---
         connectBtn.addActionListener(this);
         closeBtn.addActionListener(this);
