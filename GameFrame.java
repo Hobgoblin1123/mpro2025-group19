@@ -6,6 +6,7 @@ import javax.swing.*;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.net.URL;
 
 // // ---  MP3再生用  -----------------
 // import javazoom.jl.player.Player;
@@ -232,8 +233,8 @@ public class GameFrame extends JFrame implements Observer {
     // --- 　B　G　M　再　生　メ　ソ　ッ　ド　 ---
     public void playBGM(String filePath, float volumeLevel) {
         try {
-            File soundFile = new File(filePath);
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+            URL url = getClass().getResource("/" + filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
 
             // 音声データをロード
             clip = AudioSystem.getClip();
@@ -275,8 +276,8 @@ public class GameFrame extends JFrame implements Observer {
     // --- 　S　E　再　生　用　メ　ソ　ッ　ド　 -------
     public static void playSE(String filePath, float volumeLevel) {
         try {
-            File soundFile = new File(filePath);
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+            URL url = GameFrame.class.getResource("/" + filePath);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
 
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
