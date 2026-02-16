@@ -31,7 +31,7 @@ class MoveManager extends Observable {
         msgQueue = new ConcurrentLinkedQueue<>();
 
         // Playerの初期化 (既存の引数に合わせつつ、調整)
-        // ※ Playerクラスのコンストラクタに合わせて調整してください
+        // ※ Playerクラスのコンストラクタに合わせて調整する
         player1 = new Player(10, 10, offset + 20, y / 2, 0.5f, 20, x / 2 - 20, y, 20, 1, 0, 0);
         player2 = new Player(10, 10, x - offset - 20, y / 2, 0.5f, x / 2 + 20, x - 20, y, 20, -1, 0, 0);
 
@@ -41,10 +41,8 @@ class MoveManager extends Observable {
         // 通信オブジェクトの受け取り
         if (server) {
             this.sv = (CommServer) comm;
-            // sv.setTimeout(1); // 必要なら設定
         } else {
             this.cl = (CommClient) comm;
-            // cl.setTimeout(1);
         }
 
         Thread recvThread = new Thread(() -> {
@@ -74,16 +72,15 @@ class MoveManager extends Observable {
             return;
 
         if (server) {
-            // --- サーバー側の処理 ---
+            // サーバー側の処理
 
-            // 1. クライアント(Player2)の操作を受信
+            // クライアント(Player2)の操作を受信
             String msg;
             while ((msg = msgQueue.poll()) != null) {
                 try {
 
                     if (msg.startsWith("Data:")) {
                         String actualData = msg.substring(5);
-                        // クライアントからは "x y isShooting" が来る想定
                         String[] data = actualData.split(" ");
                         int p2x = Integer.parseInt(data[0]);
                         int p2y = Integer.parseInt(data[1]);
@@ -102,19 +99,19 @@ class MoveManager extends Observable {
                 }
             }
 
-            // 2. ゲームロジック (弾の移動、当たり判定)
+            // ゲームロジック (弾の移動、当たり判定)
             serverLogic();
 
-            // 3. 全データをクライアントへ送信
+            // 全データをクライアントへ送信
             sendServerData();
 
         } else {
-            // --- クライアント側の処理 ---
+            // クライアント側の処理
 
             // サーバーからの全データを受信して反映
             String msg;
             while ((msg = msgQueue.poll()) != null) {
-                if (msg.startsWith("Data:")) {
+                if (msg.startsWith("Data:")) {// 送られてきた情報にDataのタグが付いていることを確認
                     String actualData = msg.substring(5);
                     parseServerData(actualData);
                 }
@@ -157,29 +154,26 @@ class MoveManager extends Observable {
                     b.setAnimationFrames(b.getAnimationFrames() + 1);
                 }
             }
-
             // 非アクティブなら削除
             if (!b.getIsActive()) {
                 it.remove();
                 continue;
             }
-
             boolean hit = false; // 当たったか(初期値はfalse)
             // Player1への当たり判定
-            if (b.getOwner() != player1 && isHit(player1, b) && b.getStateExplosion() == 0) { // 自分の弾でなく, 当たっていて,
-                                                                                              // 爆発状態でなければ
+            if (b.getOwner() != player1 && isHit(player1, b) && b.getStateExplosion() == 0) { // 自分の弾でなく,
+                                                                                              // 当たっていて,爆発状態でなければ
                 GameFrame.playSE("music/damaged.wav", 0.5f); // SE再生
                 player1.hit(1); // 1ダメージ
                 hit = true; // 当たったことを記録
             }
             // Player2への当たり判定
-            else if (b.getOwner() != player2 && isHit(player2, b) && b.getStateExplosion() == 0) { // 自分の弾でなく, 当たっていて,
-                                                                                                   // 爆発状態でなければ
+            else if (b.getOwner() != player2 && isHit(player2, b) && b.getStateExplosion() == 0) { // 自分の弾でなく,
+                                                                                                   // 当たっていて,爆発状態でなければ
                 GameFrame.playSE("music/damaged.wav", 0.5f); // SE再生
                 player2.hit(1); // 1ダメージ
                 hit = true; // 当たったことを記録
             }
-
             if (hit) { // 当たっていたら
                 b.setStateExplosion(1); // 爆発状態を1(爆発初期)にする
                 b.setAnimationFrames(0); // アニメーションフレームをリセット
@@ -338,7 +332,7 @@ class MoveManager extends Observable {
         }
         sb.append("#");
 
-        sv.send("Data:" + sb.toString());
+        sv.send("Data:" + sb.toString());// タグ付け
     }
 
     // クライアント側でのデータ受信・解析
@@ -475,8 +469,6 @@ class MoveManager extends Observable {
     }
 
     public void draw(Graphics g) {
-        // 背景など
-        // for(Star s : stars) s.draw(g);
 
         g.drawRect(0, 0, court_size_x, court_size_y);
         player1.draw(g);
