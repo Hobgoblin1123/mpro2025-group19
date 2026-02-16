@@ -1,12 +1,12 @@
 # Fdb version 4
-["dvipdf"] 1770899028 "latex-output/Report_group19.dvi" "latex-output/Report_group19.pdf" "latex-output/Report_group19" 1770899030 0
-  "latex-output/Report_group19.dvi" 1770899028 7684 b02e4826ad39d3905e008269623be067 "latex"
+["dvipdf"] 1771230494 "latex-output/Report_group19.dvi" "latex-output/Report_group19.pdf" "latex-output/Report_group19" 1771230495 0
+  "latex-output/Report_group19.dvi" 1771230494 13284 4e776d4d13e9ec5e2b7aae1f2b2b1794 "latex"
   (generated)
   "latex-output/Report_group19.pdf"
   (rewritten before read)
-["latex"] 1770899027 "c:/Users/haruk/Desktop/group/mpro2025-group19/レポート/Report_group19.tex" "latex-output/Report_group19.dvi" "Report_group19" 1770899030 0
-  "Report_group19.tex" 1770899025 6392 d5f17a566ec28a04fda0012177cf35f1 ""
-  "c:/Users/haruk/Desktop/group/mpro2025-group19/レポート/Report_group19.tex" 1770899025 6392 d5f17a566ec28a04fda0012177cf35f1 ""
+["latex"] 1771230493 "c:/Users/haruk/Desktop/group/mpro2025-group19/レポート/Report_group19.tex" "latex-output/Report_group19.dvi" "Report_group19" 1771230495 0
+  "Report_group19.tex" 1771230492 10266 2b07a860f11d72ac4dbb86d110614811 ""
+  "c:/Users/haruk/Desktop/group/mpro2025-group19/レポート/Report_group19.tex" 1771230492 10266 2b07a860f11d72ac4dbb86d110614811 ""
   "c:/texlive/2023/texmf-dist/fonts/map/fontname/texfonts.map" 1703160030 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2023/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1703159535 1536 02c06700a42be0f5a28664c7273f82e7 ""
   "c:/texlive/2023/texmf-dist/fonts/tfm/ptex-fonts/standard/goth10.tfm" 1703162913 1196 5981e79c37b2cfd27b3612a6783cd4b6 ""
@@ -33,7 +33,7 @@
   "c:/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmtt12.tfm" 1703158855 772 9a936b7f5e2ff0557fce0f62822f0bbf ""
   "c:/texlive/2023/texmf-dist/tex/latex/fancybox/fancybox.sty" 1703159830 27261 5ae6156674330dc345adb79b6e5d8966 ""
   "c:/texlive/2023/texmf-dist/tex/latex/graphics-cfg/graphics.cfg" 1703160318 1224 978390e9c2234eab29404bc21b268d1e ""
-  "c:/texlive/2023/texmf-dist/tex/latex/graphics-def/dvips.def" 1703160319 6282 3d1fff8973f8803fd81ea577dda4f3ef ""
+  "c:/texlive/2023/texmf-dist/tex/latex/graphics-def/dvipdfmx.def" 1703160319 12296 04d6453afafd99986deba3629756d9ec ""
   "c:/texlive/2023/texmf-dist/tex/latex/graphics/graphics.sty" 1703160316 18387 8f900a490197ebaf93c02ae9476d4b09 ""
   "c:/texlive/2023/texmf-dist/tex/latex/graphics/graphicx.sty" 1703160316 8010 a8d949cbdbc5c983593827c9eec252e1 ""
   "c:/texlive/2023/texmf-dist/tex/latex/graphics/keyval.sty" 1703160316 2671 7e67d78d9b88c845599a85b2d41f2e39 ""
@@ -44,7 +44,8 @@
   "c:/texlive/2023/texmf-dist/web2c/texmf.cnf" 1703157717 41009 84b61f42d16d06bedb915f57aa2374cf ""
   "c:/texlive/2023/texmf-var/web2c/euptex/platex.fmt" 1703165083 8156151 4b5f44005bb96359d6ea32dbc69a59f8 ""
   "c:/texlive/2023/texmf.cnf" 1703164892 713 e69b156964470283e0530f5060668171 ""
-  "latex-output/Report_group19.aux" 1770899028 659 23e8dfcf5bdfc01eb1506808169edeef "latex"
+  "class_figure.eps" 1771225282 6126781 a53fd0ac44b7fa0b7f08291be6fa8667 ""
+  "latex-output/Report_group19.aux" 1771230494 911 f28bea55a9151c61df624175c8e3f24d "latex"
   (generated)
   "latex-output/Report_group19.aux"
   "latex-output/Report_group19.dvi"
