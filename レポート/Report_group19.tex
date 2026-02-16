@@ -92,6 +92,32 @@
 
 実際に作成した主要なクラスの主なメソッド，フィールドの説明を行う．
 必要に応じてプログラムリストを抜粋して説明する．
+\subsection{池崎}
+
+\subsection{大谷}
+\subsubsection*{【\texttt{Bullet}クラスと, その子クラス】}
+\noindent \texttt{Bullet}クラスは, 弾の基本情報を管理するクラスである.弾の座標, 速度. 描画, 移動処理, および爆発アニメーションの状態管理を行う.
+また, \texttt{CurveBullet}(曲線弾), \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}(斜め弾)は, \texttt{Bullet}クラスを継承し, 移動方法を定義した\texttt{move()}メソッドや弾の画像を変更したものである.全フィールドから抜粋した主なフィールドは次の通り.
+\begin{description}
+  \item[・\texttt{x, y}]弾の座標
+  \item[・\texttt{speed}]弾の速度
+  \item[・\texttt{radius}]弾の半径
+  \item[・\texttt{img}]弾の画像
+  \item[・\texttt{state\_explosion}]弾の爆発状態.通常時は0で, 5まで段階的に変化する.
+  \item[・\texttt{AnimationFrames}] 爆発中において, その画像が表示されて何フレーム目か.
+\end{description}
+抜粋した主なメソッドは次の通り.
+\begin{description}
+  \item[・\small{\texttt{Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir, Color color)speed}}:]サーバー用のコンストラクタ
+  \item[・\footnotesize{\texttt{Bullet(int x, int y, int radius, Color color, int Shootdir, int state\_explosion, int AnimationFrames)}}:]クライアント用のコンストラクタ.受け取った\texttt{state\_explosion}の値によって, 半径と\texttt{img}に代入する画像を決定する.
+  \item[・\texttt{move()}:]弾の移動を定義している. \texttt{Bullet}では\texttt{x}方向への直線的な移動, \texttt{CurveBullet}ではそれに加えて\texttt{y}方向への\texttt{Math.sin}を用いた移動, \texttt{Up(Down)DiagonalBullet}では\texttt{y}方向への直線的な移動を処理している.
+  \item[・\texttt{explosion()}:]弾の爆発による画像, 半径変更を処理. \texttt{state\_explosion}と\texttt{AnimationFrames}の値によって画像を決定.それぞれの段階の画像は\texttt{AnimationFrames}が0～4の間表示され, それ以降は次の段階にうつる.
+\end{description}
+それぞれの継承クラスの\texttt{move()}メソッドは, \texttt{Bullet}クラスのものをオーバーライドしたものであり, 同様の作業で容易に新たな特殊弾を実装することができる.
+\subsubsection*{【\texttt{Player}クラス】}
+\subsection{南}
+
+\subsection{奥野}
 
 
 
