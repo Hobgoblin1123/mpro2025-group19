@@ -8,6 +8,7 @@
 \documentclass[11pt,a4j]{jarticle}
 \usepackage[dvipdfmx]{graphicx}
 \usepackage{fancybox}
+\usepackage{here}
 \setlength{\oddsidemargin}{0mm}
 \setlength{\textwidth}{170mm} 
 \setlength{\topmargin}{-5mm}
@@ -79,7 +80,7 @@
 \end{itemize}
 
 \subsection{作業の分担}
-作業の分担として、池崎は全体のゲームの動きを統括するModelを作成した。また、画面揺れや通信の軽量化など既存のコードの改良も行った。大谷はプレイヤー、弾、ギミックなどのゲームを構成する要素の実装を行った。南は画面遷移やリトライ機能の実装、通信の確立を担当した。奥野はコントローラーの機能の実装や背景画像の素材の用意を主に行った。\\
+作業の分担として、池崎は全体のゲームの動きを統括するModelを作成した。また、画面揺れや通信の軽量化など既存のコードの改良も行った。大谷はプレイヤー、弾、ギミックなどのゲームを構成する要素の実装を行った。南は画面遷移やリトライ機能の実装、通信の確立、BGMの用意を担当した。奥野はコントローラーの機能の実装や背景画像の素材の用意を主に行った。\\
 ---------------------------------------------
 \section{設計方針}
 プログラムの基本構想を述べる．
@@ -159,7 +160,90 @@
 
 実際に作成した主要なクラスの主なメソッド，フィールドの説明を行う．
 必要に応じてプログラムリストを抜粋して説明する．
+
 \subsection{池崎}
+\subsubsection*{【\texttt{MoveManager}クラス】}
+\noindent \texttt{MoveManager}クラスは,プレイヤー、弾丸、ギミックの位置情報などの更新、およびそれらの情報のサーバー・クライアント間での伝達。プレイヤーの当たり判定などを管理する。全フィールドから抜粋した主なフィールドは次の通り.
+\begin{description}
+  \item[・\texttt{server}]自身が持っているcommオブジェクトがサーバーであるかクライアントであるかについてのbooleanフラグ
+  \item[・\texttt{court_size_x,court_size_x}]対戦画面でのコートの大きさ
+  \item[・\texttt{player1,player2}]プレイヤー。player1は画面左側、player2は画面右側の機体を表す。
+  \item[・\texttt{winner}]勝者がどちらのプレイヤーかについて。初期値では空文字列が与えられている。
+  \item[・\texttt{iaRunning}]\texttt{MoveManager}が動いているのかのフラグ
+  \item[・\texttt{msgQueue}] ゲームデータについての文字列を保存するキュー
+\end{description}
+
+
+抜粋した主なメソッドは次の通り.
+
+\begin{description}
+  \item[・\texttt{MoveManager(int x, int y, int offset, boolean server, Object comm)}:]Movemanagerのコンストラクタ。プレイヤー、弾丸、ギミックなどの各変数を初期化する。また、　ゲームデータの受信を行いキューに保存させるスレッドrecvThreadを起動する。
+  
+  \item[・\texttt{update()}:]メインとなるループ。データの送信および\texttt{msgQueue}に保存されたメッセージを取り出して解読する。また、サーバーの場合はプレイヤーや弾丸、ギミックの動作およびヒット確認について計算する。各動作は同クラス内に定義された別メソッドにて行われる。
+  
+  
+  \item[・\texttt{serverLogic()}:]プレイヤー、弾丸、ギミックの動作について計算するメソッド。
+  ギミックの位置は乱数を用いてゲームフィールド内のランダムな位置に生成されるようにする。
+  弾丸、ギミックの情報ははそれぞれIteratorによって管理される。Iterator内部のアイテムすべてについて、非アクティブあるいは画面外に出たなら削除し、アクティブなものについては\texttt{isHit}関数あるいは\texttt{isHit_Gimmick}関数によってヒット判定を計算する。
+弾丸が当たった場合には弾丸に備わっているメソッドを操作することで爆発アニメーションを開始させる。
+ギミックの場合も同様にプレイヤーがギミックに接触したらギミックの種類に応じた効果が生じるようにする。
+ギミックによるパワーアップの持続時間及びギミックアイテムの表示時間の管理もこのメソッド内で行う。どちらかの体力がゼロになったら\texttt{winner}に勝者を入れ\texttt{gameEnd}関数を実行する。
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=18cm]{serverLogic_figure.eps}
+   \caption{serverLogic()の弾丸のヒット判定の部分の一部抜粋}
+   \label{fig:class}
+ \end{center}
+\end{figure}
+
+  
+  \item[・\texttt{gameEnd()}:]\texttt{GameFrame}クラスに対して\texttt{Observer}を用いてゲーム終了を通知する
+
+\item[・\texttt{isHit(Player p,Bullet b)}:]プレイヤーとの距離を計算し弾丸とプレイヤーの大きさを元にヒット判定を計算する。
+
+  
+\item[・\texttt{isHit＿Gimmick(Player p,Bullet b)}:]\texttt{isHit}関数と同様にしてギミックとプレイヤーのヒット判定を計算する。
+
+\item[・\texttt{sendServerData()}:]\texttt{StringBuilder}を用いて図\ref{sendServerData_figure}のようにしてゲーム情報を表現できる文字列を作成する。\texttt{.append()}によってゲーム情報を付加していく。各情報の間には区切り文字として\texttt{","や";"、"#"}などを付加していくことで読み取り時にデータを分割できるようにしておく。
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=15cm]{sendServerData_figure.eps}
+   \caption{\texttt{sendServerData}における文字付加の一例}
+   \label{sendServerData_figure}
+ \end{center}
+\end{figure}
+
+\item[・\texttt{perseServerData（String msg）}:]サーバ－側から送られてくるデータはプレイヤー、弾丸、ギミックの三種類についてでありこの三つの区切り文字は\texttt{"#"}なので図\ref{perseServerData_figure}のようにデータの文字列を\texttt{msg.split}で分割し、さらにその先のデータも各形式に合わせて分割して配列の形式で格納する。また\texttt{winner}の中身が空文字でないならば中身の文字列に合わせて勝者を確定させ\texttt{gameEnd}関数を呼び出す。
+
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=10cm]{perseServerData_figure.eps}
+   \caption{\texttt{perseServerData}における文字列解読の例}
+   \label{perseServerData_figure}
+ \end{center}
+\end{figure}
+
+
+
+\item[・\texttt{sendClientInput(boolean isShooting, int bulletType)}:]クライアント側の入力を伝える場合は必要となるデータ量の数が動的に変動しないため図\ref{sendClientInput_figure}のように単純に文字列を\texttt{+}で結合して送信する。
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=15cm]{sendClientInput_figure.eps}
+   \caption{\texttt{sendClientInput}における文字列作成、送信の方法}
+   \label{sendClientInput_figure}
+ \end{center}
+\end{figure}
+
+\item[・\texttt{draw(Graphics g)}:]プレイヤー、すべての弾丸及びギミックの描画を実行
+
+\end{description}
+
+
+
 
 \subsection{大谷}
 \subsubsection*{【\texttt{Bullet}クラスと, その子クラス】}
@@ -220,7 +304,7 @@
 \\
 --------------------------------------
 \subsection{プログラムについての考察}
-
+通信型のゲームを作成するうえで軽量化という問題は非常に重要な課題だと感じた。今回作成したゲームは現代におけるゲームの中ではかなり要素の少ないものであるが、それでもスレッドのスリープ時間やゲームデータの送信方式をある程度工夫しないとラグが発生してしまっていた。今回使用したライブラリのメソッドがゲーム用の通信としてあまり最適化されていない点もあるとはいえ、もっと大きい規模のゲームを作成するならば今回のもの以上に通信の最適化について気にしなければならないと考えられる。今回作成したゲームにおいて挙げられる改善点としては、\texttt{Comm.java}を改善することである。具体的には、今の\texttt{Comm.java}は\texttt{TCP}での通信であり、信頼性が高い代わりに通信速度が遅いためゲームでの通信には適さない。そのため、通信を\texttt{UDP}ベースで行えるようにし弾の発射や被弾などの重要なイベントのみ再送しそれ以外は古いデータを上書きするという方式にして軽量化を行うようにしたい。
 
 
 \subsection{ゲームシステムについての考察}
@@ -264,6 +348,37 @@
 java GameFrameをターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
 ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、Zキーで波弾、Xキーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーがRETRYを押すことで再戦ができる。意図しない挙動を引き起こす可能性があるため、両者の選ぶボタンは異なるものにすること。
 
+
+
+
+
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.43\linewidth}
+    \centering
+   \includegraphics[width=6cm]{pUp_item.eps}
+   \caption{パワーアップアイテムギミック}
+   \label{powerUp}
+  \end{minipage}
+  \hspace{5mm}
+  \begin{minipage}{.43\linewidth}
+    \centering
+   \includegraphics[width=6cm]{heal_item.eps}
+   \caption{回復アイテムギミック}
+   \label{heal}
+  \end{minipage}
+\end{figure}
+
+
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=15cm]{bigger.eps}
+   \caption{パワーアップアイテム取得前後での弾の大きさの変化}
+   \label{bigger}
+ \end{center}
+\end{figure}
 
 \\----------------------
 
