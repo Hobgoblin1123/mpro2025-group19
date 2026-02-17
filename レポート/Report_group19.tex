@@ -187,7 +187,130 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \end{description}
 それぞれの継承クラスの\texttt{move()}メソッドは, \texttt{Bullet}クラスのものをオーバーライドしたものであり, 同様の作業で容易に新たな特殊弾を実装することができる.
 \subsubsection*{【\texttt{Player}クラス】}
-\subsection{南}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　通　信　確　立 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{通信確立とリトライ}
+\begin{flushright}
+  文責：南
+\end{flushright}
+　本節では、2.5節で説明した通信確立の流れに基づいて、各クラスの実装内容を説明する。
+なお、先述のとおり通信の基盤となる\texttt{Comm.java} については、授業で配布されたひな形コードを利用している。ただし、IOコネクションが得られない場合などに強制終了しないように一部の例外処理は変更している。
+
+\subsubsection{ServerPanel}
+\noindent\textbf{概要}: \\
+　サーバー(ホスト)としてゲームを開始する際の待機画面を提供するクラスである。自身のローカルIPアドレスと乱数によって決定されたポート番号を表示し、クライアントからの接続を待機する。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{CustomButton closeBtn}: タイトルへ戻るためのボタン。
+    \item \texttt{String displayIP}: 自身のローカルIPアドレスを保持し、画面描画に使用する。
+    \item \texttt{String displayPort}: 生成されたポート番号を保持し、画面描画に使用する。
+    \item \texttt{boolean isWaiting}: 多重起動を防ぐためのフラグ。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{serverWait()}: 接続待機処理の核となるメソッドである。\texttt{ServerPanel}のコンストラクタ内で実行される。いざ実行されると、ランダムなポート番号を生成し、別スレッドを生成して接続待機処理を行う。
+    \item \texttt{actionPerformed(ActionEvent e)}: ボタン押下時のイベントハンドラ。\texttt{closeBtn}が押された場合、タイトル画面へ遷移する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　接続待機時のブロッキング処理がUIスレッドを占有しないよう、\texttt{serverWait()} メソッド内で新たなスレッドを生成して接続待機処理を行う。
+\texttt{SwingUtilities.invokeLater()} を用いることで、ゲームの開始処理を待ちリストの最後に登録し、接続成功後にUIスレッドでゲーム画面への遷移を行う設計とした。\\
+　また、一度ゲームを終了した後にもう一度サーバー待機画面に遷移した場合、ただコンストラクタで\texttt{serverWait()} を呼び出すだけでは、以前のソケットを再利用してしまい、接続時にエラーが発生してしまうため、\texttt{componentShown} イベントをトリガーにして\texttt{serverWait()} を呼び出す設計とした。これにより、サーバー待機画面が表示されるたびに新しいソケットで接続待機処理が行われるようになった。
+
+\subsubsection{ClientPanel}
+\noindent\textbf{概要}: \\
+　クライアントとしてゲームに参加するための入力画面を提供するクラスである。サーバーからIPアドレスとポート番号を教えてもらい、これをフィールドに入力することで接続を試行する。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{CustomButton closeBtn}: タイトルへ戻るためのボタン。
+    \item \texttt{CustomButton connectBtn}: 接続を試行するためのボタン。
+    \item \texttt{JTextField ipField}: 接続先のIPアドレスを入力するフィールド。初期値は\texttt{localhost}。
+    \item \texttt{JTextField idField}: 接続先のポート番号を入力するフィールド。
+    \item \texttt{JLabel statusLbl}: 接続状態を表示するラベル。初期値は「NOT CONNECTED」。接続試行中は「CONNECTING...」、接続成功時は「CONNECTED!」、接続失敗時は「CONNECTION FAILED」と表示する。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{connecToServer(String ip, int port)}: 指定された接続先へ接続要求を行う。
+    \item \texttt{actionPerformed(ActionEvent e)}: ボタン押下時のイベントハンドラ。\texttt{closeBtn}が押された場合、タイトル画面へ遷移する。 \texttt{connectBtn}が押された場合、\texttt{connecToServer()} を呼び出して接続を試行する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　\texttt{ServerPanel} と同様に、接続試行中のタイムアウト待ちなどでUIが固まらないよう、通信処理を別スレッド化している。
+
+\subsubsection{ResultPanel}
+
+\noindent\textbf{概要}: \\
+　ゲームの勝敗を表示し、ユーザーに次のアクション(リトライまたは終了)を選択させるクラスである。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{CustomButton retryButton}: ゲームのリトライ要求を行う。後述の\texttt{GameFrame.tryRetry()} を呼び出す。
+    \item \texttt{CustomButton quitButton}: ゲームの終了通知を行う。通信相手に終了通知を送信し、タイトル画面へ遷移する。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{actionPerformed(ActionEvent e)}: ボタン押下時のイベントハンドラ。\texttt{retryButton}が押された場合、リトライ要求の処理を開始する。\texttt{quitButton}が押された場合、終了通知を送信してタイトル画面へ遷移する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　リトライボタンが押された際、即座に画面を切り替えるのではなく、ボタンを無効化をして連打を防ぎつつ、通信相手の応答を待つ。
+相手の応答が「Retry:RETRY」であった場合のみゲームを再生成し、それ以外の場合は相手が終了したと見做してタイトル画面へ遷移する設計とした。
+
+\subsubsection{GameFrame}
+
+\noindent\textbf{概要}: \\
+　アプリケーションのメインウィンドウであり、画面遷移(\texttt{CardLayout})と通信オブジェクトの保持を一元管理するクラスである。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{Object commSV}: \texttt{CommServer} または \texttt{CommClient} を保持するフィールド。どちらのクラスも共通の親クラスを持たない(ひな形コードの仕様)ため、\texttt{Object} 型として保持し、使用時に型判定を行っている。
+    \item \texttt{ShootingView view}: ゲームの描画を担当するクラスのインスタンス。ゲーム開始時に生成される。
+    \item \texttt{MoveManager mm}: ゲームのデータ全般の管理を担当するクラスのインスタンス。ゲーム開始時に生成される。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{startGame(boolean isServer, Object comm)}: 通信オブジェクトを受け取り、自身がサーバーかクライアントかを判定し、それに応じてゲームロジック(MoveManager)と描画(ShootingView)を初期化してゲームを開始する。
+    \item \texttt{tryRetry()}: ゲーム終了後のリトライ処理における通信同期を行う。自身と相手の両方がリトライ要求をしていた場合のみ、retryGame() を呼び出してゲームを再生成する。それ以外の場合は、相手が終了したと見做してタイトル画面へ遷移する。
+    \item \texttt{retryGame()}: ゲームの再生成を行う。今あるコンポーネントを全て削除し、\texttt{startGame()} を呼び出してゲームを初期化する。
+    \item \texttt{backToStart()}: タイトル画面へ遷移する。\texttt{CommServer/Client}を閉じ、今あるコンポーネントを全て削除し、タイトル画面のパネルを追加して \texttt{CardLayout} を切り替える。
+    \item \texttt{update(Observable o, Object arg)}: ゲーム終了の通知を受け取るためのオーバーライドメソッド。MoveManagerから通知を受け取ると、\texttt{ResultPanel} を生成してゲーム終了の画面へ遷移する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　ゲーム開始時にキー入力をゲーム画面に集中させるため、\texttt{startGame()} 内で\texttt{SwingUtilities.invokeLater}により待ちリストの最後に登録したうえで \texttt{requestFocusInWindow()} を呼び出している。\\
+　また、リトライ処理の通信同期を行う \texttt{tryRetry()} も、通信待ちによるUIのフリーズを回避するために別スレッド化している。
+そして、自分がリトライを要求しても、相手もリトライ要求をしていない時は大方コネクションが切断されているので、この際は例外処理としてテンプレートの\texttt{Comm.java}を書き換えて通常の終了通知の時と同様「QUIT」とメッセージを送信して、「相手がゲームを終了しました。」
+と、ポップアップで表示するようにしている。
+
+
+\subsubsection{Comm.java}
+
+\noindent\textbf{概要}: \\
+　本授業のひな形コードとして配布された通信用クラスファイルである。サーバー用の \texttt{CommServer} クラスとクライアント用の \texttt{CommClient} クラスが含まれている。\\
+　フィールド等の列挙はサンプルコードであるため割愛する。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%　画　面　遷　移　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{画面遷移(\texttt{GameFrame})}
+\begin{flushright}
+  文責：南
+\end{flushright}
+　本節では、2.6節で説明した画面遷移の実装に関して説明する。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{JPanel mainPanel}: \texttt{CardLayout} を適用するためのメインパネル。タイトル画面、サーバー待機画面、クライアント接続画面、ゲーム画面をこのパネルに追加し、切り替える。(リザルト画面は2.5.1節で説明した理由により、別の方法で遷移を実装している。)
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{showCard(String key)}: \texttt{CardLayout} を用いて、引数で指定されたキーに対応するパネルを表示する。
+\end{itemize}
 
 \subsection{奥野}
 
