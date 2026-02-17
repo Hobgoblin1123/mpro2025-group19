@@ -498,6 +498,29 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \end{itemize}
 
 \subsection{奥野}
+\subsubsection*{StarAnimPanel}
+\noindent \texttt{StarAnimPanel}クラスは、画面の背景に流れる星のアニメーションを描画するためのクラスである。星の位置や速度を管理するためのフィールドと、アニメーションの更新と描画を行うためのメソッドを持つ。
+主なフィールドや内部クラスは次の通り。
+\begin{itemize}
+    \item \texttt{ArrayList<Star> stars}: 星の情報を保持するリスト。各星は内部クラス\texttt{Star}のインスタンスであり、位置や速度などの情報を持つ。
+    \item \texttt{Timer timer}: アニメーションの更新を定期的に行うためのタイマー。
+    \item \texttt{Star}クラス: 星の位置、速度、サイズなどの情報を保持する内部クラス。星の位置は、x,y,zの3次元座標で管理され、速度はz方向の速度として管理される。星のサイズや明るさは、z座標に基づいて計算される。
+\end{itemize}
+主なメソッドは次の通り。
+\begin{itemize}
+    \item \texttt{StarAnimPanel()}: コンストラクタ。星の初期化とタイマーの設定を行う。
+    \item \texttt{Star()}: \texttt{Star}クラスのコンストラクタ。星の位置や速度をランダムに初期化する。
+    \item \texttt{reset(boolean randomize)}: 星の位置や速度をリセットするメソッド。引数に応じてランダムな位置にリセットするか、画面上部にリセットするかを選択する。
+    \item \texttt{update()}: 星の位置を更新するメソッド。z座標を速度の分だけ減少させ、z座標が0以下になった場合はリセットする。
+    \item \texttt{draw(Graphics2D g2d, int centerX, int centerY)}: 星を描画するメソッド。引数で受け取った中心座標を基準にして、星の位置を計算して描画する。遠近感の計算もここで行い、星のサイズや明るさを調整する。遠近法の計算は以下のように行う。
+    \begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=18cm]{Perspective_calculation.png}
+   \caption{星の遠近感の計算}
+   \label{fig:perspective_calculation}
+ \end{center}
+\end{figure}
+\end{itemize}
 
 
 
