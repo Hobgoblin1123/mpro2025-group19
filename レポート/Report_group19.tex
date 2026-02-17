@@ -397,6 +397,104 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
     \item \texttt{showCard(String key)}: \texttt{CardLayout} を用いて、引数で指定されたキーに対応するパネルを表示する。
 \end{itemize}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　タ　イ　ト　ル　画　面　の　装　飾　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{タイトル画面の装飾}
+\begin{flushright}
+文責：南
+\end{flushright}
+　本節では、タイトル画面を主として私が作成した装飾クラスについて説明する。
+
+\subsubsection{StartPanel}
+\noindent\textbf{概要}: \\
+　ゲーム起動直後に表示されるタイトル画面を構築するクラスである。
+押下によるサーバー作成(CREATE)、クライアント接続(JOIN)各画面への遷移と、終了(EXIT)の管理する。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{BackGroundPanel bgPanel}: 背景画像と星のアニメーションを描画するパネル。
+    \item \texttt{CustomButton serverBtn, clientBtn, exitBtn}: デザインが適用された操作ボタン。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　後述のSE設定やホバー時アニメーション等のメソッドをまとめた\texttt{Design}インターフェース内の\texttt{flashImage(boolean)}メソッドと\texttt{setSound(String)}メソッドを用いて、ボタンのホバー状態に応じたアニメーションを実装している。
+また、後述のそれぞれのボタンのクラス(\texttt{CustomButton})の\texttt{MouseListener} を用いて、ホバー状態を検知している。
+
+\subsubsection{BackGroundPanel}
+
+\noindent\textbf{概要}: \\
+　メインとボタンのマウスホバー時の2つの背景画像を読み込み、isFlashedフラグの状態に応じて描画する画像を切り替える機能を持つクラスである。また、背景画像の上に奥野制作の流れる星のアニメーションも同時に描画するために背景画像の透過も行っている。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{Image bgImage\_original, bgImage\_flashed}: 通常時とホバー時の背景画像を保持するフィールド。
+    \item \texttt{boolean isFlashed}: ホバー状態を保持するフラグ。trueのときは\texttt{bgImage\_flashed} を描画し、falseのときは\texttt{bgImag\_original} を描画する。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{flashImage(boolean isFlashed)}: 引数で受け取ったホバー状態を\texttt{isFlashed} フィールドにセットし、ホバー時は星の流れる速度を遅くする演出も行う。
+    \item \texttt{paintComponent(Graphics g)}: \texttt{isFlashed} フィールドの状態に応じて、通常時とホバー時の背景画像を切り替えて描画する。また、背景画像を透過させて星のアニメーションも同時に描画する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント (BackGroundPanel)}: \\
+　\texttt{flashImage(boolean isFlashed)} メソッドをオーバーライドメソッドにすることで、\texttt{Design}インターフェースを実装するクラスであれば、どのクラスからでもホバー状態の変更とそれに伴う演出の変更を行えるようにしている。\\
+　また、背景画像の切り替えに関して、ホバー時には背景画像中のビームを光らせてまるで画像の中のスペースシャトルが発射するかのような演出を行った。
+これは画像編集ソフトを用いて元画像のハイライト値を上げることによって白を基本とする明るい色を強調することによって実現した。\\
+　この手法の発案当初は元画像のRGB値をプログラム内で読み込み、ホバー時に値を緩やかに調整することでより自然なアニメーションを実装することを目標としていたが、この場合、都度新しい画像を生成する必要があり、
+パフォーマンス面で問題があると考え、あらかじめホバー時の画像を用意しておく方法に変更した。
+
+\subsubsection{CustomButton}
+
+\noindent\textbf{概要}: \\
+　タイトル画面の操作ボタンに適用するデザインを実装するクラスである。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item   \texttt{Consumer<Boolean> actionBox}: そのクラス既存ののactionPerformedにmouseEnteredとmouseExitedの処理を追加するためのフィールド。
+    \item   \texttt{Color lineColor, shadowColor}: ホバー状態に応じて変化する線の色と影の色を保持するフィールド。
+    \item   \texttt{boolean isHovered}: ホバー状態を保持するフラグ。trueのときはホバー状態、falseのときは非ホバー状態である。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{paintComponent(Graphics g)}: \texttt{Graphics2D} クラスを用いて、小数点以下の値に対応した正確な形をしたボタンを描くためのメソッド。コンストラクタで引数として受け取った\texttt{String text}と\texttt{Font font}のとおりにボタンのテキストを中央に描く。
+    \item \texttt{setSound(GameFrame f)}: 後述のSE設定のためにインターフェースのメソッドをオーバーライドするためのメソッド。引数で受け取った\texttt{GameFrame} のインスタンスを用いて、ホバー状態の変更に伴うSEの再生を行う。
+    \item \texttt{setAction(Consumer<Boolean> actionBox)}: \texttt{setSound()}と同様に、後述のホバー状態の変更に伴うアニメーションのためにインターフェースのメソッドをオーバーライドするためのメソッド。引数で受け取った\texttt{Consumer<Boolean>} を用いて、ホバー状態の変更に伴うアニメーションの処理の追加を行う。
+\end{itemize}
+
+\noindent\textbf{実装のポイント (CustomButton)}: \\
+　ボタンのホバーの可否がわかるように、マウスホバーさせるとボタンとその影の色が反転するようになっている。\texttt{getWidth()} と \texttt{getHeight()} を用いて描画範囲を取得しているが、
+パスの太さや影とのズレ(offset)により、本体の描画可能範囲が取得範囲と異なるため、ボタンの形を描く前に実際的な描画可能範囲を再計算している。同様の理由で、テキストの描画位置も再計算している。
+
+\subsubsection{FontLoader}
+\noindent\textbf{概要}: \\
+　引数に外部からダウンロードしたフォントのファイルパスとフォントサイズを受け取るだけでフォントの設定ができるクラスである。
+
+\noindent\textbf{メソッド}:
+\begin{itemize}
+    \item \texttt{loadFont(String path, float size)}: 引数で受け取ったファイルパスからフォントを読み込み、引数で受け取ったサイズに設定して返すメソッド。ファイルの読み込みに失敗した場合は、デフォルトのフォントを返す。
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　B　G　M　・　S　E　設　定　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{BGM・SE設定(\texttt{GameFrame})}
+
+本節では、wave形式のBGM・SEの設定のためのフィールド、メソッドを説明する。
+
+\noindent\textbf{フィールド}:
+\begin{itemize}
+    \item \texttt{Clip clip}: 音声の制御を行うためのフィールド。BGMとSEの両方で使用する。
+\end{itemize}
+
+\noindent\textbf{メソッド}:
+\begin{itemize}
+    \item \texttt{playBGM(String path, float valume)}: 引数で受け取ったファイルパスから音声を読み込み、再生するメソッド。BGMなので、ループ再生する。
+    \item \texttt{stopBGM()}: BGMの再生を停止するメソッド。
+    \item \texttt{playSE(String path, valume)}: 引数で受け取ったファイルパスから音声を読み込み、再生するメソッド。SEなので、ループ再生せず、再生が終わったら自動的に閉じる。
+    \item \texttt{stopSE()}: SEの再生を停止するメソッド。
+\end{itemize}
+
 \subsection{奥野}
 
 
