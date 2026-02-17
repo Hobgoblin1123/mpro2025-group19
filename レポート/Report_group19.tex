@@ -15,6 +15,7 @@
 \usepackage{siunitx}
 \usepackage{here}
 \usepackage{fancybox}
+\usepackage{float}
 \setlength{\oddsidemargin}{0mm}
 \setlength{\textwidth}{170mm} 
 \setlength{\topmargin}{-5mm}
@@ -75,7 +76,7 @@
 「1.2 プログラムの主な仕様」よりプログラムの実現のために必要な処理は大まかに以下のように分割できる。
 \begin{itemize}
   \item プレイヤークラスの実装
-  \item 弾丸クラスの実装
+  \item 弾クラスの実装
   \item ギミッククラスの実装
   \item プレイヤーと弾丸やギミックの接触判定を確認する管理システム
   \item サーバーとクライアント間での通信の確立、切断
@@ -106,15 +107,17 @@
 --------------------------------------
 「1.3 プログラムの解析」での解析を元にプログラムの基本構想について設計方針を述べる。
 \subsection{プレイヤークラスの実装}
+操作キャラクターはサーバー側, クライアント側の合計2つで, それぞれがプレイヤークラスのインスタンスによって管理される.よって, プレイヤークラスは座標, 半径などの基本情報に加え, 自身の向くべき方向とそれに伴う移動範囲の管理をする.また, どちらが勝利したかを表す勝利フラグもこのプレイヤークラスが保持する.弾の発射も, 発射座標や移動方向などプレイヤーの情報に依存するものが多いため, このクラスが処理するものとする.弾を発射するときは, ゲーム管理側がプレイヤークラスの該当メソッドを呼び出す.
 
 
-
-\subsection{弾丸クラスの実装}
+\subsection{弾クラスの実装}
+キャラクターが発射する弾は1つずつそれぞれの弾クラスのインスタンスによって管理される.弾クラスは座標などのプレイヤークラスも持つ基本情報に加え, 弾は相手プレイヤーに当たったときや画面外に出たときに削除する必要があるため, その弾が有効かどうかも管理する.実際の削除はゲーム管理側が行い, 弾クラスが行うのはその弾が有効/無効かを保持するのみである.また, 爆発は弾自体の画像を切り替えることで表現し, そのために爆発の段階的な画像処理は弾クラス自体が行うものとする.
 
 
 
 
 \subsection{ギミッククラスの実装}
+ギミックの効果を実際に付与する処理はゲーム管理側で行うものとし, ギミッククラスは座標や表示時間などの基本情報と, そのギミックの種類を保持して画像を描画するのみで, 具体的な効果の計算等はしないものとする.ゲーム管理側が対象ギミックの種類を判別し, それに応じた効果をプレイヤーに与える.時間経過やプレイヤーが取得したことによるギミックの削除も, ゲーム管理側が行う.
 
 
 
@@ -268,24 +271,31 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 
 \subsection{大谷}
-\subsubsection*{【\texttt{Bullet}クラスと, その子クラス\texttt{CurveBullet}, \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}】}
-\noindent \texttt{Bullet}クラスは, 弾の基本情報を管理するクラスである.弾の座標, 速度. 描画, 移動処理, および爆発アニメーションの状態管理を行う.
-また, \texttt{CurveBullet}(曲線弾), \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}(斜め弾)は, \texttt{Bullet}クラスを継承し, 移動方法を定義した\texttt{move()}メソッドや弾の画像を変更したものである.全フィールドから抜粋した主なフィールドは次の通り.
-\begin{description}
-  \item[・\texttt{x, y}:]弾の座標
-  \item[・\texttt{speed}:]弾の速度
-  \item[・\texttt{radius}:]弾の半径
-  \item[・\texttt{img}:]弾の画像
-  \item[・\texttt{state\_explosion}:]弾の爆発状態.通常時は0で, 5まで段階的に変化する.
-  \item[・\texttt{AnimationFrames}:] 爆発中において, その画像が表示されて何フレーム目か.
-\end{description}
-抜粋した主なメソッドは次の通り.
-\begin{description}
-  \item[・\small{\texttt{Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir, Color color)speed}}:]サーバー用のコンストラクタ
-  \item[・\footnotesize{\texttt{Bullet(int x, int y, int radius, Color color, int Shootdir, int state\_explosion, int AnimationFrames)}}:]クライアント用のコンストラクタ.受け取った\texttt{state\_explosion}の値によって, \texttt{radius}と\texttt{img}に代入する画像を決定する.
-  \item[・\texttt{move()}:]弾の移動を定義している. \texttt{Bullet}では\texttt{x}方向への直線的な移動, \texttt{CurveBullet}ではそれに加えて\texttt{y}方向への\texttt{Math.sin}を用いた移動, \texttt{Up(Down)DiagonalBullet}では\texttt{y}方向への直線的な移動を処理している.
-  \item[・\texttt{explosion()}:]弾の爆発による画像, 半径変更を処理. \texttt{state\_explosion}と\texttt{AnimationFrames}の値によって画像を決定.それぞれの段階の画像は\texttt{AnimationFrames}が0～4の間表示され, それ以降は次の段階にうつり, \texttt{AnimationFrames}は0にもどる.爆発が進行したかを\texttt{MoveManager}クラスで認識するため, 次のように\texttt{if}文, \texttt{else if}文の中身が実行されたときのみ\texttt{true}を返し, そうでないときは\texttt{false}を返す.
-\end{description}
+\subsection{通常弾と特殊弾}
+\begin{flushright}
+  文責：大谷
+\end{flushright}
+　操作キャラクターが発射する1つの弾を表すクラスと, その子クラスについて説明する.子クラスは親クラスと同様の部分が多いため, まとめて記述する.
+\subsubsection{Bullet, CurveBullet, UpDiagonalBullet, DownDiagonalBullet}
+\noindent\textbf{概要}: \\
+　\texttt{Bullet}クラスは, 弾の基本情報を管理するクラスである.弾の座標, 速度. 描画, 移動処理, および爆発アニメーションの状態管理を行う.
+また, \texttt{CurveBullet}(曲線弾), \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}(斜め弾)は, \texttt{Bullet}クラスを継承し, 移動方法を定義した\texttt{move()}メソッドや弾の画像を変更したものである.\\
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+  \item \texttt{x, y}: 弾の座標
+  \item \texttt{speed}: 弾の速度
+  \item \texttt{radius}: 弾の半径
+  \item \texttt{img}: 弾の画像
+  \item \texttt{state\_explosion}: 弾の爆発状態.通常時は0で, 5まで段階的に変化する.
+  \item \texttt{AnimationFrames}: 爆発中において, その画像が表示されて何フレーム目か.
+\end{itemize}
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+  \item \texttt{Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir, Color color)speed}: サーバー用のコンストラクタ.所有者, 座標, 速度, 半径, ダメージ, 向きなどのフィールド値を設定する.
+  \item \texttt{Bullet(int x, int y, int radius, Color color, int Shootdir, int state\_explosion, int AnimationFrames)}: クライアント用のコンストラクタ.受け取った\texttt{state\_explosion}の値によって, \texttt{radius}と\texttt{img}に代入する画像を決定する.
+  \item \texttt{move()}: 弾の移動を定義している. \texttt{Bullet}では\texttt{x}方向への直線的な移動, \texttt{CurveBullet}ではそれに加えて\texttt{y}方向への\texttt{Math.sin}を用いた移動, \texttt{Up(Down)DiagonalBullet}では\texttt{y}方向への直線的な移動を処理している.
+  \item \texttt{explosion()}: 弾の爆発による画像, 半径変更を処理. \texttt{state\_explosion}と\texttt{AnimationFrames}の値によって画像を決定.それぞれの段階の画像は\texttt{AnimationFrames}が0～4の間表示され, それ以降は次の段階にうつり, \texttt{AnimationFrames}は0にもどる.爆発が進行したかを\texttt{MoveManager}クラスで認識するため, 次のように\texttt{if}文, \texttt{else if}文の中身が実行されたときのみ\texttt{true}を返し, そうでないときは\texttt{false}を返す.
+\end{itemize}
 \begin{footnotesize}
 \begin{verbatim}
     1      public boolean explosion() {
@@ -300,8 +310,9 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
    10       }
 \end{verbatim}
 \end{footnotesize}
-工夫点---それぞれの継承クラスの\texttt{move()}メソッドは, 次の通り\texttt{Bullet}クラスのものをオーバーライドしたものであり, 同様の作業で容易に新たな特殊弾を実装することができる(例は\texttt{CurveBullet}).
-\begin{footnotesize}
+\noindent\textbf{実装のポイント}: \vspace{0.1cm}\\
+　それぞれの継承クラスの\texttt{move()}メソッドは, 次の通り\texttt{Bullet}クラスのものをオーバーライドしたものであり, 同様の作業で容易に新たな特殊弾を実装することができる(例は\texttt{CurveBullet}).
+\begin{small}
 \begin{verbatim}
      1      public void move() {
      2          super.move(); //Bulletのmove()呼び出し
@@ -316,25 +327,35 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
     10          }
     11      }
 \end{verbatim}
-\end{footnotesize}
-\subsubsection*{【\texttt{Player}クラス】}
-\noindent プレイヤーキャラクターの操作, 情報(体力、パワーアップ状態など)の管理, および描画を管理するクラス. 弾の生成処理も行う.
-抜粋した主なフィールドは次の通り.
-\begin{description}
-  \item[・\texttt{hp, max\_hp}:]現在の体力, 最大体力
-  \item[・\texttt{x, y}:]プレイヤーの座標
-  \item[・\texttt{speed}:]プレイヤーの速度
-  \item[・\texttt{radius}:]プレイヤーの当たり半径
-  \item[・\texttt{img}:]プレイヤーの現在の画像
-  \item[・\texttt{biggerbullet}:]ギミック効果時の弾の半径増加量.通常時は0に設定されている.
-  \item[・\texttt{statePowerup}:] ギミック効果を受け始めて何フレームか.通常時は0.
-\end{description}
-抜粋した主なメソッドは次の通り.
-\begin{description}
-  \item[・\tiny{\texttt{Player(int hp,int max\_hp,int x,int y,float speed,int bounds\_x\_min,int bounds\_x\_max, int bounds\_y,\\
-            int radius, int Shootdir, int biggerbullet, int statePowerup)}}:]コンストラクタ
-  \item[・\texttt{setImg()}:]プレイヤーの画像を決定する. \texttt{statePowerup}が0ならば通常の画像を設定, そうでなければ効果時用の画像を設定する.次のような\texttt{(statePowerup / 10) \% 2}の値による分岐によって, 効果中2つの画像をフレームによって切り替える.
-\end{description}
+\end{small}
+\subsection{操作キャラクター}
+\begin{flushright}
+  文責：大谷
+\end{flushright}
+　1人の操作キャラクターを表すクラスについて説明する.
+\subsubsection{Player}
+\noindent\textbf{概要}: \\
+　プレイヤーキャラクターの操作, 情報(体力、パワーアップ状態など)の管理, および描画を管理するクラス. 弾の生成処理も行う.\\
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+  \item \texttt{hp, max\_hp}: 現在の体力, 最大体力
+  \item \texttt{x, y}: プレイヤーの座標
+  \item \texttt{speed}: プレイヤーの速度
+  \item \texttt{radius}: プレイヤーの当たり半径
+  \item \texttt{img}: プレイヤーの現在の画像
+  \item \texttt{biggerbullet}: ギミック効果時の弾の半径増加量.通常時は0に設定されている.
+  \item \texttt{statePowerup}: ギミック効果を受け始めて何フレームか.通常時は0.
+\end{itemize}
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+  \item \texttt{Player(int hp, int max\_hp, int x, int y, float speed, int bounds\_x\_min, int bounds\_x\_max, int bounds\_y,
+            int radius, int Shootdir, int biggerbullet, int statePowerup)}: コンストラクタ.体力, 座標, 速度, 境界, 半径, 向き, パワーアップ関係のフィールド値を設定する.
+  \item \texttt{setImg()}: プレイヤーの画像を決定する. \texttt{statePowerup}が0ならば通常の画像を設定, そうでなければギミック効果時用の画像を設定する.次のような\texttt{(statePowerup / 10) \% 2}の値による分岐によって, 効果中2つの画像をフレームによって切り替える.
+  \item \texttt{moveUp(), moveDown(), moveLeft(), moveRight()}: 操作キャラクターの移動を定義している.
+  \item \texttt{hit(int damage)}: 弾に当たったときのダメージ, 画面揺れを処理する.
+  \item \texttt{heal(int amount)}: 回復ギミックをとったときの回復を処理する.
+  \item \texttt{tryShoot(int type)}: 弾の生成処理をする.SEの再生も行う.
+\end{itemize}
   \begin{scriptsize}
   \begin{verbatim}
      1      public void setImg() {
@@ -352,6 +373,49 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
     13      }
   \end{verbatim}
   \end{scriptsize}
+\noindent\textbf{実装のポイント}: \vspace{0.1cm}\\
+　弾を生成するメソッド\texttt{tryShoot}を\texttt{Player}クラスが持っているため, ギミック(後述)によって弾の情報を変化させたいとき, 「弾が当たったときにダメージを与えることと同様に\texttt{Player}のフィールドを変化させ, そのフィールドは\texttt{tryShoot}内にあるため生成される弾が変化する」というように, 簡単に効果を付与することができるようにした.今回の実装では\texttt{Player}がフィールド\texttt{biggerbullet}を持っており, \texttt{tryShoot}ではそれを次のように\texttt{Bullet}のコンストラクタの\texttt{radius}の基本値に足すことで弾の半径を大きくしている.
+\begin{small}
+\begin{verbatim}
+     1      public ArrayList<Bullet> tryShoot(int type) {
+     2          // 発射する弾のリスト(呼び出し側で, 元からある配列と結合する)       
+     3          ArrayList<Bullet> newBullets = new ArrayList<>();
+     4          if (type == 0) {
+     5              // 直進弾
+     6              GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
+     7              //radiusの基本値にbiggerbulletを足す.通常時は0のため, 効果時だけ変化する.
+     8              newBullets.add(new Bullet(this, this.getX(), this.getY(), 4,
+     9              15 + this.getBiggerbullet(), 1, Shootdir, null));
+    19          } else if (type == 1) {
+    11            //(中略)
+    12          }
+    13          return newBullets;
+    14      }
+\end{verbatim}
+\end{small}
+\subsection{ギミック}
+\begin{flushright}
+  文責：大谷
+\end{flushright}
+　特殊効果や回復を付与するギミックを表すクラスについて説明する.
+\subsubsection{Gimmick}
+\noindent\textbf{概要}: \\
+ゲーム中に出現するギミックを管理するクラスである.出現座標, 効果の種類(回復または弾強化), および出現してからの時間を管理する.\\
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+  \item \texttt{x, y}: ギミックの座標
+  \item \texttt{radius}: ギミックの当たり半径
+  \item \texttt{img}: ギミックの画像
+  \item \texttt{time}: このギミックが出現してからのフレーム.
+  \item \texttt{type}: ギミックの種類. 0が弾半径拡大, 1が回復.
+\end{itemize}
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+  \item \texttt{Gimmick(int x, int y, int radius, Color color, int time, int type)}: コンストラクタ. 座標, 半径, 時間, 種類などのフィールド値を設定する.
+  \item \texttt{draw(Graphics g)}: \texttt{img}の画像を現在の座標に描画する.
+\end{itemize}
+\noindent\textbf{実装のポイント}: \vspace{0.1cm}\\
+このクラスが行っているのは, 座標などの情報とギミックの種類の管理, そして描画だけである.非常にシンプルな構造で保守性が高い.ギミックの種類を増やすことも, このクラスに対して行うのは\texttt{type}のとり得る値を広げるだけである.
 \subsection{南}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　通　信　確　立 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{通信確立とリトライ}
@@ -591,14 +655,14 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \subsection{ボタンのマウスホバーのアニメーションの実行例}
 ホバー前後のタイトル画面のスクリーンショットを以下に示す。
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{title_pic.jpg}
         \caption{ホバー前}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{title_hovered_pic.jpg}
         \caption{ホバー後}
@@ -610,21 +674,21 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \subsection{ゲーム終了後のリザルト画面への遷移の実行例}
 ゲーム終了後のリザルト画面への遷移の流れを示すスクリーンショットを以下に示す。
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{gameset_pic.png}
         \caption{ゲーム終了直後の画面}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{result_win_pic.png}
         \caption{勝者のリザルト画面}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{result_lose_pic.png}
         \caption{敗者のリザルト画面}
@@ -635,14 +699,14 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 \subsection{リトライ要求時のコネクション切断}
 リトライ要求の際に片方がリトライ要求をして、もう片方が終了通知を行った場合の、リトライ要求を行った側の要求前後の画面のスクリーンショットを以下に示す。
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{result_wait_pic.png}
         \caption{リトライ要求後の待機画面}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{result_err_pic.png}
         \caption{コネクションが切断後の画面}
@@ -650,6 +714,39 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \end{figure}
 
 以上のように、相手からのリトライ要求の応答がない場合は、相手がゲームを終了したと見做して、ポップアップを表示している。
+\subsection{弾射出時の実行例}
+サーバー側でスペースキーを押し, 通常弾の射出を行った画面のスクリーンショットを以下に示す.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=1]{shoot.png}
+        \caption{通常弾の射出時の画面(ズーム)}
+    \end{center}
+\end{figure}
+所有者の座標から, 所有者の向いている方向に向かって弾が射出されている.
+\subsection{弾爆発の実行例}
+クライアント側の曲線弾がサーバー側に当たったときの爆発のうちの1フレームを以下に示す.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.35]{exp.png}
+        \caption{曲線弾の爆発時の画面(ズーム)}
+    \end{center}
+\end{figure}
+曲線弾の画像が, 特定の爆発画像に変化している.
+\subsection{ギミック取得の実行例}
+サーバー側における, 通常時と弾半径拡大ギミック取得時のスクリーンショットを以下に示す.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.5]{normal.png}
+        \caption{通常時(ズーム)}
+    \end{center}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.5]{powerup.png}
+        \caption{弾半径拡大ギミック取得時(ズーム)}
+    \end{center}
+\end{figure}
+操作キャラクターの画像がギミック取得時のものに変化し, 弾半径が大きくなっている.
 
 %%%%%%%%%%%%%%%%%%%%%%%　考　察　%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
