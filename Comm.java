@@ -75,7 +75,7 @@ class CommServer {
         } catch (IOException e) {
             System.err.println("受信に失敗しました。");
             // System.exit(1);
-            return "End:QUIT"; // 変更点
+            return "Retry:QUIT"; // 変更点
         }
         return msg;
     }
@@ -162,7 +162,7 @@ class CommClient {
         } catch (IOException e) {
             System.err.println("受信に失敗しました。");
             // System.exit(1);
-            return "End:QUIT"; // 変更点
+            return "Retry:QUIT"; // 変更点
         }
         return msg;
     }
