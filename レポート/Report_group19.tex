@@ -504,26 +504,71 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 -------------------------------------------
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　実　行　例　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{実行例}
-実行画面を示す．結果のみでなく，分かりやすく説明する．
+\subsection{ボタンのマウスホバーのアニメーションの実行例}
+ホバー前後のタイトル画面のスクリーンショットを以下に示す。
 
-必要に応じてグラフや図などを用いる．
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{title_pic.jpg}
+        \caption{ホバー前}
+    \end{center}
+\end{figure}
 
-例を 図\ref{fig:graph}に示す．
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{title_hovered_pic.jpg}
+        \caption{ホバー後}
+    \end{center}
+\end{figure}
 
-%\begin{figure}[htbp]
-%  \begin{center}
-%    \leavevmode
-%    \includegraphics[width=0.6\textwidth]{graph.eps} 
-% width=0.6\textwidth は図の横幅を全体の横幅の0.6倍に設定しています．
-% 0.6 を変えると図の大きさを自由に変えることができます．
-%    \caption{例．sin(x)のグラフ．}
-%    \label{fig:graph}
-%  \end{center}
-%\end{figure}
+未定節で説明したように、ホバー前は背景画像のビームが暗く、ホバー後はビームが光っている。また、ホバー前後でボタンの色が反転している。
 
-今回の場合は，グラフの代わりにスクリーンショットをつけて，説明すること．
-特に，アピールしたい点については丁寧に実行例を説明すること．
+\subsection{ゲーム終了後のリザルト画面への遷移の実行例}
+ゲーム終了後のリザルト画面への遷移の流れを示すスクリーンショットを以下に示す。
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{gameset_pic.png}
+        \caption{ゲーム終了直後の画面}
+    \end{center}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{result_win_pic.png}
+        \caption{勝者のリザルト画面}
+    \end{center}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{result_lose_pic.png}
+        \caption{敗者のリザルト画面}
+    \end{center}
+\end{figure}
+
+以上のように、ゲーム終了直後はキー入力が拒否され、一定時間「GAMESET」と画面中央に表示された後、勝者と敗者で異なるリザルト画面へ遷移する。
+
+\subsection{リトライ要求時のコネクション切断}
+リトライ要求の際に片方がリトライ要求をして、もう片方が終了通知を行った場合の、リトライ要求を行った側の要求前後の画面のスクリーンショットを以下に示す。
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{result_wait_pic.png}
+        \caption{リトライ要求後の待機画面}
+    \end{center}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{result_err_pic.png}
+        \caption{コネクションが切断後の画面}
+    \end{center}
+\end{figure}
+
+以上のように、相手からのリトライ要求の応答がない場合は、相手がゲームを終了したと見做して、ポップアップを表示している。
 
 \section{考察}
 完成したプログラムに対する考察，コメントを述べてください．
