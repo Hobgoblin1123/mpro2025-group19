@@ -13,6 +13,8 @@
 \usepackage{multirow}
 \usepackage{url}
 \usepackage{siunitx}
+\usepackage{here}
+\usepackage{fancybox}
 \setlength{\oddsidemargin}{0mm}
 \setlength{\textwidth}{170mm} 
 \setlength{\topmargin}{-5mm}
@@ -180,7 +182,90 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 実際に作成した主要なクラスの主なメソッド，フィールドの説明を行う．
 必要に応じてプログラムリストを抜粋して説明する．
+
 \subsection{池崎}
+\subsubsection*{【\texttt{MoveManager}クラス】}
+\noindent \texttt{MoveManager}クラスは,プレイヤー、弾丸、ギミックの位置情報などの更新、およびそれらの情報のサーバー・クライアント間での伝達。プレイヤーの当たり判定などを管理する。全フィールドから抜粋した主なフィールドは次の通り.
+\begin{description}
+  \item[・\texttt{server}]自身が持っているcommオブジェクトがサーバーであるかクライアントであるかについてのbooleanフラグ
+  \item[・\texttt{court\_size\_x,court\_size\_y}]対戦画面でのコートの大きさ
+  \item[・\texttt{player1,player2}]プレイヤー。player1は画面左側、player2は画面右側の機体を表す。
+  \item[・\texttt{winner}]勝者がどちらのプレイヤーかについて。初期値では空文字列が与えられている。
+  \item[・\texttt{iaRunning}]\texttt{MoveManager}が動いているのかのフラグ
+  \item[・\texttt{msgQueue}] ゲームデータについての文字列を保存するキュー
+\end{description}
+
+
+抜粋した主なメソッドは次の通り.
+
+\begin{description}
+  \item[・\texttt{MoveManager(int x, int y, int offset, boolean server, Object comm)}:]Movemanagerのコンストラクタ。プレイヤー、弾丸、ギミックなどの各変数を初期化する。また、　ゲームデータの受信を行いキューに保存させるスレッドrecvThreadを起動する。
+  
+  \item[・\texttt{update()}:]メインとなるループ。データの送信および\texttt{msgQueue}に保存されたメッセージを取り出して解読する。また、サーバーの場合はプレイヤーや弾丸、ギミックの動作およびヒット確認について計算する。各動作は同クラス内に定義された別メソッドにて行われる。
+  
+  
+  \item[・\texttt{serverLogic()}:]プレイヤー、弾丸、ギミックの動作について計算するメソッド。
+  ギミックの位置は乱数を用いてゲームフィールド内のランダムな位置に生成されるようにする。
+  弾丸、ギミックの情報ははそれぞれIteratorによって管理される。Iterator内部のアイテムすべてについて、非アクティブあるいは画面外に出たなら削除し、アクティブなものについては\texttt{isHit}関数あるいは\texttt{isHit\_Gimmick}関数によってヒット判定を計算する。
+弾丸が当たった場合には弾丸に備わっているメソッドを操作することで爆発アニメーションを開始させる。
+ギミックの場合も同様にプレイヤーがギミックに接触したらギミックの種類に応じた効果が生じるようにする。
+ギミックによるパワーアップの持続時間及びギミックアイテムの表示時間の管理もこのメソッド内で行う。どちらかの体力がゼロになったら\texttt{winner}に勝者を入れ\texttt{gameEnd}関数を実行する。
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=18cm]{serverLogic\_figure.eps}
+   \caption{serverLogic()の弾丸のヒット判定の部分の一部抜粋}
+   \label{fig:class}
+ \end{center}
+\end{figure}
+
+  
+  \item[・\texttt{gameEnd()}:]\texttt{GameFrame}クラスに対して\texttt{Observer}を用いてゲーム終了を通知する
+
+\item[・\texttt{isHit(Player p,Bullet b)}:]プレイヤーとの距離を計算し弾丸とプレイヤーの大きさを元にヒット判定を計算する。
+
+  
+\item[・\texttt{isHit\_Gimmick(Player p,Bullet b)}:]\texttt{isHit}関数と同様にしてギミックとプレイヤーのヒット判定を計算する。
+
+\item[・\texttt{sendServerData()}:]\texttt{StringBuilder}を用いて図\ref{sendServerData_figure}のようにしてゲーム情報を表現できる文字列を作成する。\texttt{.append()}によってゲーム情報を付加していく。各情報の間には区切り文字として\texttt{"\,"や"\;"、"\#"}などを付加していくことで読み取り時にデータを分割できるようにしておく。
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=15cm]{sendServerData_figure.eps}
+   \caption{\texttt{sendServerData}における文字付加の一例}
+   \label{sendServerData_figure}
+ \end{center}
+\end{figure}
+
+\item[・\texttt{perseServerData（String msg）}:]サーバ－側から送られてくるデータはプレイヤー、弾丸、ギミックの三種類についてでありこの三つの区切り文字は\texttt{"\#"}なので図\ref{perseServerData_figure}のようにデータの文字列を\texttt{msg.split}で分割し、さらにその先のデータも各形式に合わせて分割して配列の形式で格納する。また\texttt{winner}の中身が空文字でないならば中身の文字列に合わせて勝者を確定させ\texttt{gameEnd}関数を呼び出す。
+
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=10cm]{perseServerData_figure.eps}
+   \caption{\texttt{perseServerData}における文字列解読の例}
+   \label{perseServerData_figure}
+ \end{center}
+\end{figure}
+
+
+
+\item[・\texttt{sendClientInput(boolean isShooting, int bulletType)}:]クライアント側の入力を伝える場合は必要となるデータ量の数が動的に変動しないため図\ref{sendClientInput_figure}のように単純に文字列を\texttt{+}で結合して送信する。
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=15cm]{sendClientInput_figure.eps}
+   \caption{\texttt{sendClientInput}における文字列作成、送信の方法}
+   \label{sendClientInput_figure}
+ \end{center}
+\end{figure}
+
+\item[・\texttt{draw(Graphics g)}:]プレイヤー、すべての弾丸及びギミックの描画を実行
+
+\end{description}
+
+
+
 
 \subsection{大谷}
 \subsubsection*{【\texttt{Bullet}クラスと, その子クラス\texttt{CurveBullet}, \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}】}
@@ -268,6 +353,230 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
   \end{verbatim}
   \end{scriptsize}
 \subsection{南}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　通　信　確　立 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{通信確立とリトライ}
+\begin{flushright}
+  文責：南
+\end{flushright}
+　本節では、2.5節で説明した通信確立の流れに基づいて、各クラスの実装内容を説明する。
+なお、先述のとおり通信の基盤となる\texttt{Comm.java} については、授業で配布されたひな形コードを利用している。ただし、IOコネクションが得られない場合などに強制終了しないように一部の例外処理は変更している。
+
+\subsubsection{ServerPanel}
+\noindent\textbf{概要}: \\
+　サーバー(ホスト)としてゲームを開始する際の待機画面を提供するクラスである。自身のローカルIPアドレスと乱数によって決定されたポート番号を表示し、クライアントからの接続を待機する。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{CustomButton closeBtn}: タイトルへ戻るためのボタン。
+    \item \texttt{String displayIP}: 自身のローカルIPアドレスを保持し、画面描画に使用する。
+    \item \texttt{String displayPort}: 生成されたポート番号を保持し、画面描画に使用する。
+    \item \texttt{boolean isWaiting}: 多重起動を防ぐためのフラグ。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{serverWait()}: 接続待機処理の核となるメソッドである。\texttt{ServerPanel}のコンストラクタ内で実行される。いざ実行されると、ランダムなポート番号を生成し、別スレッドを生成して接続待機処理を行う。
+    \item \texttt{actionPerformed(ActionEvent e)}: ボタン押下時のイベントハンドラ。\texttt{closeBtn}が押された場合、タイトル画面へ遷移する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　接続待機時のブロッキング処理がUIスレッドを占有しないよう、\texttt{serverWait()} メソッド内で新たなスレッドを生成して接続待機処理を行う。
+\texttt{SwingUtilities.invokeLater()} を用いることで、ゲームの開始処理を待ちリストの最後に登録し、接続成功後にUIスレッドでゲーム画面への遷移を行う設計とした。\\
+　また、一度ゲームを終了した後にもう一度サーバー待機画面に遷移した場合、ただコンストラクタで\texttt{serverWait()} を呼び出すだけでは、以前のソケットを再利用してしまい、接続時にエラーが発生してしまうため、\texttt{componentShown} イベントをトリガーにして\texttt{serverWait()} を呼び出す設計とした。これにより、サーバー待機画面が表示されるたびに新しいソケットで接続待機処理が行われるようになった。
+
+\subsubsection{ClientPanel}
+\noindent\textbf{概要}: \\
+　クライアントとしてゲームに参加するための入力画面を提供するクラスである。サーバーからIPアドレスとポート番号を教えてもらい、これをフィールドに入力することで接続を試行する。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{CustomButton closeBtn}: タイトルへ戻るためのボタン。
+    \item \texttt{CustomButton connectBtn}: 接続を試行するためのボタン。
+    \item \texttt{JTextField ipField}: 接続先のIPアドレスを入力するフィールド。初期値は\texttt{localhost}。
+    \item \texttt{JTextField idField}: 接続先のポート番号を入力するフィールド。
+    \item \texttt{JLabel statusLbl}: 接続状態を表示するラベル。初期値は「NOT CONNECTED」。接続試行中は「CONNECTING...」、接続成功時は「CONNECTED!」、接続失敗時は「CONNECTION FAILED」と表示する。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{connecToServer(String ip, int port)}: 指定された接続先へ接続要求を行う。
+    \item \texttt{actionPerformed(ActionEvent e)}: ボタン押下時のイベントハンドラ。\texttt{closeBtn}が押された場合、タイトル画面へ遷移する。 \texttt{connectBtn}が押された場合、\texttt{connecToServer()} を呼び出して接続を試行する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　\texttt{ServerPanel} と同様に、接続試行中のタイムアウト待ちなどでUIが固まらないよう、通信処理を別スレッド化している。
+
+\subsubsection{ResultPanel}
+
+\noindent\textbf{概要}: \\
+　ゲームの勝敗を表示し、ユーザーに次のアクション(リトライまたは終了)を選択させるクラスである。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{CustomButton retryButton}: ゲームのリトライ要求を行う。後述の\texttt{GameFrame.tryRetry()} を呼び出す。
+    \item \texttt{CustomButton quitButton}: ゲームの終了通知を行う。通信相手に終了通知を送信し、タイトル画面へ遷移する。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{actionPerformed(ActionEvent e)}: ボタン押下時のイベントハンドラ。\texttt{retryButton}が押された場合、リトライ要求の処理を開始する。\texttt{quitButton}が押された場合、終了通知を送信してタイトル画面へ遷移する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　リトライボタンが押された際、即座に画面を切り替えるのではなく、ボタンを無効化をして連打を防ぎつつ、通信相手の応答を待つ。
+相手の応答が「Retry:RETRY」であった場合のみゲームを再生成し、それ以外の場合は相手が終了したと見做してタイトル画面へ遷移する設計とした。
+
+\subsubsection{GameFrame}
+
+\noindent\textbf{概要}: \\
+　アプリケーションのメインウィンドウであり、画面遷移(\texttt{CardLayout})と通信オブジェクトの保持を一元管理するクラスである。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{Object commSV}: \texttt{CommServer} または \texttt{CommClient} を保持するフィールド。どちらのクラスも共通の親クラスを持たない(ひな形コードの仕様)ため、\texttt{Object} 型として保持し、使用時に型判定を行っている。
+    \item \texttt{ShootingView view}: ゲームの描画を担当するクラスのインスタンス。ゲーム開始時に生成される。
+    \item \texttt{MoveManager mm}: ゲームのデータ全般の管理を担当するクラスのインスタンス。ゲーム開始時に生成される。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{startGame(boolean isServer, Object comm)}: 通信オブジェクトを受け取り、自身がサーバーかクライアントかを判定し、それに応じてゲームロジック(MoveManager)と描画(ShootingView)を初期化してゲームを開始する。
+    \item \texttt{tryRetry()}: ゲーム終了後のリトライ処理における通信同期を行う。自身と相手の両方がリトライ要求をしていた場合のみ、retryGame() を呼び出してゲームを再生成する。それ以外の場合は、相手が終了したと見做してタイトル画面へ遷移する。
+    \item \texttt{retryGame()}: ゲームの再生成を行う。今あるコンポーネントを全て削除し、\texttt{startGame()} を呼び出してゲームを初期化する。
+    \item \texttt{backToStart()}: タイトル画面へ遷移する。\texttt{CommServer/Client}を閉じ、今あるコンポーネントを全て削除し、タイトル画面のパネルを追加して \texttt{CardLayout} を切り替える。
+    \item \texttt{update(Observable o, Object arg)}: ゲーム終了の通知を受け取るためのオーバーライドメソッド。MoveManagerから通知を受け取ると、\texttt{ResultPanel} を生成してゲーム終了の画面へ遷移する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　ゲーム開始時にキー入力をゲーム画面に集中させるため、\texttt{startGame()} 内で\texttt{SwingUtilities.invokeLater}により待ちリストの最後に登録したうえで \texttt{requestFocusInWindow()} を呼び出している。\\
+　また、リトライ処理の通信同期を行う \texttt{tryRetry()} も、通信待ちによるUIのフリーズを回避するために別スレッド化している。
+そして、自分がリトライを要求しても、相手もリトライ要求をしていない時は大方コネクションが切断されているので、この際は例外処理としてテンプレートの\texttt{Comm.java}を書き換えて通常の終了通知の時と同様「QUIT」とメッセージを送信して、「相手がゲームを終了しました。」
+と、ポップアップで表示するようにしている。
+
+
+\subsubsection{Comm.java}
+
+\noindent\textbf{概要}: \\
+　本授業のひな形コードとして配布された通信用クラスファイルである。サーバー用の \texttt{CommServer} クラスとクライアント用の \texttt{CommClient} クラスが含まれている。\\
+　フィールド等の列挙はサンプルコードであるため割愛する。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%　画　面　遷　移　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{画面遷移(\texttt{GameFrame})}
+\begin{flushright}
+  文責：南
+\end{flushright}
+　本節では、2.7節で説明した画面遷移の実装に関して説明する。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{JPanel mainPanel}: \texttt{CardLayout} を適用するためのメインパネル。タイトル画面、サーバー待機画面、クライアント接続画面、ゲーム画面をこのパネルに追加し、切り替える。(リザルト画面は2.5.1節で説明した理由により、別の方法で遷移を実装している。)
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{showCard(String key)}: \texttt{CardLayout} を用いて、引数で指定されたキーに対応するパネルを表示する。
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　タ　イ　ト　ル　画　面　の　装　飾　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{タイトル画面の装飾}
+\begin{flushright}
+文責：南
+\end{flushright}
+　本節では、タイトル画面を主として私が作成した装飾クラスについて説明する。
+
+\subsubsection{StartPanel}
+\noindent\textbf{概要}: \\
+　ゲーム起動直後に表示されるタイトル画面を構築するクラスである。
+押下によるサーバー作成(CREATE)、クライアント接続(JOIN)各画面への遷移と、終了(EXIT)の管理する。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{BackGroundPanel bgPanel}: 背景画像と星のアニメーションを描画するパネル。
+    \item \texttt{CustomButton serverBtn, clientBtn, exitBtn}: デザインが適用された操作ボタン。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　後述のSE設定やホバー時アニメーション等のメソッドをまとめた\texttt{Design}インターフェース内の\texttt{flashImage(boolean)}メソッドと\texttt{setSound(String)}メソッドを用いて、ボタンのホバー状態に応じたアニメーションを実装している。
+また、後述のそれぞれのボタンのクラス(\texttt{CustomButton})の\texttt{MouseListener} を用いて、ホバー状態を検知している。
+
+\subsubsection{BackGroundPanel}
+
+\noindent\textbf{概要}: \\
+　メインとボタンのマウスホバー時の2つの背景画像を読み込み、isFlashedフラグの状態に応じて描画する画像を切り替える機能を持つクラスである。また、背景画像の上に奥野制作の流れる星のアニメーションも同時に描画するために背景画像の透過も行っている。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item \texttt{Image bgImage\_original, bgImage\_flashed}: 通常時とホバー時の背景画像を保持するフィールド。
+    \item \texttt{boolean isFlashed}: ホバー状態を保持するフラグ。trueのときは\texttt{bgImage\_flashed} を描画し、falseのときは\texttt{bgImag\_original} を描画する。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{flashImage(boolean isFlashed)}: 引数で受け取ったホバー状態を\texttt{isFlashed} フィールドにセットし、ホバー時は星の流れる速度を遅くする演出も行う。
+    \item \texttt{paintComponent(Graphics g)}: \texttt{isFlashed} フィールドの状態に応じて、通常時とホバー時の背景画像を切り替えて描画する。また、背景画像を透過させて星のアニメーションも同時に描画する。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　\texttt{flashImage(boolean isFlashed)} メソッドをオーバーライドメソッドにすることで、\texttt{Design}インターフェースを実装するクラスであれば、どのクラスからでもホバー状態の変更とそれに伴う演出の変更を行えるようにしている。\\
+　また、背景画像の切り替えに関して、ホバー時には背景画像中のビームを光らせてまるで画像の中のスペースシャトルが発射するかのような演出を行った。
+これは画像編集ソフトを用いて元画像のハイライト値を上げることによって白を基本とする明るい色を強調することによって実現した。\\
+　この手法の発案当初は元画像のRGB値をプログラム内で読み込み、ホバー時に値を緩やかに調整することでより自然なアニメーションを実装することを目標としていたが、この場合、都度新しい画像を生成する必要があり、
+パフォーマンス面で問題があると考え、あらかじめホバー時の画像を用意しておく方法に変更した。
+
+\subsubsection{CustomButton}
+
+\noindent\textbf{概要}: \\
+　タイトル画面の操作ボタンに適用するデザインを実装するクラスである。
+
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+    \item   \texttt{Consumer<Boolean> actionBox}: そのクラス既存ののactionPerformedにmouseEnteredとmouseExitedの処理を追加するためのフィールド。
+    \item   \texttt{Color lineColor, shadowColor}: ホバー状態に応じて変化する線の色と影の色を保持するフィールド。
+    \item   \texttt{boolean isHovered}: ホバー状態を保持するフラグ。trueのときはホバー状態、falseのときは非ホバー状態である。
+\end{itemize}
+
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+    \item \texttt{paintComponent(Graphics g)}: \texttt{Graphics2D} クラスを用いて、小数点以下の値に対応した正確な形をしたボタンを描くためのメソッド。コンストラクタで引数として受け取った\texttt{String text}と\texttt{Font font}のとおりにボタンのテキストを中央に描く。
+    \item \texttt{setSound(GameFrame f)}: 後述のSE設定のためにインターフェースのメソッドをオーバーライドするためのメソッド。引数で受け取った\texttt{GameFrame} のインスタンスを用いて、ホバー状態の変更に伴うSEの再生を行う。
+    \item \texttt{setAction(Consumer<Boolean> actionBox)}: \texttt{setSound()}と同様に、後述のホバー状態の変更に伴うアニメーションのためにインターフェースのメソッドをオーバーライドするためのメソッド。引数で受け取った\texttt{Consumer<Boolean>} を用いて、ホバー状態の変更に伴うアニメーションの処理の追加を行う。
+\end{itemize}
+
+\noindent\textbf{実装のポイント}: \\
+　ボタンのホバーの可否がわかるように、マウスホバーさせるとボタンとその影の色が反転するようになっている。\texttt{getWidth()} と \texttt{getHeight()} を用いて描画範囲を取得しているが、
+パスの太さや影とのズレ(offset)により、本体の描画可能範囲が取得範囲と異なるため、ボタンの形を描く前に実際的な描画可能範囲を再計算している。同様の理由で、テキストの描画位置も再計算している。
+
+\subsubsection{FontLoader}
+\noindent\textbf{概要}: \\
+　引数に外部からダウンロードしたフォントのファイルパスとフォントサイズを受け取るだけでフォントの設定ができるクラスである。
+
+\noindent\textbf{メソッド}:
+\begin{itemize}
+    \item \texttt{loadFont(String path, float size)}: 引数で受け取ったファイルパスからフォントを読み込み、引数で受け取ったサイズに設定して返すメソッド。ファイルの読み込みに失敗した場合は、デフォルトのフォントを返す。
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　B　G　M　・　S　E　設　定　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{BGM・SE設定(\texttt{GameFrame})}
+\begin{flushright}
+  文責：南
+\end{flushright}
+本節では、wave形式のBGM・SEの設定のためのフィールド、メソッドを説明する。
+
+\noindent\textbf{フィールド}:
+\begin{itemize}
+    \item \texttt{Clip clip}: 音声の制御を行うためのフィールド。BGMとSEの両方で使用する。
+\end{itemize}
+
+\noindent\textbf{メソッド}:
+\begin{itemize}
+    \item \texttt{playBGM(String path, float valume)}: 引数で受け取ったファイルパスから音声を読み込み、再生するメソッド。BGMなので、ループ再生する。
+    \item \texttt{stopBGM()}: BGMの再生を停止するメソッド。
+    \item \texttt{playSE(String path, valume)}: 引数で受け取ったファイルパスから音声を読み込み、再生するメソッド。SEなので、ループ再生せず、再生が終わったら自動的に閉じる。
+    \item \texttt{stopSE()}: SEの再生を停止するメソッド。
+\end{itemize}
 
 \subsection{奥野}
 
@@ -276,28 +585,76 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 -------------------------------------------
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　実　行　例　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{実行例}
-実行画面を示す．結果のみでなく，分かりやすく説明する．
+\subsection{ボタンのマウスホバーのアニメーションの実行例}
+ホバー前後のタイトル画面のスクリーンショットを以下に示す。
 
-必要に応じてグラフや図などを用いる．
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{title_pic.jpg}
+        \caption{ホバー前}
+    \end{center}
+\end{figure}
 
-例を 図\ref{fig:graph}に示す．
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{title_hovered_pic.jpg}
+        \caption{ホバー後}
+    \end{center}
+\end{figure}
 
-%\begin{figure}[htbp]
-%  \begin{center}
-%    \leavevmode
-%    \includegraphics[width=0.6\textwidth]{graph.eps} 
-% width=0.6\textwidth は図の横幅を全体の横幅の0.6倍に設定しています．
-% 0.6 を変えると図の大きさを自由に変えることができます．
-%    \caption{例．sin(x)のグラフ．}
-%    \label{fig:graph}
-%  \end{center}
-%\end{figure}
+未定節で説明したように、ホバー前は背景画像のビームが暗く、ホバー後はビームが光っている。また、ホバー前後でボタンの色が反転している。
 
-今回の場合は，グラフの代わりにスクリーンショットをつけて，説明すること．
-特に，アピールしたい点については丁寧に実行例を説明すること．
+\subsection{ゲーム終了後のリザルト画面への遷移の実行例}
+ゲーム終了後のリザルト画面への遷移の流れを示すスクリーンショットを以下に示す。
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{gameset_pic.png}
+        \caption{ゲーム終了直後の画面}
+    \end{center}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{result_win_pic.png}
+        \caption{勝者のリザルト画面}
+    \end{center}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{result_lose_pic.png}
+        \caption{敗者のリザルト画面}
+    \end{center}
+\end{figure}
+
+以上のように、ゲーム終了直後はキー入力が拒否され、一定時間「GAMESET」と画面中央に表示された後、勝者と敗者で異なるリザルト画面へ遷移する。
+
+\subsection{リトライ要求時のコネクション切断}
+リトライ要求の際に片方がリトライ要求をして、もう片方が終了通知を行った場合の、リトライ要求を行った側の要求前後の画面のスクリーンショットを以下に示す。
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{result_wait_pic.png}
+        \caption{リトライ要求後の待機画面}
+    \end{center}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.3]{result_err_pic.png}
+        \caption{コネクションが切断後の画面}
+    \end{center}
+\end{figure}
+
+以上のように、相手からのリトライ要求の応答がない場合は、相手がゲームを終了したと見做して、ポップアップを表示している。
+
+%%%%%%%%%%%%%%%%%%%%%%%　考　察　%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{考察}
+<<<<<<< HEAD
 完成したプログラムに対する考察，コメントを述べてください．
 当初予定していた通りの物ができたか考察してください．
 また，考察を踏まえて，今後の改良点についても述べてください．\\
@@ -308,8 +665,10 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 >>>>>>> 50fac27fb4c6be1d7c437afbb8c618d536a2475d
 --------------------------------------
+=======
+>>>>>>> 66c3baa6569d7ff1ca78dc3ed4dc06825623420f
 \subsection{プログラムについての考察}
-
+通信型のゲームを作成するうえで軽量化という問題は非常に重要な課題だと感じた。今回作成したゲームは現代におけるゲームの中ではかなり要素の少ないものであるが、それでもスレッドのスリープ時間やゲームデータの送信方式をある程度工夫しないとラグが発生してしまっていた。今回使用したライブラリのメソッドがゲーム用の通信としてあまり最適化されていない点もあるとはいえ、もっと大きい規模のゲームを作成するならば今回のもの以上に通信の最適化について気にしなければならないと考えられる。今回作成したゲームにおいて挙げられる改善点としては、\texttt{Comm.java}を改善することである。具体的には、今の\texttt{Comm.java}は\texttt{TCP}での通信であり、信頼性が高い代わりに通信速度が遅いためゲームでの通信には適さない。そのため、通信を\texttt{UDP}ベースで行えるようにし弾の発射や被弾などの重要なイベントのみ再送しそれ以外は古いデータを上書きするという方式にして軽量化を行うようにしたい。
 
 
 \subsection{ゲームシステムについての考察}
@@ -317,27 +676,30 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 当初の予定では、フィールドを何種類か作成しダメージギミックなどそのステージ独自のギミックを作成する予定であったので
 その部分は改善点である。また、今回はデバッグの時間をあまりとれていないため本来意図していない動作をした時などでバグが発生する可能性もある。これらの点をこれから改善していきたい。
 
---------------------------------------
+\subsection{通信の確立に関する考察}
+今回の実装では、サーバーとクライアントを明確に区別して通信を行った。計画当初はチーム戦もできるような実装にしたいと考えていたがこの実装方法では後付けで追加出来なかった。\\
+　今後、チーム戦や観戦者モードを実装するためには、サーバーとクライアントの区別をなくし、group18が行っていたように必要な処理(データ送受信など)をインターフェースにまとめて、サーバーとクライアントの両方で共通の親クラスを作成して、必要に応じてオブジェクトを生成する方法が考えられる。\\
+　また、今回はCommサーバーを用いた関係上、TCP通信を行った。もし、ローカル対戦だけでなく、インターネット対戦も行えるようにする場合、group18のようにターン性のゲームであればTCP通信でもよいが、今回のようなリアルタイム性のゲームでTCPを用いると通信の遅延が致命的になる可能性が高いと考えられる。
+このため、UDP通信を採用することが好ましいと考えられる。UDP通信ならコネクションの確立/切断やパケットの再送制御等の処理が行われないため、通信の遅延を減らすことができると考えられるからである。
+
+%%%%%%%%%%%%%%%%%%%%%%　各　自　の　反　省　と　感　想　%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{各自の反省と感想}
-以下のような内容に関して，
-メンバ全員がそれぞれ書いてください．メンバ間で
-内容が重複しても構いません．必ず，それぞれ誰の
-感想か分かるようにしてください．
-\begin{itemize}
-  \item グループでの作業を通しての反省や感想，それから考察できること．
-  \item 今後の各自の担当部分の課題．やり残したこと．
-  \item Javaやオブジェクト指向，MVCモデルなど学習内容に関する感想．
-  \item 「プログラミング演習」の授業に関する感想や要望．
-\end{itemize}
 
-
------------------------------
 \subsection{池崎}
 私たちのグループでは、コード作成の初めにクラス図を作成して分担を行うことができていなかったため並行して作業することがあまりできておらず作業の効率化が行えていなかった。一人での作成であればファイル構造が複雑化してもある程度問題なく開発できるが、グループでのプログラム作成や保守性を考えると、もっとファイル構造の簡略化を行い可視性を上げる必要があると思う。そのためにも、オブジェクト指向についてもっと考える必要があると考える。ゲーム独自の要素としてのギミックの種類を増やすことが今後の課題である。また、リトライ機能において片方がRETRYを押しもう片方はQUITを押すなど予期しない動作を行った時の動きの正常化など技術力が足りず直しきれなかったバグもあったのでこれらも改善したい。Java言語などのオブジェクト指向言語ではMVCモデルなどでの構造の簡略化が非常に大事だと感じた。プログラミング演習の授業を通してグループでのプログラミングを行い開発の難しさやファイル構成を事前に決めることに大切さなどを学ぶことができた。
 
+\subsection{南}
+gitの管理をしていたわけだが、経験はあっても使い慣れてはいないのでマージコンフリクトが起きた時の対処に苦労した。以降はブランチを上手く使い分けて作業を行うようにしたい。\\
+　また、発表のある週に突貫工事を行ってなんとか人前に見せれる形になったが、発表の1週間前にギミックの量ではなくて見た目の意匠を凝らすことに専念したのは正解だったと思う。
+発表のデモの時間は短いので「面白そう」と思わせるにはギミックを煩雑にしてやりこみ要素を増やすよりも、見た目のインパクトを重視した方が効果的だと考えたからである。
+実際、ゲーム以外のアニメーションやフォント含めたグラフィックの統一感やBGM、SEにこだわり、一般にあるゲームを思い浮かべて被ダメージの画面揺れと赤い点滅を直前に提案し実装してもらい、その他弾やエフェクトにもモデル班にこだわってもらったのは功を奏したようで、
+発表後の観衆のコメントを全て拝見したが見た目に関するポジティブな評価がとても多かった。これにより1票差ではあったが最優秀賞を獲れたので非常に良かったと思う。
+ただ、ゲーム開始前のカウントダウン等の比較的簡単に実装できる演出や、考察に書いた通信の課題点の解決策の実装や、ゲーム上での必殺技や妨害ギミックや回避行動など、やり残したことは多々あったので、今後は時間配分をより上手く行って、やりたいことを全て実装できるようにしたいと思う。\\
+　また、普段は個人でしかもC言語という全く違う環境でしかプログラミングをしていないので、Javaやオブジェクト指向、MVCモデルなどの学習と実行はとても大変だった。ただ、こういったアプリケーションの制作は今回の演習のような制作環境が主流だと思うので、慣れていかないと行かないと思った。\\
+　最後に、高校の頃にグループでゲームを制作したものの中途半端で終わってしまった自分としては、今回の演習はリベンジであったので、最優秀賞をとるところまで形にできたのは非常にうれしかった。
+今後このようなアプリケーションの制作に携わる機会があれば、今回の経験を活かして、より良いものを作れるようにしたいと思う。
 
------------------------------
 
 \newpage
 \section*{付録１：操作法マニュアル (ユーザーズマニュアル)}
@@ -349,12 +711,78 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 なお，付録は始まる直前で必ず改ページして下さい．\\
 
+<<<<<<< HEAD
 ----------------------。
 java GameFrameをターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
 ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、Zキーで波弾、Xキーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーがRETRYを押すことで再戦ができる。意図しない挙動を引き起こす可能性があるため、両者の選ぶボタンは異なるものにすること。\\
+=======
+java GameFrameをターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATEボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
+ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、Zキーで波弾、Xキーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーがRETRYを押すことで再戦ができる。意図しない挙動を引き起こす可能性があるため、両者の選ぶボタンは異なるものにすること。
+>>>>>>> 66c3baa6569d7ff1ca78dc3ed4dc06825623420f
 
 
 ----------------------
+
+
+
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.43\linewidth}
+    \centering
+   \includegraphics[width=6cm]{pUp_item.eps}
+   \caption{パワーアップアイテムギミック}
+   \label{powerUp}
+  \end{minipage}
+  \hspace{5mm}
+  \begin{minipage}{.43\linewidth}
+    \centering
+   \includegraphics[width=6cm]{heal_item.eps}
+   \caption{回復アイテムギミック}
+   \label{heal}
+  \end{minipage}
+\end{figure}
+
+
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=15cm]{bigger.eps}
+   \caption{パワーアップアイテム取得前後での弾の大きさの変化}
+   \label{bigger}
+ \end{center}
+\end{figure}
+
+
+
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{.43\linewidth}
+    \centering
+   \includegraphics[width=6cm]{pUp_item.eps}
+   \caption{パワーアップアイテムギミック}
+   \label{powerUp}
+  \end{minipage}
+  \hspace{5mm}
+  \begin{minipage}{.43\linewidth}
+    \centering
+   \includegraphics[width=6cm]{heal_item.eps}
+   \caption{回復アイテムギミック}
+   \label{heal}
+  \end{minipage}
+\end{figure}
+
+
+
+\begin{figure}[H]
+ \begin{center}
+   \includegraphics[width=15cm]{bigger.eps}
+   \caption{パワーアップアイテム取得前後での弾の大きさの変化}
+   \label{bigger}
+ \end{center}
+\end{figure}
+
 
 \newpage
 \section*{付録２：プログラムリスト}
