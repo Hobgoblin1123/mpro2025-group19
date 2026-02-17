@@ -437,7 +437,7 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
     \item \texttt{paintComponent(Graphics g)}: \texttt{isFlashed} フィールドの状態に応じて、通常時とホバー時の背景画像を切り替えて描画する。また、背景画像を透過させて星のアニメーションも同時に描画する。
 \end{itemize}
 
-\noindent\textbf{実装のポイント (BackGroundPanel)}: \\
+\noindent\textbf{実装のポイント}: \\
 　\texttt{flashImage(boolean isFlashed)} メソッドをオーバーライドメソッドにすることで、\texttt{Design}インターフェースを実装するクラスであれば、どのクラスからでもホバー状態の変更とそれに伴う演出の変更を行えるようにしている。\\
 　また、背景画像の切り替えに関して、ホバー時には背景画像中のビームを光らせてまるで画像の中のスペースシャトルが発射するかのような演出を行った。
 これは画像編集ソフトを用いて元画像のハイライト値を上げることによって白を基本とする明るい色を強調することによって実現した。\\
@@ -463,7 +463,7 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
     \item \texttt{setAction(Consumer<Boolean> actionBox)}: \texttt{setSound()}と同様に、後述のホバー状態の変更に伴うアニメーションのためにインターフェースのメソッドをオーバーライドするためのメソッド。引数で受け取った\texttt{Consumer<Boolean>} を用いて、ホバー状態の変更に伴うアニメーションの処理の追加を行う。
 \end{itemize}
 
-\noindent\textbf{実装のポイント (CustomButton)}: \\
+\noindent\textbf{実装のポイント}: \\
 　ボタンのホバーの可否がわかるように、マウスホバーさせるとボタンとその影の色が反転するようになっている。\texttt{getWidth()} と \texttt{getHeight()} を用いて描画範囲を取得しているが、
 パスの太さや影とのズレ(offset)により、本体の描画可能範囲が取得範囲と異なるため、ボタンの形を描く前に実際的な描画可能範囲を再計算している。同様の理由で、テキストの描画位置も再計算している。
 
