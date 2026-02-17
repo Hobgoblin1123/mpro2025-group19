@@ -183,6 +183,14 @@ public class GameFrame extends JFrame implements Observer {
             // 相手の応答待機
 
             String response = receiveMessage();
+            // 切断されていた場合のチェック
+            if (response == null) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(this, "通信が切断されました。");
+                    backToStart();
+                });
+                return; // 処理を中断
+            }
             while (response != null && !response.startsWith("Retry:")) {    // "Retry:" で始まるメッセージが来るまで待機 (他の通信が混ざる可能性を考慮)
                 response = receiveMessage();
             }
@@ -192,8 +200,8 @@ public class GameFrame extends JFrame implements Observer {
             SwingUtilities.invokeLater(() -> {
                 if (actualResponse.equals("RETRY")) {
                     retryGame();    // 両者ともリトライを開始
-                } else {
-                    JOptionPane.showMessageDialog(this, "相手がゲームを終了しました。");
+                } else if(actualResponse.equals("QUIT")) {
+                    JOptionPane.showMessageDialog(this, "相手がゲームを終了しました。");    // 再チェック
                     backToStart(); // 自分もスタートに戻る
                 }
             });
