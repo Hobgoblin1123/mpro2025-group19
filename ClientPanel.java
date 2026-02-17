@@ -13,7 +13,7 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
     private Image bgImage;
 
     public ClientPanel(GameFrame f) {
-        super(); // 星のアニメーション開始
+        super(); 
         this.f = f;
         
         // --- 1. レイアウト設定 ---
@@ -34,7 +34,7 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
             BorderFactory.createLineBorder(new Color(0, 200, 255), 2),
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
-        consolePanel.setBackground(new Color(0, 0, 30, 200)); // 半透明黒
+        consolePanel.setBackground(new Color(0, 0, 30, 200)); 
 
         // --- 2. 構成要素の作成とデザイン ---
         JLabel titleLabel = new JLabel("ESTABLISH CONNECTION");
@@ -98,9 +98,6 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         btnPanel.add(closeBtn);
         consolePanel.add(btnPanel, gbc);
 
-        // パネルを画面に追加
-        // パネル自体の背景描画のために paintComponent をオーバーライドした無名クラスでラップしても良いが
-        // 簡易的に JPanel の背景色と透過設定で対応
         JPanel wrapper = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -113,7 +110,7 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         wrapper.add(consolePanel);
         this.add(wrapper);
 
-        // --- +α. 画面が表示されるたびに状態をリセット ---
+        
         this.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
@@ -142,16 +139,14 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        super.actionPerformed(e); // 星のアニメーション更新
+        super.actionPerformed(e); 
 
         if (e.getSource() == closeBtn) {
             f.playSE("music/back.wav", 1);
             f.showCard("START");
             f.stopBGM();
             f.playBGM("music/main.wav", 0.3f);
-        } else if (e.getSource() == connectBtn || e.getSource() == idField) {      //  JTextFieldは、Enter入力の機能を潜在的に持っているのでActionListenerでよい
-            f.playSE("music/go.wav", 1);
-            String id = idField.getText();
+        } else if (e.getSource() == connectBtn || e.getSource() == idField) {      
             String ip = ipField.getText();
 
             // 入力チェック
@@ -200,7 +195,6 @@ public class ClientPanel extends StarAnimPanel implements ActionListener {
         super.paintComponent(g); // 星を描画
         Graphics2D g2d = (Graphics2D) g;
 
-        // 画像があれば半透明で描画 (StartPanelと同じ処理)
         if (bgImage != null) {
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 透明度0.6
             g2d.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);

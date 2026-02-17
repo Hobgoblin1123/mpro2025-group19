@@ -74,21 +74,16 @@ public class ResultPanel extends JPanel implements ActionListener {
         bgPanel.flashImage(isflashed);
     }
 
-    // =========================================================================
-    //  内部クラス: 背景カスタム (StartPanelと同じ仕組み)
-    // =========================================================================
     class BackGroundPanel extends StarAnimPanel {
         private Image bgImage_original;
         private Image bgImage_flashed;
         private boolean isflashed;
 
         public BackGroundPanel() {
-            // リザルト画面なので星は少し派手または落ち着いた設定に
             this.starMaxSize = 12.0f;
             this.starMaxBrightness = 300;
             
             try {
-                // スタート画面と同じ画像を使うか、リザルト用の画像があれば変更してください
                 bgImage_original = new ImageIcon(getClass().getResource("/images/result.png")).getImage();
                 bgImage_flashed = new ImageIcon(getClass().getResource("/images/resultflashed.png")).getImage();
             } catch (Exception e) {
@@ -117,9 +112,6 @@ public class ResultPanel extends JPanel implements ActionListener {
         }
     }
 
-    // =========================================================================
-    //  内部クラス: カスタムボタン (StartPanelと全く同じデザイン)
-    // =========================================================================
     class CustomButton extends JButton {
         private int offset = 8;
         private Color lineColor = new Color(147, 234, 237, 100);
@@ -152,13 +144,13 @@ public class ResultPanel extends JPanel implements ActionListener {
                 public void mouseEntered(MouseEvent e) {
                     isHover = true;
                     f.playSE("music/hover.wav", 1);
-                    ResultPanel.this.flash(isHover); // ★ここが重要
+                    ResultPanel.this.flash(isHover); 
                     repaint();
                 }
                 @Override
                 public void mouseExited(MouseEvent e) {
                     isHover = false;
-                    ResultPanel.this.flash(isHover); // ★ここが重要
+                    ResultPanel.this.flash(isHover); 
                     repaint();
                 }
             });
@@ -233,7 +225,7 @@ public class ResultPanel extends JPanel implements ActionListener {
         } else if (e.getSource() == this.quitButton) {
             f.playSE("music/back.wav", 1);
             System.out.println("ゲームを終了します");
-            f.sendMessage("QUIT");  //  backToStart()内に記述すると、リトライ失敗後にbackToStart()するので余計なメッセージ送信をしてしまう
+            f.sendMessage("QUIT"); 
             f.backToStart();
         }
         
