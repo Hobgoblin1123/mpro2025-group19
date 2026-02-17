@@ -172,7 +172,7 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \noindent \texttt{MoveManager}クラスは,プレイヤー、弾丸、ギミックの位置情報などの更新、およびそれらの情報のサーバー・クライアント間での伝達。プレイヤーの当たり判定などを管理する。全フィールドから抜粋した主なフィールドは次の通り.
 \begin{description}
   \item[・\texttt{server}]自身が持っているcommオブジェクトがサーバーであるかクライアントであるかについてのbooleanフラグ
-  \item[・\texttt{court_size_x,court_size_x}]対戦画面でのコートの大きさ
+  \item[・\texttt{court\_size\_x,court\_size\_y}]対戦画面でのコートの大きさ
   \item[・\texttt{player1,player2}]プレイヤー。player1は画面左側、player2は画面右側の機体を表す。
   \item[・\texttt{winner}]勝者がどちらのプレイヤーかについて。初期値では空文字列が与えられている。
   \item[・\texttt{iaRunning}]\texttt{MoveManager}が動いているのかのフラグ
@@ -190,14 +190,14 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
   
   \item[・\texttt{serverLogic()}:]プレイヤー、弾丸、ギミックの動作について計算するメソッド。
   ギミックの位置は乱数を用いてゲームフィールド内のランダムな位置に生成されるようにする。
-  弾丸、ギミックの情報ははそれぞれIteratorによって管理される。Iterator内部のアイテムすべてについて、非アクティブあるいは画面外に出たなら削除し、アクティブなものについては\texttt{isHit}関数あるいは\texttt{isHit_Gimmick}関数によってヒット判定を計算する。
+  弾丸、ギミックの情報ははそれぞれIteratorによって管理される。Iterator内部のアイテムすべてについて、非アクティブあるいは画面外に出たなら削除し、アクティブなものについては\texttt{isHit}関数あるいは\texttt{isHit\_Gimmick}関数によってヒット判定を計算する。
 弾丸が当たった場合には弾丸に備わっているメソッドを操作することで爆発アニメーションを開始させる。
 ギミックの場合も同様にプレイヤーがギミックに接触したらギミックの種類に応じた効果が生じるようにする。
 ギミックによるパワーアップの持続時間及びギミックアイテムの表示時間の管理もこのメソッド内で行う。どちらかの体力がゼロになったら\texttt{winner}に勝者を入れ\texttt{gameEnd}関数を実行する。
 
 \begin{figure}[H]
  \begin{center}
-   \includegraphics[width=18cm]{serverLogic_figure.eps}
+   \includegraphics[width=18cm]{serverLogic\_figure.eps}
    \caption{serverLogic()の弾丸のヒット判定の部分の一部抜粋}
    \label{fig:class}
  \end{center}
@@ -209,9 +209,9 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \item[・\texttt{isHit(Player p,Bullet b)}:]プレイヤーとの距離を計算し弾丸とプレイヤーの大きさを元にヒット判定を計算する。
 
   
-\item[・\texttt{isHit＿Gimmick(Player p,Bullet b)}:]\texttt{isHit}関数と同様にしてギミックとプレイヤーのヒット判定を計算する。
+\item[・\texttt{isHit\_Gimmick(Player p,Bullet b)}:]\texttt{isHit}関数と同様にしてギミックとプレイヤーのヒット判定を計算する。
 
-\item[・\texttt{sendServerData()}:]\texttt{StringBuilder}を用いて図\ref{sendServerData_figure}のようにしてゲーム情報を表現できる文字列を作成する。\texttt{.append()}によってゲーム情報を付加していく。各情報の間には区切り文字として\texttt{","や";"、"#"}などを付加していくことで読み取り時にデータを分割できるようにしておく。
+\item[・\texttt{sendServerData()}:]\texttt{StringBuilder}を用いて図\ref{sendServerData_figure}のようにしてゲーム情報を表現できる文字列を作成する。\texttt{.append()}によってゲーム情報を付加していく。各情報の間には区切り文字として\texttt{"\,"や"\;"、"\#"}などを付加していくことで読み取り時にデータを分割できるようにしておく。
 
 \begin{figure}[H]
  \begin{center}
@@ -221,7 +221,7 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
  \end{center}
 \end{figure}
 
-\item[・\texttt{perseServerData（String msg）}:]サーバ－側から送られてくるデータはプレイヤー、弾丸、ギミックの三種類についてでありこの三つの区切り文字は\texttt{"#"}なので図\ref{perseServerData_figure}のようにデータの文字列を\texttt{msg.split}で分割し、さらにその先のデータも各形式に合わせて分割して配列の形式で格納する。また\texttt{winner}の中身が空文字でないならば中身の文字列に合わせて勝者を確定させ\texttt{gameEnd}関数を呼び出す。
+\item[・\texttt{perseServerData（String msg）}:]サーバ－側から送られてくるデータはプレイヤー、弾丸、ギミックの三種類についてでありこの三つの区切り文字は\texttt{"\#"}なので図\ref{perseServerData_figure}のようにデータの文字列を\texttt{msg.split}で分割し、さらにその先のデータも各形式に合わせて分割して配列の形式で格納する。また\texttt{winner}の中身が空文字でないならば中身の文字列に合わせて勝者を確定させ\texttt{gameEnd}関数を呼び出す。
 
 
 \begin{figure}[H]
@@ -473,7 +473,7 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 なお，付録は始まる直前で必ず改ページして下さい．
 
-java GameFrameをターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
+java GameFrameをターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATEボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
 ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、Zキーで波弾、Xキーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーがRETRYを押すことで再戦ができる。意図しない挙動を引き起こす可能性があるため、両者の選ぶボタンは異なるものにすること。
 
 
