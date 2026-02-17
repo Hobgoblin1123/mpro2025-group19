@@ -8,13 +8,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.net.URL;
 
-// // ---  MP3再生用  -----------------
-// import javazoom.jl.player.Player;
-// import java.io.BufferedInputStream;
-// import java.io.FileInputStream;
-// //  ----------------------------------
-
-// --- 標準ライブラリのみを使用 ---
+// --- 音声は標準ライブラリのみを使用 ---
 import javax.sound.sampled.*;
 // ----------------------------------
 
@@ -56,9 +50,6 @@ public class GameFrame extends JFrame implements Observer {
     private ShootingView view;
 
     // ---- BGM制御用 ----
-    // private Player player;
-    // private Thread bgmThread;
-    // private boolean isLoop = true;
     private Clip clip;
     // ------------------
 
@@ -133,7 +124,7 @@ public class GameFrame extends JFrame implements Observer {
         playBGM("music/battle.wav", 0.5f);
 
         SwingUtilities.invokeLater(() -> { // gamePanelの描画後に実行(実行予約リストの最後尾に回す)
-            view.requestFocusInWindow(); // キーボードの入力先をgamePanelに設定
+            view.requestFocusInWindow(); // キーボードの入力先をShootingViewに設定
         });
     }
 
@@ -239,7 +230,7 @@ public class GameFrame extends JFrame implements Observer {
     // ---------------------------------------------------
 
     // --- 　B　G　M　再　生　メ　ソ　ッ　ド　 ---
-    public void playBGM(String filePath, float volumeLevel) {
+    public void playBGM(String filePath, float volume) {
         try {
             URL url = getClass().getResource("/" + filePath);
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
@@ -254,7 +245,7 @@ public class GameFrame extends JFrame implements Observer {
 
             // 0.0(消音) ～ 1.0(最大) の値を デシベル(dB) に変換する計算式
             // dB = 20 * log10(volume)
-            float db = (float) (Math.log10(volumeLevel) * 20.0);
+            float db = (float) (Math.log10(volume) * 20.0);
 
             // 設定可能な最小値より小さくならないように制限
             float min = gainControl.getMinimum(); // 通常 -80.0dBくらい
@@ -282,7 +273,7 @@ public class GameFrame extends JFrame implements Observer {
     }
 
     // --- 　S　E　再　生　用　メ　ソ　ッ　ド　 -------
-    public static void playSE(String filePath, float volumeLevel) {
+    public static void playSE(String filePath, float volume) {
         try {
             URL url = GameFrame.class.getResource("/" + filePath);
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
@@ -292,7 +283,7 @@ public class GameFrame extends JFrame implements Observer {
 
             // 音量調整 (BGMと同じロジック)
             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            float db = (float) (Math.log10(volumeLevel) * 20.0);
+            float db = (float) (Math.log10(volume) * 20.0);
             float min = gainControl.getMinimum();
             if (db < min)
                 db = min;
