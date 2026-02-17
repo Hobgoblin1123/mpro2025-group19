@@ -183,7 +183,7 @@ public class GameFrame extends JFrame implements Observer {
             // 相手の応答待機
 
             String response = receiveMessage();
-            while (response != null && !response.startsWith("Retry:")) {
+            while (response != null && !response.startsWith("Retry:")) {    // "Retry:" で始まるメッセージが来るまで待機 (他の通信が混ざる可能性を考慮)
                 response = receiveMessage();
             }
             String actualResponse = response.substring(6);
@@ -191,7 +191,7 @@ public class GameFrame extends JFrame implements Observer {
 
             SwingUtilities.invokeLater(() -> {
                 if (actualResponse.equals("RETRY")) {
-                    retryGame();
+                    retryGame();    // 両者ともリトライを開始
                 } else {
                     JOptionPane.showMessageDialog(this, "相手がゲームを終了しました。");
                     backToStart(); // 自分もスタートに戻る
