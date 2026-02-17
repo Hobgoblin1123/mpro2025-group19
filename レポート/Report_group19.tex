@@ -89,6 +89,22 @@
 ---------------------------------------------
 
 \section{設計方針}
+プログラムの基本構想を述べる．
+どのようなアルゴリズム，データ構造を用いて，目的の処理を実現するのか説明する．
+なぜ，そのようなアルゴリズム，データ構造を用いたかという考察も含める．
+ここでは，プログラムの細部には触れない．
+
+今回は，Javaのプログラミングなので，どのようなクラスを用意して，どのように利用するかを説明する．
+クラス図を使用してください．発表会のプレゼンで作成したクラス図を流用して
+構いません．
+
+例を 図\ref{fig:class}に示す．\\
+
+
+
+
+--------------------------------------
+「1.3 プログラムの解析」での解析を元にプログラムの基本構想について設計方針を述べる。
 \subsection{プレイヤークラスの実装}
 
 
@@ -252,26 +268,91 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 
 \subsection{大谷}
-\subsubsection*{【\texttt{Bullet}クラスと, その子クラス】}
+\subsubsection*{【\texttt{Bullet}クラスと, その子クラス\texttt{CurveBullet}, \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}】}
 \noindent \texttt{Bullet}クラスは, 弾の基本情報を管理するクラスである.弾の座標, 速度. 描画, 移動処理, および爆発アニメーションの状態管理を行う.
 また, \texttt{CurveBullet}(曲線弾), \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}(斜め弾)は, \texttt{Bullet}クラスを継承し, 移動方法を定義した\texttt{move()}メソッドや弾の画像を変更したものである.全フィールドから抜粋した主なフィールドは次の通り.
 \begin{description}
-  \item[・\texttt{x, y}]弾の座標
-  \item[・\texttt{speed}]弾の速度
-  \item[・\texttt{radius}]弾の半径
-  \item[・\texttt{img}]弾の画像
-  \item[・\texttt{state\_explosion}]弾の爆発状態.通常時は0で, 5まで段階的に変化する.
-  \item[・\texttt{AnimationFrames}] 爆発中において, その画像が表示されて何フレーム目か.
+  \item[・\texttt{x, y}:]弾の座標
+  \item[・\texttt{speed}:]弾の速度
+  \item[・\texttt{radius}:]弾の半径
+  \item[・\texttt{img}:]弾の画像
+  \item[・\texttt{state\_explosion}:]弾の爆発状態.通常時は0で, 5まで段階的に変化する.
+  \item[・\texttt{AnimationFrames}:] 爆発中において, その画像が表示されて何フレーム目か.
 \end{description}
 抜粋した主なメソッドは次の通り.
 \begin{description}
   \item[・\small{\texttt{Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir, Color color)speed}}:]サーバー用のコンストラクタ
-  \item[・\footnotesize{\texttt{Bullet(int x, int y, int radius, Color color, int Shootdir, int state\_explosion, int AnimationFrames)}}:]クライアント用のコンストラクタ.受け取った\texttt{state\_explosion}の値によって, 半径と\texttt{img}に代入する画像を決定する.
+  \item[・\footnotesize{\texttt{Bullet(int x, int y, int radius, Color color, int Shootdir, int state\_explosion, int AnimationFrames)}}:]クライアント用のコンストラクタ.受け取った\texttt{state\_explosion}の値によって, \texttt{radius}と\texttt{img}に代入する画像を決定する.
   \item[・\texttt{move()}:]弾の移動を定義している. \texttt{Bullet}では\texttt{x}方向への直線的な移動, \texttt{CurveBullet}ではそれに加えて\texttt{y}方向への\texttt{Math.sin}を用いた移動, \texttt{Up(Down)DiagonalBullet}では\texttt{y}方向への直線的な移動を処理している.
-  \item[・\texttt{explosion()}:]弾の爆発による画像, 半径変更を処理. \texttt{state\_explosion}と\texttt{AnimationFrames}の値によって画像を決定.それぞれの段階の画像は\texttt{AnimationFrames}が0～4の間表示され, それ以降は次の段階にうつる.
+  \item[・\texttt{explosion()}:]弾の爆発による画像, 半径変更を処理. \texttt{state\_explosion}と\texttt{AnimationFrames}の値によって画像を決定.それぞれの段階の画像は\texttt{AnimationFrames}が0～4の間表示され, それ以降は次の段階にうつり, \texttt{AnimationFrames}は0にもどる.爆発が進行したかを\texttt{MoveManager}クラスで認識するため, 次のように\texttt{if}文, \texttt{else if}文の中身が実行されたときのみ\texttt{true}を返し, そうでないときは\texttt{false}を返す.
 \end{description}
-それぞれの継承クラスの\texttt{move()}メソッドは, \texttt{Bullet}クラスのものをオーバーライドしたものであり, 同様の作業で容易に新たな特殊弾を実装することができる.
+\begin{footnotesize}
+\begin{verbatim}
+    1      public boolean explosion() {
+    2          if (this.state_explosion == 1) {
+    3              this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();
+    4              this.radius = 20;
+    5              return true; //進行したため, trueを返す.
+    6          } else if (this.state_explosion == 2 && this.AnimationFrames == 5) {
+    7              //(中略)
+    8          }
+    9          return false; //進行していないため, falseを返す.
+   10       }
+\end{verbatim}
+\end{footnotesize}
+工夫点---それぞれの継承クラスの\texttt{move()}メソッドは, 次の通り\texttt{Bullet}クラスのものをオーバーライドしたものであり, 同様の作業で容易に新たな特殊弾を実装することができる(例は\texttt{CurveBullet}).
+\begin{footnotesize}
+\begin{verbatim}
+     1      public void move() {
+     2          super.move(); //Bulletのmove()呼び出し
+
+     3          //追加の動き
+     4          // sinの引数更新
+     5          time += 0.5;
+     6          // y座標更新(爆発状態でなければ)
+     7          if (super.getStateExplosion() == 0) {
+     8              int newY = (int) (y + Math.sin(time * frequency) * amplitude);
+     9              super.setY(newY); // y座標セット
+    10          }
+    11      }
+\end{verbatim}
+\end{footnotesize}
 \subsubsection*{【\texttt{Player}クラス】}
+\noindent プレイヤーキャラクターの操作, 情報(体力、パワーアップ状態など)の管理, および描画を管理するクラス. 弾の生成処理も行う.
+抜粋した主なフィールドは次の通り.
+\begin{description}
+  \item[・\texttt{hp, max\_hp}:]現在の体力, 最大体力
+  \item[・\texttt{x, y}:]プレイヤーの座標
+  \item[・\texttt{speed}:]プレイヤーの速度
+  \item[・\texttt{radius}:]プレイヤーの当たり半径
+  \item[・\texttt{img}:]プレイヤーの現在の画像
+  \item[・\texttt{biggerbullet}:]ギミック効果時の弾の半径増加量.通常時は0に設定されている.
+  \item[・\texttt{statePowerup}:] ギミック効果を受け始めて何フレームか.通常時は0.
+\end{description}
+抜粋した主なメソッドは次の通り.
+\begin{description}
+  \item[・\tiny{\texttt{Player(int hp,int max\_hp,int x,int y,float speed,int bounds\_x\_min,int bounds\_x\_max, int bounds\_y,\\
+            int radius, int Shootdir, int biggerbullet, int statePowerup)}}:]コンストラクタ
+  \item[・\texttt{setImg()}:]プレイヤーの画像を決定する. \texttt{statePowerup}が0ならば通常の画像を設定, そうでなければ効果時用の画像を設定する.次のような\texttt{(statePowerup / 10) \% 2}の値による分岐によって, 効果中2つの画像をフレームによって切り替える.
+\end{description}
+  \begin{scriptsize}
+  \begin{verbatim}
+     1      public void setImg() {
+     2          if (Shootdir == 1 && statePowerup == 0) { // サーバー側, 通常時
+     3              this.img = new ImageIcon(getClass().getResource("/images/player1T.png")).getImage();
+     4          } else if (Shootdir == 1 && statePowerup > 0) { // サーバー側, 弾半径増加時
+     5              if ((statePowerup / 10) % 2 == 0) { // フレームによる分岐で効果中2つの画像を切り替える
+     6                  this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT1.png")).getImage();
+     7              } else {
+     8                  this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT2.png")).getImage();
+     9              }
+    10          } else if (Shootdir != 1 && statePowerup == 0) {
+    11              //(中略)
+    12          }
+    13      }
+  \end{verbatim}
+  \end{scriptsize}
+\subsection{南}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　通　信　確　立 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{通信確立とリトライ}
 \begin{flushright}
@@ -596,6 +677,19 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 %%%%%%%%%%%%%%%%%%%%%%%　考　察　%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{考察}
+<<<<<<< HEAD
+完成したプログラムに対する考察，コメントを述べてください．
+当初予定していた通りの物ができたか考察してください．
+また，考察を踏まえて，今後の改良点についても述べてください．\\
+
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> 50fac27fb4c6be1d7c437afbb8c618d536a2475d
+--------------------------------------
+=======
+>>>>>>> 66c3baa6569d7ff1ca78dc3ed4dc06825623420f
 \subsection{プログラムについての考察}
 通信型のゲームを作成するうえで軽量化という問題は非常に重要な課題だと感じた。今回作成したゲームは現代におけるゲームの中ではかなり要素の少ないものであるが、それでもスレッドのスリープ時間やゲームデータの送信方式をある程度工夫しないとラグが発生してしまっていた。今回使用したライブラリのメソッドがゲーム用の通信としてあまり最適化されていない点もあるとはいえ、もっと大きい規模のゲームを作成するならば今回のもの以上に通信の最適化について気にしなければならないと考えられる。今回作成したゲームにおいて挙げられる改善点としては、\texttt{Comm.java}を改善することである。具体的には、今の\texttt{Comm.java}は\texttt{TCP}での通信であり、信頼性が高い代わりに通信速度が遅いためゲームでの通信には適さない。そのため、通信を\texttt{UDP}ベースで行えるようにし弾の発射や被弾などの重要なイベントのみ再送しそれ以外は古いデータを上書きするという方式にして軽量化を行うようにしたい。
 
@@ -641,12 +735,19 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 説明を書き込んだりしてもいいでしょう．
 2ページ程度の簡潔な説明書で構いません．
 
-なお，付録は始まる直前で必ず改ページして下さい．
+なお，付録は始まる直前で必ず改ページして下さい．\\
 
+<<<<<<< HEAD
+----------------------。
+java GameFrameをターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
+ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、Zキーで波弾、Xキーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーがRETRYを押すことで再戦ができる。意図しない挙動を引き起こす可能性があるため、両者の選ぶボタンは異なるものにすること。\\
+=======
 java GameFrameをターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATEボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
 ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、Zキーで波弾、Xキーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーがRETRYを押すことで再戦ができる。意図しない挙動を引き起こす可能性があるため、両者の選ぶボタンは異なるものにすること。
+>>>>>>> 66c3baa6569d7ff1ca78dc3ed4dc06825623420f
 
 
+----------------------
 
 
 
