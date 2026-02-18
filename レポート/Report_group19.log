@@ -1,4 +1,4 @@
-This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.sjis) (TeX Live 2024) (preloaded format=platex 2024.6.18)  18 FEB 2026 01:02
+This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.sjis) (TeX Live 2024) (preloaded format=platex 2024.6.18)  18 FEB 2026 11:38
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -212,7 +212,7 @@ Style option: `fancybox' v1.4 <2010/05/15> (tvz)
 \Verbatim@Outfile=\write3
 \Verbatim@Infile=\read2
 )
-Package translations Info: No language package found. I am going to use `english' as default language. on input line 24.
+Package translations Info: No language package found. I am going to use `english' as default language. on input line 25.
  (c:/texlive/2024/texmf-dist/tex/latex/l3backend/l3backend-dvips.def
 File: l3backend-dvips.def 2024-05-08 L3 backend support: dvips
 \l__pdf_internal_box=\box85
@@ -237,234 +237,273 @@ LaTeX Warning: Label `bigger' multiply defined.
 )
 \openout1 = `Report_group19.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for JY1/mc/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for JT1/mc/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for JY1/mc/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for JT1/mc/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
  (c:/texlive/2024/texmf-dist/tex/latex/translations/translations-basic-dictionary-english.trsl
 File: translations-basic-dictionary-english.trsl (english translation file `translations-basic-dictionary')
 )
-Package translations Info: loading dictionary `translations-basic-dictionary' for `english'. on input line 24.
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 27.
+Package translations Info: loading dictionary `translations-basic-dictionary' for `english'. on input line 25.
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 28.
  (c:/texlive/2024/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
 LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <24.88> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 36.
+(Font)              Font shape `JT1/gt/m/n' tried instead on input line 37.
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <24.88> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 36.
+(Font)              Font shape `JY1/gt/m/n' tried instead on input line 37.
 
 
 [1
 
 ]
 LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <14.4> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 56.
+(Font)              Font shape `JT1/gt/m/n' tried instead on input line 57.
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <14.4> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 56.
+(Font)              Font shape `JY1/gt/m/n' tried instead on input line 57.
 LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <12> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 66.
+(Font)              Font shape `JT1/gt/m/n' tried instead on input line 58.
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <12> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 66.
+(Font)              Font shape `JY1/gt/m/n' tried instead on input line 58.
 
 
 [2]
 LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <10.95> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 116.
+(Font)              Font shape `JT1/gt/m/n' tried instead on input line 109.
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <10.95> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 116.
+(Font)              Font shape `JY1/gt/m/n' tried instead on input line 109.
 
 
 [3]
+
+[4]
 File: class_figure.eps Graphic file (type eps)
 <class_figure.eps>
 
-Overfull \hbox (28.45276pt too wide) in paragraph at lines 155--156
+Overfull \hbox (28.45276pt too wide) in paragraph at lines 148--149
  [] 
  []
 
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 171.
-
-
-[4]
-Overfull \hbox (3.54254pt too wide) in paragraph at lines 186--187
-[]\OT1/cmr/m/n/10.95 Movemanager \JY1/mc/m/n/10.95 のコ
- []
-
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 159.
 
 
 [5]
-File: serverLogic_figure.eps Graphic file (type eps)
-<serverLogic_figure.eps>
-
-Overfull \hbox (28.45276pt too wide) in paragraph at lines 200--201
- [] 
+Overfull \hbox (4.4139pt too wide) in paragraph at lines 195--196
+[]\OT1/cmtt/m/n/10.95 MoveManager(int x, int y, int offset, boolean server, Object comm)\OT1/cmr/m/n/10.95 :Movemanager \JY1/mc/m/n/10.95 の
  []
 
 
 
 [6]
+File: serverLogic_figure.eps Graphic file (type eps)
+<serverLogic_figure.eps>
 File: sendServerData_figure.eps Graphic file (type eps)
 <sendServerData_figure.eps>
+
+
+[7]
 File: perseServerData_figure.eps Graphic file (type eps)
 <perseServerData_figure.eps>
 File: sendClientInput_figure.eps Graphic file (type eps)
 <sendClientInput_figure.eps>
 
 
-[7]
-Overfull \hbox (3.76392pt too wide) in paragraph at lines 256--258
-\JY1/mc/m/n/10.95 メ ーシ ョ ンの状態管理を行う\OT1/cmr/m/n/10.95 . \JY1/mc/m/n/10.95 また\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 CurveBullet\OT1/cmr/m/n/10.95 (\JY1/mc/m/n/10.95 曲線弾\OT1/cmr/m/n/10.95 ), \OT1/cmtt/m/n/10.95 UpDiagonalBullet\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 DownDiagonalBullet\OT1/cmr/m/n/10.95 (\JY1/mc/m/n/10.95 斜
- []
-
-LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <10> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 268.
-LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <10> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 268.
-LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 268.
-
-Overfull \hbox (76.2541pt too wide) in paragraph at lines 268--269
-[]
- []
-
-LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <9> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 269.
-LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <9> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 269.
-LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <9> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 269.
-
-Overfull \hbox (11.16914pt too wide) in paragraph at lines 269--270
-[]
- []
-
-
-
 [8]
+Overfull \hbox (13.80017pt too wide) in paragraph at lines 271--275
+\JY1/mc/m/n/10.95 ニメ ーシ ョ ンの状態管理を行う\OT1/cmr/m/n/10.95 . \JY1/mc/m/n/10.95 また\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 CurveBullet\OT1/cmr/m/n/10.95 (\JY1/mc/m/n/10.95 曲線弾\OT1/cmr/m/n/10.95 ), \OT1/cmtt/m/n/10.95 UpDiagonalBullet\OT1/cmr/m/n/10.95 , \OT1/cmtt/m/n/10.95 DownDiagonalBullet\OT1/cmr/m/n/10.95 (\JY1/mc/m/n/10.95 斜
+ []
+
+
+Overfull \hbox (32.31668pt too wide) in paragraph at lines 285--286
+[]\OT1/cmtt/m/n/10.95 Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
+ []
+
+
 
 [9]
-
-[10]
-Overfull \hbox (22.38622pt too wide) in paragraph at lines 369--374
-[]\JY1/mc/m/n/10.95 　ゲ ーム開始時にキ ー入力をゲ ーム画面に集中させるため 、 \OT1/cmtt/m/n/10.95 startGame() \JY1/mc/m/n/10.95 内で \OT1/cmtt/m/n/10.95 SwingUtilities.invokeLater
+Overfull \hbox (1.96361pt too wide) in paragraph at lines 286--287
+[]\OT1/cmtt/m/n/10.95 Bullet(int x, int y, int radius, Color color, int Shootdir, int state[]explosion,
  []
 
-LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 384.
+
+Overfull \hbox (40.77206pt too wide) in paragraph at lines 302--302
+[]    \OT1/cmtt/m/n/9 3              this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();[] 
+ []
+
+
+
+[10]
+Overfull \hbox (47.26326pt too wide) in paragraph at lines 343--344
+[]\OT1/cmtt/m/n/10.95 Player(int hp, int max[]hp, int x, int y, float speed, int bounds[]x[]min, int bounds[]x[]max,
+ []
+
+
+Overfull \hbox (1.09268pt too wide) in paragraph at lines 343--344
+\OT1/cmtt/m/n/10.95 int bounds[]y, int radius, int Shootdir, int biggerbullet, int statePowerup)\OT1/cmr/m/n/10.95 : \JY1/mc/m/n/10.95 コン
+ []
+
+
+Overfull \hbox (9.31024pt too wide) in paragraph at lines 365--365
+[]     \OT1/cmtt/m/n/8 6                  this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (9.31024pt too wide) in paragraph at lines 365--365
+[]     \OT1/cmtt/m/n/8 8                  this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT2.png")).getImage();[] 
+ []
+
 
 
 [11]
 
 [12]
-Overfull \hbox (4.7907pt too wide) in paragraph at lines 454--455
-[]\OT1/cmtt/m/n/10.95 Consumer<Boolean> actionBox\OT1/cmr/m/n/10.95 : \JY1/mc/m/n/10.95 そのクラス既存のの \OT1/cmr/m/n/10.95 ac-tion-Per-formed \JY1/mc/m/n/10.95 に \OT1/cmr/m/n/10.95 mouseEn-tered \JY1/mc/m/n/10.95 と \OT1/cmr/m/n/10.95 mouse-
- []
-
-
 
 [13]
 
 [14]
-File: Perspective_calculation.png Graphic file (type bmp)
-<Perspective_calculation.png>
-
-Overfull \hbox (28.45276pt too wide) in paragraph at lines 518--519
- [] 
+Overfull \hbox (22.38622pt too wide) in paragraph at lines 505--510
+[]\JY1/mc/m/n/10.95 　ゲ ーム開始時にキ ー入力をゲ ーム画面に集中させるため 、 \OT1/cmtt/m/n/10.95 startGame() \JY1/mc/m/n/10.95 内で \OT1/cmtt/m/n/10.95 SwingUtilities.invokeLater
  []
 
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <12> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 520.
 
 
 [15]
-File: title_pic.jpg Graphic file (type bmp)
-<title_pic.jpg>
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-File: title_hovered_pic.jpg Graphic file (type bmp)
-<title_hovered_pic.jpg>
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-File: gameset_pic.png Graphic file (type bmp)
-<gameset_pic.png>
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-File: result_win_pic.png Graphic file (type bmp)
-<result_win_pic.png>
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-File: result_lose_pic.png Graphic file (type bmp)
-<result_lose_pic.png>
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-File: result_wait_pic.png Graphic file (type bmp)
-<result_wait_pic.png>
-
 
 [16]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-File: result_err_pic.png Graphic file (type bmp)
-<result_err_pic.png>
-
-LaTeX Warning: `h' float specifier changed to `ht'.
+Overfull \hbox (4.7907pt too wide) in paragraph at lines 590--591
+[]\OT1/cmtt/m/n/10.95 Consumer<Boolean> actionBox\OT1/cmr/m/n/10.95 : \JY1/mc/m/n/10.95 そのクラス既存のの \OT1/cmr/m/n/10.95 ac-tion-Per-formed \JY1/mc/m/n/10.95 に \OT1/cmr/m/n/10.95 mouseEn-tered \JY1/mc/m/n/10.95 と \OT1/cmr/m/n/10.95 mouse-
+ []
 
 
 
 [17]
 
 [18]
+File: Perspective_calculation.png Graphic file (type bmp)
+<Perspective_calculation.png>
+
 
 [19]
 
 [20]
-File: pUp_item.eps Graphic file (type eps)
-<pUp_item.eps>
-File: heal_item.eps Graphic file (type eps)
-<heal_item.eps>
+Overfull \hbox (3.21085pt too wide) in paragraph at lines 712--713
+[]\OT1/cmtt/m/n/10.95 ResultPanel(GameFrame f, boolean isWin)\OT1/cmr/m/n/10.95 : \JY1/mc/m/n/10.95 コンストラクタ。 勝敗判定 \OT1/cmtt/m/n/10.95 isWin \JY1/mc/m/n/10.95 に基づき 、 「\OT1/cmr/m/n/10.95 YOU
+ []
+
+File: title_pic.jpg Graphic file (type bmp)
+<title_pic.jpg>
+File: title_hovered_pic.jpg Graphic file (type bmp)
+<title_hovered_pic.jpg>
 
 
 [21]
-File: bigger.eps Graphic file (type eps)
-<bigger.eps>
+File: server_wait_pic.png Graphic file (type bmp)
+<server_wait_pic.png>
+
+Overfull \hbox (94.46904pt too wide) in paragraph at lines 742--743
+ [] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: client_wait_pic.png Graphic file (type bmp)
+<client_wait_pic.png>
+
+Overfull \hbox (94.46904pt too wide) in paragraph at lines 752--753
+ [] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: gameset_pic.png Graphic file (type bmp)
+<gameset_pic.png>
 
 
 [22]
+Overfull \vbox (42.43578pt too high) has occurred while \output is active []
+
+
+
+[23]
+File: result_win_pic.png Graphic file (type bmp)
+<result_win_pic.png>
+
+Overfull \vbox (42.43578pt too high) has occurred while \output is active []
+
+
+
+[24]
+File: result_lose_pic.png Graphic file (type bmp)
+<result_lose_pic.png>
+File: result_wait_pic.png Graphic file (type bmp)
+<result_wait_pic.png>
+
+
+[25]
+File: result_err_pic.png Graphic file (type bmp)
+<result_err_pic.png>
+File: shoot.png Graphic file (type bmp)
+<shoot.png>
+
+
+[26]
+File: exp.png Graphic file (type bmp)
+<exp.png>
+File: normal.png Graphic file (type bmp)
+<normal.png>
+File: powerup.png Graphic file (type bmp)
+<powerup.png>
+
+
+[27]
+
+[28]
+
+[29]
+
+[30]
+
+[31]
+File: pUp_item.eps Graphic file (type eps)
+<pUp_item.eps>
+File: heal_item.eps Graphic file (type eps)
+<heal_item.eps>
+File: bigger.eps Graphic file (type eps)
+<bigger.eps>
 File: pUp_item.eps Graphic file (type eps)
 <pUp_item.eps>
 File: heal_item.eps Graphic file (type eps)
 <heal_item.eps>
 
 
-[23]
+[32]
 File: bigger.eps Graphic file (type eps)
 <bigger.eps>
 
 
-[24]
+[33]
 
-[25] (./Report_group19.aux)
+[34] (./Report_group19.aux)
  ***********
 pLaTeX2e <2023-02-14>+1, based on
 LaTeX2e <2024-06-01> patch level 1
@@ -476,12 +515,12 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 6901 strings out of 475707
- 166391 string characters out of 5780275
- 1926753 words of memory out of 5000000
- 29578 multiletter control sequences out of 15000+600000
- 577385 words of font info for 115 fonts, out of 8000000 for 9000
+ 6945 strings out of 475707
+ 167371 string characters out of 5780275
+ 1933753 words of memory out of 5000000
+ 29609 multiletter control sequences out of 15000+600000
+ 577425 words of font info for 116 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  73i,6n,80p,1004b,536s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on Report_group19.dvi (25 pages, 74652 bytes).
+Output written on Report_group19.dvi (34 pages, 111748 bytes).
