@@ -150,7 +150,7 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 クラス図は以下の図\ref{fig:class}のようになった。
 
 
-\begin{figure}[htbp]
+\begin{figure}[H]
  \begin{center}
    \includegraphics[width=18cm]{class_figure.eps}
    \caption{クラス図．}
@@ -167,28 +167,33 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 実際に作成した主要なクラスの主なメソッド，フィールドの説明を行う．
 必要に応じてプログラムリストを抜粋して説明する．
 
-\subsection{池崎}
-\subsubsection*{【\texttt{MoveManager}クラス】}
-\noindent \texttt{MoveManager}クラスは,プレイヤー、弾丸、ギミックの位置情報などの更新、およびそれらの情報のサーバー・クライアント間での伝達。プレイヤーの当たり判定などを管理する。全フィールドから抜粋した主なフィールドは次の通り.
-\begin{description}
-  \item[・\texttt{server}]自身が持っているcommオブジェクトがサーバーであるかクライアントであるかについてのbooleanフラグ
-  \item[・\texttt{court\_size\_x,court\_size\_y}]対戦画面でのコートの大きさ
-  \item[・\texttt{player1,player2}]プレイヤー。player1は画面左側、player2は画面右側の機体を表す。
-  \item[・\texttt{winner}]勝者がどちらのプレイヤーかについて。初期値では空文字列が与えられている。
-  \item[・\texttt{iaRunning}]\texttt{MoveManager}が動いているのかのフラグ
-  \item[・\texttt{msgQueue}] ゲームデータについての文字列を保存するキュー
-\end{description}
+\subsection{ゲーム管理システムの実装}
+\begin{flushright}
+  文責：池崎
+\end{flushright}
+　本節では、2.4節で説明した当たり判定の管理及び2.6節の通信の実行について実装内容を説明する。
 
+\subsubsection{MoveManager}
+\noindent\textbf{概要}: \\。\noindent \texttt{MoveManager}クラスは,プレイヤー、弾丸、ギミックの位置情報などの更新、およびそれらの情報のサーバー・クライアント間での伝達。プレイヤーの当たり判定などを管理する
 
-抜粋した主なメソッドは次の通り.
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+  \item\texttt{server}自身が持っているcommオブジェクトがサーバーであるかクライアントであるかについてのbooleanフラグ
+  \item\texttt{court\_size\_x,court\_size\_y}対戦画面でのコートの大きさ
+  \item\texttt{player1,player2}プレイヤー。player1は画面左側、player2は画面右側の機体を表す。
+  \item\texttt{winner}勝者がどちらのプレイヤーかについて。初期値では空文字列が与えられている。
+  \item\texttt{iaRunning}\texttt{MoveManager}が動いているのかのフラグ
+  \item\texttt{msgQueue} ゲームデータについての文字列を保存するキュー
+\end{itemize}
 
-\begin{description}
-  \item[・\texttt{MoveManager(int x, int y, int offset, boolean server, Object comm)}:]Movemanagerのコンストラクタ。プレイヤー、弾丸、ギミックなどの各変数を初期化する。また、　ゲームデータの受信を行いキューに保存させるスレッドrecvThreadを起動する。
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+  \item\texttt{MoveManager(int x, int y, int offset, boolean server, Object comm)}:Movemanagerのコンストラクタ。プレイヤー、弾丸、ギミックなどの各変数を初期化する。また、　ゲームデータの受信を行いキューに保存させるスレッドrecvThreadを起動する。
   
-  \item[・\texttt{update()}:]メインとなるループ。データの送信および\texttt{msgQueue}に保存されたメッセージを取り出して解読する。また、サーバーの場合はプレイヤーや弾丸、ギミックの動作およびヒット確認について計算する。各動作は同クラス内に定義された別メソッドにて行われる。
+  \item\texttt{update()}:メインとなるループ。データの送信および\texttt{msgQueue}に保存されたメッセージを取り出して解読する。また、サーバーの場合はプレイヤーや弾丸、ギミックの動作およびヒット確認について計算する。各動作は同クラス内に定義された別メソッドにて行われる。
   
   
-  \item[・\texttt{serverLogic()}:]プレイヤー、弾丸、ギミックの動作について計算するメソッド。
+  \item\texttt{serverLogic()}:プレイヤー、弾丸、ギミックの動作について計算するメソッド。
   ギミックの位置は乱数を用いてゲームフィールド内のランダムな位置に生成されるようにする。
   弾丸、ギミックの情報ははそれぞれIteratorによって管理される。Iterator内部のアイテムすべてについて、非アクティブあるいは画面外に出たなら削除し、アクティブなものについては\texttt{isHit}関数あるいは\texttt{isHit\_Gimmick}関数によってヒット判定を計算する。
 弾丸が当たった場合には弾丸に備わっているメソッドを操作することで爆発アニメーションを開始させる。
@@ -197,21 +202,21 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 \begin{figure}[H]
  \begin{center}
-   \includegraphics[width=18cm]{serverLogic\_figure.eps}
+   \includegraphics[width=15cm]{serverLogic\_figure.eps}
    \caption{serverLogic()の弾丸のヒット判定の部分の一部抜粋}
    \label{fig:class}
  \end{center}
 \end{figure}
 
   
-  \item[・\texttt{gameEnd()}:]\texttt{GameFrame}クラスに対して\texttt{Observer}を用いてゲーム終了を通知する
+  \item\texttt{gameEnd()}:\texttt{GameFrame}クラスに対して\texttt{Observer}を用いてゲーム終了を通知する
 
-\item[・\texttt{isHit(Player p,Bullet b)}:]プレイヤーとの距離を計算し弾丸とプレイヤーの大きさを元にヒット判定を計算する。
+\item\texttt{isHit(Player p,Bullet b)}:プレイヤーとの距離を計算し弾丸とプレイヤーの大きさを元にヒット判定を計算する。
 
   
-\item[・\texttt{isHit\_Gimmick(Player p,Bullet b)}:]\texttt{isHit}関数と同様にしてギミックとプレイヤーのヒット判定を計算する。
+\item\texttt{isHit\_Gimmick(Player p,Bullet b)}:\texttt{isHit}関数と同様にしてギミックとプレイヤーのヒット判定を計算する。
 
-\item[・\texttt{sendServerData()}:]\texttt{StringBuilder}を用いて図\ref{sendServerData_figure}のようにしてゲーム情報を表現できる文字列を作成する。\texttt{.append()}によってゲーム情報を付加していく。各情報の間には区切り文字として\texttt{"\,"や"\;"、"\#"}などを付加していくことで読み取り時にデータを分割できるようにしておく。
+\item\texttt{sendServerData()}:\texttt{StringBuilder}を用いて図\ref{sendServerData_figure}のようにしてゲーム情報を表現できる文字列を作成する。\texttt{.append()}によってゲーム情報を付加していく。各情報の間には区切り文字として\texttt{"\,"や"\;"、"\#"}などを付加していくことで読み取り時にデータを分割できるようにしておく。
 
 \begin{figure}[H]
  \begin{center}
@@ -221,7 +226,7 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
  \end{center}
 \end{figure}
 
-\item[・\texttt{perseServerData（String msg）}:]サーバ－側から送られてくるデータはプレイヤー、弾丸、ギミックの三種類についてでありこの三つの区切り文字は\texttt{"\#"}なので図\ref{perseServerData_figure}のようにデータの文字列を\texttt{msg.split}で分割し、さらにその先のデータも各形式に合わせて分割して配列の形式で格納する。また\texttt{winner}の中身が空文字でないならば中身の文字列に合わせて勝者を確定させ\texttt{gameEnd}関数を呼び出す。
+\item\texttt{perseServerData（String msg）}:サーバ－側から送られてくるデータはプレイヤー、弾丸、ギミックの三種類についてでありこの三つの区切り文字は\texttt{"\#"}なので図\ref{perseServerData_figure}のようにデータの文字列を\texttt{msg.split}で分割し、さらにその先のデータも各形式に合わせて分割して配列の形式で格納する。また\texttt{winner}の中身が空文字でないならば中身の文字列に合わせて勝者を確定させ\texttt{gameEnd}関数を呼び出す。
 
 
 \begin{figure}[H]
@@ -234,7 +239,7 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 
 
-\item[・\texttt{sendClientInput(boolean isShooting, int bulletType)}:]クライアント側の入力を伝える場合は必要となるデータ量の数が動的に変動しないため図\ref{sendClientInput_figure}のように単純に文字列を\texttt{+}で結合して送信する。
+\item\texttt{sendClientInput(boolean isShooting, int bulletType)}:クライアント側の入力を伝える場合は必要となるデータ量の数が動的に変動しないため図\ref{sendClientInput_figure}のように単純に文字列を\texttt{+}で結合して送信する。
 
 \begin{figure}[H]
  \begin{center}
@@ -244,11 +249,12 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
  \end{center}
 \end{figure}
 
-\item[・\texttt{draw(Graphics g)}:]プレイヤー、すべての弾丸及びギミックの描画を実行
+\item\texttt{draw(Graphics g)}:プレイヤー、すべての弾丸及びギミックの描画を実行
 
-\end{description}
+\end{itemize}
 
-
+\noindent\textbf{実装のポイント}: \\　弾丸の管理についてサーバー側がすべての情報を保持できるようにする。クライアント側からは「弾を発射した」という情報だけを送信させることによりクライアント側で処理するべき情報を減らした。\texttt{Comm.java}における通信は文字列によって情報を表現するが、弾丸の数は変化するため\texttt{StringBuilder}によって文字列の長さを動的に変化させることができるようにした。
+また、通信を軽量化するために情報の受け取りをスレッド内で行うようにした。このとき、受け取る情報が1ループに対して二つ以上になってしまうことがあるためキューを用いて過去に送られた情報が失われないようにした。
 
 
 \subsection{大谷}
@@ -510,14 +516,14 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \subsection{ボタンのマウスホバーのアニメーションの実行例}
 ホバー前後のタイトル画面のスクリーンショットを以下に示す。
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{title_pic.jpg}
         \caption{ホバー前}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{title_hovered_pic.jpg}
         \caption{ホバー後}
@@ -529,21 +535,21 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \subsection{ゲーム終了後のリザルト画面への遷移の実行例}
 ゲーム終了後のリザルト画面への遷移の流れを示すスクリーンショットを以下に示す。
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{gameset_pic.png}
         \caption{ゲーム終了直後の画面}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{result_win_pic.png}
         \caption{勝者のリザルト画面}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{result_lose_pic.png}
         \caption{敗者のリザルト画面}
@@ -554,14 +560,14 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 \subsection{リトライ要求時のコネクション切断}
 リトライ要求の際に片方がリトライ要求をして、もう片方が終了通知を行った場合の、リトライ要求を行った側の要求前後の画面のスクリーンショットを以下に示す。
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{result_wait_pic.png}
         \caption{リトライ要求後の待機画面}
     \end{center}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \begin{center}
         \includegraphics[scale=0.3]{result_err_pic.png}
         \caption{コネクションが切断後の画面}
@@ -578,22 +584,23 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 
 \subsection{ゲームシステムについての考察}
-今回作成したゲーム作品が多くの人に評価してもらえ、最優秀賞をとることができたのは対戦型2Dシューティングゲームというコンテンツ自体の面白さの面が大きかったと考える。2D対戦型のシューティングゲームはゲームの構造としてシンプルながら奥深さがあるため、プレイしたいと思ってもらいやすかった。しかしながら今回作成したゲームでは、2D対戦型シューティングゲームの土台を作ることにかなり苦戦したため、このゲーム独自の奥深さを十分に出すことができなかった。
+今回作成したゲーム作品が多くの人に評価してもらえ、最優秀賞をとることができたのは対戦型\texttt{2D}シューティングゲームというコンテンツ自体の面白さの面が大きかったと考える。\texttt{2D}対戦型のシューティングゲームはゲームの構造としてシンプルながら奥深さがあるため、プレイしたいと思ってもらいやすかった。しかしながら今回作成したゲームでは、\texttt{2D}対戦型シューティングゲームの土台を作ることにかなり苦戦したため、このゲーム独自の奥深さを十分に出すことができなかった。
 当初の予定では、フィールドを何種類か作成しダメージギミックなどそのステージ独自のギミックを作成する予定であったので
 その部分は改善点である。また、今回はデバッグの時間をあまりとれていないため本来意図していない動作をした時などでバグが発生する可能性もある。これらの点をこれから改善していきたい。
 
 \subsection{通信の確立に関する考察}
 今回の実装では、サーバーとクライアントを明確に区別して通信を行った。計画当初はチーム戦もできるような実装にしたいと考えていたがこの実装方法では後付けで追加出来なかった。\\
-　今後、チーム戦や観戦者モードを実装するためには、サーバーとクライアントの区別をなくし、group18が行っていたように必要な処理(データ送受信など)をインターフェースにまとめて、サーバーとクライアントの両方で共通の親クラスを作成して、必要に応じてオブジェクトを生成する方法が考えられる。\\
-　また、今回はCommサーバーを用いた関係上、TCP通信を行った。もし、ローカル対戦だけでなく、インターネット対戦も行えるようにする場合、group18のようにターン性のゲームであればTCP通信でもよいが、今回のようなリアルタイム性のゲームでTCPを用いると通信の遅延が致命的になる可能性が高いと考えられる。
-このため、UDP通信を採用することが好ましいと考えられる。UDP通信ならコネクションの確立/切断やパケットの再送制御等の処理が行われないため、通信の遅延を減らすことができると考えられるからである。
+　今後、チーム戦や観戦者モードを実装するためには、サーバーとクライアントの区別をなくし、\texttt{group18}が行っていたように必要な処理(データ送受信など)をインターフェースにまとめて、サーバーとクライアントの両方で共通の親クラスを作成して、必要に応じてオブジェクトを生成する方法が考えられる。\\
+　また、今回は\texttt{Comm}サーバーを用いた関係上、\texttt{TCP}通信を行った。もし、ローカル対戦だけでなく、インターネット対戦も行えるようにする場合、\texttt{group18}のようにターン性のゲームであれば\texttt{TCP}通信でもよいが、今回のようなリアルタイム性のゲームで\texttt{TCP}を用いると通信の遅延が致命的になる可能性が高いと考えられる。
+このため、\texttt{UDP}通信を採用することが好ましいと考えられる。UDP通信ならコネクションの確立/切断やパケットの再送制御等の処理が行われないため、通信の遅延を減らすことができると考えられるからである。
 
 %%%%%%%%%%%%%%%%%%%%%%　各　自　の　反　省　と　感　想　%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{各自の反省と感想}
 
 \subsection{池崎}
-私たちのグループでは、コード作成の初めにクラス図を作成して分担を行うことができていなかったため並行して作業することがあまりできておらず作業の効率化が行えていなかった。一人での作成であればファイル構造が複雑化してもある程度問題なく開発できるが、グループでのプログラム作成や保守性を考えると、もっとファイル構造の簡略化を行い可視性を上げる必要があると思う。そのためにも、オブジェクト指向についてもっと考える必要があると考える。ゲーム独自の要素としてのギミックの種類を増やすことが今後の課題である。また、リトライ機能において片方がRETRYを押しもう片方はQUITを押すなど予期しない動作を行った時の動きの正常化など技術力が足りず直しきれなかったバグもあったのでこれらも改善したい。Java言語などのオブジェクト指向言語ではMVCモデルなどでの構造の簡略化が非常に大事だと感じた。プログラミング演習の授業を通してグループでのプログラミングを行い開発の難しさやファイル構成を事前に決めることに大切さなどを学ぶことができた。
+私たちのグループでは、コード作成の初めにクラス図を作成して分担を行うことができていなかったため並行して作業することがあまりできておらず作業の効率化が行えていなかった。一人での作成であればファイル構造が複雑化してもある程度問題なく開発できるが、グループでのプログラム作成や保守性を考えると、もっとファイル構造の簡略化を行い可視性を上げる必要があると思う。そのためにも、オブジェクト指向についてもっと考える必要があると考える。具体的には、今回私が作成した\texttt{MoveManager}はゲーム進行、衝突判定、ネットワーク通信といった複数の役割を持っており責務が集中しているのでこの部分についてファイルを分割して役割を分担し可視性、保守性を高めたい。また、ゲーム独自の要素としてのギミックの種類を増やすことも今後の課題である。
+今回のグループ演習を通してJava言語などのオブジェクト指向言語ではMVCモデルなどでの構造の簡略化の重要性、グループ開発の難しさやファイル構成を事前に決めることの大切さを学ぶことができた。
 
 \subsection{南}
 gitの管理をしていたわけだが、経験はあっても使い慣れてはいないのでマージコンフリクトが起きた時の対処に苦労した。以降はブランチを上手く使い分けて作業を行うようにしたい。\\
@@ -617,8 +624,8 @@ gitの管理をしていたわけだが、経験はあっても使い慣れて�
 
 なお，付録は始まる直前で必ず改ページして下さい．
 
-java GameFrameをターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATEボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
-ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、Zキーで波弾、Xキーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーがRETRYを押すことで再戦ができる。意図しない挙動を引き起こす可能性があるため、両者の選ぶボタンは異なるものにすること。
+\texttt{java GameFrame}をターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかが\texttt{CREATE}ボタンを押して部屋を立てる。もう片方のプレイヤーは\texttt{JOIN}ボタンを押し、部屋を立てた側のプレイヤーの画面に表示されている\texttt{IP}アドレスと\texttt{ROOM ID}(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
+ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、\texttt{Z} キーで波弾、\texttt{X} キーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーが\texttt{RETRY}を押すことで再戦ができる。
 
 
 
