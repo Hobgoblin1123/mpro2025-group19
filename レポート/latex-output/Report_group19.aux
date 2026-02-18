@@ -6,25 +6,88 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.4}作業の分担}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {2}設計方針}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}プレイヤークラスの実装}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}弾丸クラスの実装}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}弾クラスの実装}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}ギミッククラスの実装}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}プレイヤーの当たり判定の管理}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}通信の確立}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}通信の実行}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}画面遷移}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.8}キー入力の取得}{3}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.9}クラス}{3}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces クラス図．}}{4}{}\protected@file@percent }
-\newlabel{fig:class}{{1}{4}{}{}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}プログラムの説明}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}池崎}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}大谷}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}南}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}奥野}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}実行例}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}考察}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}プログラムについての考察}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}ゲームシステムについての考察}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}各自の反省と感想}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}池崎}{7}{}\protected@file@percent }
-\gdef \@abspage@last{10}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}接続の確立}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.1}非同期接続アルゴリズム}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.2}通信におけるデータ構造}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}通信の実行(ゲーム)}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}画面遷移}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.8}キー入力の取得}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.9}クラス}{5}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces クラス図．}}{5}{}\protected@file@percent }
+\newlabel{fig:class}{{1}{5}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}プログラムの説明}{5}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}池崎}{5}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces serverLogic()の弾丸のヒット判定の部分の一部抜粋}}{7}{}\protected@file@percent }
+\newlabel{fig:class}{{2}{7}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \texttt  {sendServerData}における文字付加の一例}}{8}{}\protected@file@percent }
+\newlabel{sendServerData_figure}{{3}{8}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \texttt  {perseServerData}における文字列解読の例}}{8}{}\protected@file@percent }
+\newlabel{perseServerData_figure}{{4}{8}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \texttt  {sendClientInput}における文字列作成、送信の方法}}{9}{}\protected@file@percent }
+\newlabel{sendClientInput_figure}{{5}{9}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}大谷}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}通常弾と特殊弾}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}Bullet, CurveBullet, UpDiagonalBullet, DownDiagonalBullet}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}操作キャラクター}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}Player}{10}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}ギミック}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}Gimmick}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}南}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}通信確立とリトライ}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.7.1}ServerPanel}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.7.2}ClientPanel}{13}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.7.3}ResultPanel}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.7.4}GameFrame}{14}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.7.5}Comm.java}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8}画面遷移(\texttt  {GameFrame})}{15}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.9}タイトル画面の装飾}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.9.1}StartPanel}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.9.2}BackGroundPanel}{16}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.9.3}CustomButton}{17}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.9.4}FontLoader}{18}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10}BGM・SE設定(\texttt  {GameFrame})}{18}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.11}奥野}{18}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}実行例}{18}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}ボタンのマウスホバーのアニメーションの実行例}{18}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces ホバー前}}{19}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces ホバー後}}{19}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}ゲーム終了後のリザルト画面への遷移の実行例}{20}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces ゲーム終了直後の画面}}{20}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces 勝者のリザルト画面}}{20}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces 敗者のリザルト画面}}{21}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}リトライ要求時のコネクション切断}{21}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces リトライ要求後の待機画面}}{22}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces コネクションが切断後の画面}}{22}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}弾射出時の実行例}{23}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces 通常弾の射出時の画面(ズーム)}}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}弾爆発の実行例}{23}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces 曲線弾の爆発時の画面(ズーム)}}{23}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}ギミック取得の実行例}{23}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces 通常時(ズーム)}}{24}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces 弾半径拡大ギミック取得時(ズーム)}}{24}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}考察}{24}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}プログラムについての考察}{24}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}ゲームシステムについての考察}{24}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}通信の確立に関する考察}{25}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}弾, ギミックの実装に関する考察}{25}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}ギミックの拡張性に関する考察}{25}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}各自の反省と感想}{25}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}池崎}{25}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}大谷}{26}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}南}{26}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces パワーアップアイテムギミック}}{27}{}\protected@file@percent }
+\newlabel{powerUp}{{17}{27}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces 回復アイテムギミック}}{27}{}\protected@file@percent }
+\newlabel{heal}{{18}{27}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces パワーアップアイテム取得前後での弾の大きさの変化}}{27}{}\protected@file@percent }
+\newlabel{bigger}{{19}{27}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces パワーアップアイテムギミック}}{28}{}\protected@file@percent }
+\newlabel{powerUp}{{20}{28}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces 回復アイテムギミック}}{28}{}\protected@file@percent }
+\newlabel{heal}{{21}{28}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces パワーアップアイテム取得前後での弾の大きさの変化}}{28}{}\protected@file@percent }
+\newlabel{bigger}{{22}{28}{}{}{}}
+\gdef \@abspage@last{29}

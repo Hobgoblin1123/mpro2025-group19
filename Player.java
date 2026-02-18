@@ -148,8 +148,7 @@ class Player {
         if (type == 0) {
             // 直進弾
             GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
-            newBullets
-                    .add(new Bullet(this, this.getX(), this.getY(), 4, 15 + this.getBiggerbullet(), 1, Shootdir, null));
+            newBullets.add(new Bullet(this, this.getX(), this.getY(), 4, 15 + this.getBiggerbullet(), 1, Shootdir, null));
         } else if (type == 1) {
             // 曲線弾
             GameFrame.playSE("music/Thunder_Shot.wav", 0.5f);
