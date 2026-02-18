@@ -1,4 +1,4 @@
-This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.sjis) (TeX Live 2024) (preloaded format=platex 2024.6.18)  18 FEB 2026 11:38
+This is e-upTeX, Version 3.141592653-p4.1.1-u1.30-230214-2.6 (utf8.sjis) (TeX Live 2024) (preloaded format=platex 2024.6.18)  18 FEB 2026 11:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -503,7 +503,728 @@ File: bigger.eps Graphic file (type eps)
 
 [33]
 
-[34] (./Report_group19.aux)
+[34]
+
+[35]
+
+[36]
+Overfull \hbox (8.92111pt too wide) in paragraph at lines 1294--1294
+[]\OT1/cmtt/m/n/10 180             while (response != null && !response.startsWith("Retry:")) {    // "Retry:" \JY1/mc/m/n/10 で
+ []
+
+
+Overfull \hbox (24.59134pt too wide) in paragraph at lines 1294--1294
+[]\OT1/cmtt/m/n/10 190                     JOptionPane.showMessageDialog(this, "\JY1/mc/m/n/10 相手がゲ ームを終了しました 。 \OT1/cmtt/m/n/10 ");    // \JY1/mc/m/n/10 再
+ []
+
+
+
+[37]
+Overfull \hbox (67.54836pt too wide) in paragraph at lines 1294--1294
+[]\OT1/cmtt/m/n/10 239             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);[] 
+ []
+
+
+
+[38]
+Overfull \hbox (67.54836pt too wide) in paragraph at lines 1294--1294
+[]\OT1/cmtt/m/n/10 280             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);[] 
+ []
+
+
+
+[39]
+Overfull \hbox (36.04863pt too wide) in paragraph at lines 1784--1784
+[] \OT1/cmtt/m/n/10 35         player1 = new Player(10, 10, offset + 20, y / 2, 0.5f, 20, x / 2 - 20, y, 20, 1, 0, 0);[] 
+ []
+
+
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 1784--1784
+[] \OT1/cmtt/m/n/10 36         player2 = new Player(10, 10, x - offset - 20, y / 2, 0.5f, x / 2 + 20, x - 20, y, 20, -1, 0, 0);[] 
+ []
+
+
+
+[40]
+
+[41]
+Overfull \hbox (20.29877pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 129             gimmicks.add(new Gimmick(gx, gy, 20, new Color(0, 255, 0), 0, rand.nextInt(2)));[] 
+ []
+
+
+Overfull \hbox (56.1707pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 164             if (b.getOwner() != player1 && isHit(player1, b) && b.getStateExplosion() == 0) { // \JY1/mc/m/n/10 自
+ []
+
+
+Overfull \hbox (56.1707pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 165                                                                                               // \JY1/mc/m/n/10 当
+ []
+
+
+
+[42]
+Overfull \hbox (82.42047pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 171             else if (b.getOwner() != player2 && isHit(player2, b) && b.getStateExplosion() == 0) { // \JY1/mc/m/n/10 自
+ []
+
+
+Overfull \hbox (82.42047pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 172                                                                                                    // \JY1/mc/m/n/10 当
+ []
+
+
+Overfull \hbox (82.42047pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 196             if (isHit_Gimmick(player1, g) && player1.getStatePowerup() == 0 && g.getType() == 0) { // \JY1/mc/m/n/10 ギ
+ []
+
+
+Overfull \hbox (82.42047pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 197                                                                                                    // \JY1/mc/m/n/10 半
+ []
+
+
+Overfull \hbox (82.42047pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 198                                                                                                    // \JY1/mc/m/n/10 当
+ []
+
+
+Overfull \hbox (108.67024pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 208             else if (isHit_Gimmick(player2, g) && player2.getStatePowerup() == 0 && g.getType() == 0) { // \JY1/mc/m/n/10 ギ
+ []
+
+
+Overfull \hbox (108.67024pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 209                                                                                                         // \JY1/mc/m/n/10 半
+ []
+
+
+Overfull \hbox (108.67024pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 210                                                                                                         // \JY1/mc/m/n/10 当
+ []
+
+
+
+[43]
+Overfull \hbox (0.91566pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 230         if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 600) { // \JY1/mc/m/n/10 弾の半
+ []
+
+
+
+[44]
+Overfull \hbox (146.29767pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 290         sb.append(player1.getX()).append(",").append(player1.getY()).append(",").append(player1.getHp()).append(",")[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 291                 .append(player2.getX()).append(",").append(player2.getY()).append(",").append(player2.getHp())[] 
+ []
+
+
+Overfull \hbox (9.79886pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 302             int rgb = (b.getColor() != null) ? b.getColor().getRGB() : Color.RED.getRGB();[] 
+ []
+
+
+Overfull \hbox (9.79886pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 325             int rgb = (g.getColor() != null) ? g.getColor().getRGB() : Color.RED.getRGB();[] 
+ []
+
+
+
+[45]
+Overfull \hbox (4.5489pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 354                 // player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));[] 
+ []
+
+
+
+[46]
+Overfull \hbox (2.56017pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 394                         Color bc = new Color(Integer.parseInt(val[3])); // \JY1/mc/m/n/10 弾の色 \OT1/cmtt/m/n/10 (\JY1/mc/m/n/10 円で描画
+ []
+
+
+Overfull \hbox (9.79886pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 411                             bullets.add(new UpDiagonalBullet(bx, by, br, bc, bs, se, af));[] 
+ []
+
+
+Overfull \hbox (20.29877pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 413                             bullets.add(new DownDiagonalBullet(bx, by, br, bc, bs, se, af));[] 
+ []
+
+
+
+[47]
+Overfull \hbox (99.04808pt too wide) in paragraph at lines 1784--1784
+[]\OT1/cmtt/m/n/10 453             cl.send("Data:" + player2.getX() + " " + player2.getY() + " " + isShooting + " " + bulletType);[] 
+ []
+
+
+
+[48]
+Overfull \hbox (20.29877pt too wide) in paragraph at lines 2102--2102
+[] \OT1/cmtt/m/n/10 12 public class ShootingView extends StarAnimPanel implements Runnable, KeyListener, Observer {[] 
+ []
+
+
+Overfull \hbox (51.7985pt too wide) in paragraph at lines 2102--2102
+[] \OT1/cmtt/m/n/10 41             bgImage = new ImageIcon(getClass().getResource("/images/GamePanelBG.jpg")).getImage();[] 
+ []
+
+
+Overfull \hbox (104.29803pt too wide) in paragraph at lines 2102--2102
+[] \OT1/cmtt/m/n/10 46             java.io.InputStream fontFile = getClass().getResourceAsStream("/Fonts/DotGothic16-Regular.ttf");[] 
+ []
+
+
+
+[49]
+
+[50]
+
+[51]
+
+[52]
+
+[53]
+Overfull \hbox (62.2984pt too wide) in paragraph at lines 2198--2198
+[] \OT1/cmtt/m/n/10 21         bgPanel = new BackGroundPanel("/images/start_image.jpg", "/images/start_image_flashed.jpg");[] 
+ []
+
+
+Overfull \hbox (125.29785pt too wide) in paragraph at lines 2198--2198
+[] \OT1/cmtt/m/n/10 24         JLabel title = new JLabel(new ImageIcon(getClass().getResource("/images/title_image_transparent.png")));[] 
+ []
+
+
+
+[54]
+
+[55]
+Overfull \hbox (88.54817pt too wide) in paragraph at lines 2380--2380
+[] \OT1/cmtt/m/n/10 30             bgImage = new ImageIcon(getClass().getResource("/images/server-clientpanel.png")).getImage();[] 
+ []
+
+
+
+[56]
+
+[57]
+Overfull \hbox (46.54854pt too wide) in paragraph at lines 2380--2380
+[]\OT1/cmtt/m/n/10 112         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);[] 
+ []
+
+
+Overfull \hbox (172.54744pt too wide) in paragraph at lines 2380--2380
+[]\OT1/cmtt/m/n/10 136             GradientPaint gp = new GradientPaint(cx, cy, new Color(0, 255, 100, 0), lx, ly, new Color(0, 255, 100, 180));[] 
+ []
+
+
+Overfull \hbox (20.29877pt too wide) in paragraph at lines 2380--2380
+[]\OT1/cmtt/m/n/10 138             g2d.fillArc(cx - r, cy - r, r * 2, r * 2, (int)Math.toDegrees(-radarAngle), 60);[] 
+ []
+
+
+
+[58]
+Overfull \hbox (88.54817pt too wide) in paragraph at lines 2598--2598
+[] \OT1/cmtt/m/n/10 25             bgImage = new ImageIcon(getClass().getResource("/images/server-clientpanel.png")).getImage();[] 
+ []
+
+
+
+[59]
+Overfull \hbox (30.79868pt too wide) in paragraph at lines 2598--2598
+[] \OT1/cmtt/m/n/10 95         gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;[] 
+ []
+
+
+
+[60]
+
+[61]
+Overfull \hbox (29.92093pt too wide) in paragraph at lines 2598--2598
+[]\OT1/cmtt/m/n/10 208             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // \JY1/mc/m/n/10 透
+ []
+
+
+Overfull \hbox (29.92093pt too wide) in paragraph at lines 2598--2598
+[]\OT1/cmtt/m/n/10 210             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f)); // \JY1/mc/m/n/10 戻
+ []
+
+
+
+[62]
+Overfull \hbox (4.5489pt too wide) in paragraph at lines 2700--2700
+[] \OT1/cmtt/m/n/10 24         bgPanel = new BackGroundPanel("/images/result.png", "/images/resultflashed.png");[] 
+ []
+
+
+Overfull \hbox (7.54337pt too wide) in paragraph at lines 2700--2700
+[] \OT1/cmtt/m/n/10 30         Color textColor = isWin ? new Color(255, 50, 50) : new Color(50, 50, 255); // \JY1/mc/m/n/10 勝ち
+ []
+
+
+
+[63]
+Overfull \hbox (31.27461pt too wide) in paragraph at lines 2700--2700
+[] \OT1/cmtt/m/n/10 92             f.sendMessage("QUIT");  //  backToStart() \JY1/mc/m/n/10 内に記述すると 、 リトライ失敗後に \OT1/cmtt/m/n/10 backToStart()
+ []
+
+
+
+[64]
+Overfull \hbox (9.79886pt too wide) in paragraph at lines 2884--2884
+[] \OT1/cmtt/m/n/10 24             bgImage_original = new ImageIcon(getClass().getResource(ori_path)).getImage();[] 
+ []
+
+
+Overfull \hbox (15.04881pt too wide) in paragraph at lines 2884--2884
+[] \OT1/cmtt/m/n/10 25             bgImage_flashed = new ImageIcon(getClass().getResource(flash_path)).getImage();[] 
+ []
+
+
+Overfull \hbox (4.78787pt too wide) in paragraph at lines 2884--2884
+[] \OT1/cmtt/m/n/10 50             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER /*\JY1/mc/m/n/10 重ね塗り
+ []
+
+
+Overfull \hbox (50.92075pt too wide) in paragraph at lines 2884--2884
+[] \OT1/cmtt/m/n/10 52             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));    //  \JY1/mc/m/n/10 透
+ []
+
+
+
+[65]
+Overfull \hbox (46.54854pt too wide) in paragraph at lines 2884--2884
+[]\OT1/cmtt/m/n/10 111         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);[] 
+ []
+
+
+Overfull \hbox (99.04808pt too wide) in paragraph at lines 2884--2884
+[]\OT1/cmtt/m/n/10 112         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);[] 
+ []
+
+
+
+[66]
+
+[67]
+
+[68]
+
+[69]
+
+[70]
+
+[71]
+Overfull \hbox (135.79776pt too wide) in paragraph at lines 3311--3311
+[] \OT1/cmtt/m/n/10 27     public Player(int hp, int max_hp, int x, int y, float speed, int bounds_x_min, int bounds_x_max, int bounds_y,[] 
+ []
+
+
+Overfull \hbox (41.29858pt too wide) in paragraph at lines 3311--3311
+[] \OT1/cmtt/m/n/10 48             this.img = new ImageIcon(getClass().getResource("/images/player1T.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (104.29803pt too wide) in paragraph at lines 3311--3311
+[] \OT1/cmtt/m/n/10 51                 this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (104.29803pt too wide) in paragraph at lines 3311--3311
+[] \OT1/cmtt/m/n/10 53                 this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (41.29858pt too wide) in paragraph at lines 3311--3311
+[] \OT1/cmtt/m/n/10 56             this.img = new ImageIcon(getClass().getResource("/images/player2T.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (104.29803pt too wide) in paragraph at lines 3311--3311
+[] \OT1/cmtt/m/n/10 59                 this.img = new ImageIcon(getClass().getResource("/images/player2PowerupT1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (104.29803pt too wide) in paragraph at lines 3311--3311
+[] \OT1/cmtt/m/n/10 61                 this.img = new ImageIcon(getClass().getResource("/images/player2PowerupT2.png")).getImage();[] 
+ []
+
+
+
+[72]
+
+[73]
+Overfull \hbox (167.29749pt too wide) in paragraph at lines 3311--3311
+[]\OT1/cmtt/m/n/10 152                     .add(new Bullet(this, this.getX(), this.getY(), 4, 15 + this.getBiggerbullet(), 1, Shootdir, null));[] 
+ []
+
+
+Overfull \hbox (167.29749pt too wide) in paragraph at lines 3311--3311
+[]\OT1/cmtt/m/n/10 157                     new CurveBullet(this, this.getX(), this.getY(), 1, 10 + this.getBiggerbullet(), 1, Shootdir, null));[] 
+ []
+
+
+Overfull \hbox (135.79776pt too wide) in paragraph at lines 3311--3311
+[]\OT1/cmtt/m/n/10 161             newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 15 + this.getBiggerbullet(), 1,[] 
+ []
+
+
+Overfull \hbox (146.29767pt too wide) in paragraph at lines 3311--3311
+[]\OT1/cmtt/m/n/10 163             newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), 2, 15 + this.getBiggerbullet(), 1,[] 
+ []
+
+
+
+[74]
+
+[75]
+Overfull \hbox (41.29858pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 22     public Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,[] 
+ []
+
+
+Overfull \hbox (36.04863pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 33             this.img = new ImageIcon(getClass().getResource("/images/Bullet1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (36.04863pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 35             this.img = new ImageIcon(getClass().getResource("/images/Bullet2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (135.79776pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 40     public Bullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion, int AnimationFrames) {[] 
+ []
+
+
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 51             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 54             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 57             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion3.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 60             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion4.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (36.04863pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 63             this.img = new ImageIcon(getClass().getResource("/images/Bullet1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (36.04863pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 65             this.img = new ImageIcon(getClass().getResource("/images/Bullet2.png")).getImage();[] 
+ []
+
+
+
+[76]
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 87             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 91             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 95             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion3.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (83.29822pt too wide) in paragraph at lines 3490--3490
+[] \OT1/cmtt/m/n/10 99             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion4.png")).getImage();[] 
+ []
+
+
+
+[77]
+
+[78]
+Overfull \hbox (46.54854pt too wide) in paragraph at lines 3573--3573
+[] \OT1/cmtt/m/n/10 24             this.img = new ImageIcon(getClass().getResource("/images/BigRadius.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (20.29877pt too wide) in paragraph at lines 3573--3573
+[] \OT1/cmtt/m/n/10 26             this.img = new ImageIcon(getClass().getResource("/images/Heal.png")).getImage();[] 
+ []
+
+
+
+[79]
+Overfull \hbox (46.54854pt too wide) in paragraph at lines 3687--3687
+[] \OT1/cmtt/m/n/10 35         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);[] 
+ []
+
+
+
+[80]
+
+[81]
+Overfull \hbox (67.54836pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 12     public CurveBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,[] 
+ []
+
+
+Overfull \hbox (62.2984pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 16             this.img = new ImageIcon(getClass().getResource("/images/CurveBullet1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (62.2984pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 18             this.img = new ImageIcon(getClass().getResource("/images/CurveBullet2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (162.04753pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 23     public CurveBullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion, int AnimationFrames) {[] 
+ []
+
+
+Overfull \hbox (109.54799pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 27             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (109.54799pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 30             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (109.54799pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 33             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion3.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (109.54799pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 36             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion4.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (62.2984pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 39             this.img = new ImageIcon(getClass().getResource("/images/CurveBullet1.png")).getImage();[] 
+ []
+
+
+
+[82]
+Overfull \hbox (62.2984pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 41             this.img = new ImageIcon(getClass().getResource("/images/CurveBullet2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (109.54799pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 48             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (109.54799pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 52             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (109.54799pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 56             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion3.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (109.54799pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 60             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion4.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (135.79776pt too wide) in paragraph at lines 3782--3782
+[] \OT1/cmtt/m/n/10 75         g.drawImage(this.img, getX() - getRadius(), getY() - getRadius(), 2 * getRadius(), 2 * getRadius(), null);[] 
+ []
+
+
+
+[83]
+Overfull \hbox (93.79813pt too wide) in paragraph at lines 3873--3873
+[]  \OT1/cmtt/m/n/10 9     public UpDiagonalBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,[] 
+ []
+
+
+Overfull \hbox (88.54817pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 13             this.img = new ImageIcon(getClass().getResource("/images/UpDiagonalBullet1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (88.54817pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 15             this.img = new ImageIcon(getClass().getResource("/images/UpDiagonalBullet2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (67.54836pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 20     public UpDiagonalBullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion,[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 25             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 28             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 31             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion3.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 34             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion4.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (88.54817pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 37             this.img = new ImageIcon(getClass().getResource("/images/UpDiagonalBullet1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (88.54817pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 39             this.img = new ImageIcon(getClass().getResource("/images/UpDiagonalBullet2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 46             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 50             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 54             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion3.png")).getImage();[] 
+ []
+
+
+
+[84]
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 58             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion4.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (135.79776pt too wide) in paragraph at lines 3873--3873
+[] \OT1/cmtt/m/n/10 73         g.drawImage(this.img, getX() - getRadius(), getY() - getRadius(), 2 * getRadius(), 2 * getRadius(), null);[] 
+ []
+
+
+Overfull \hbox (104.29803pt too wide) in paragraph at lines 3963--3963
+[]  \OT1/cmtt/m/n/10 8     public DownDiagonalBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,[] 
+ []
+
+
+Overfull \hbox (99.04808pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 12             this.img = new ImageIcon(getClass().getResource("/images/DownDiagonalBullet1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (99.04808pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 14             this.img = new ImageIcon(getClass().getResource("/images/DownDiagonalBullet2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (78.04826pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 19     public DownDiagonalBullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion,[] 
+ []
+
+
+
+[85]
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 24             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 27             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 30             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion3.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 33             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion4.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (99.04808pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 36             this.img = new ImageIcon(getClass().getResource("/images/DownDiagonalBullet1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (99.04808pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 38             this.img = new ImageIcon(getClass().getResource("/images/DownDiagonalBullet2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 45             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion1.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 49             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion2.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 53             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion3.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (114.79794pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 57             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion4.png")).getImage();[] 
+ []
+
+
+Overfull \hbox (135.79776pt too wide) in paragraph at lines 3963--3963
+[] \OT1/cmtt/m/n/10 72         g.drawImage(this.img, getX() - getRadius(), getY() - getRadius(), 2 * getRadius(), 2 * getRadius(), null);[] 
+ []
+
+
+
+[86]
+Overfull \hbox (2.2623pt too wide) in paragraph at lines 3996--3996
+[] \OT1/cmtt/m/n/10 13                 throw new IOException("Font file not found: " + path);      //  \JY1/mc/m/n/10 フ ァ イルが
+ []
+
+
+
+[87] (./Report_group19.aux)
  ***********
 pLaTeX2e <2023-02-14>+1, based on
 LaTeX2e <2024-06-01> patch level 1
@@ -517,10 +1238,10 @@ LaTeX Warning: There were multiply-defined labels.
 Here is how much of TeX's memory you used:
  6945 strings out of 475707
  167371 string characters out of 5780275
- 1933753 words of memory out of 5000000
+ 1949753 words of memory out of 5000000
  29609 multiletter control sequences out of 15000+600000
  577425 words of font info for 116 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  73i,6n,80p,1004b,536s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on Report_group19.dvi (34 pages, 111748 bytes).
+Output written on Report_group19.dvi (87 pages, 245320 bytes).

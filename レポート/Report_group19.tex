@@ -963,30 +963,3036 @@ javaのオブジェクト指向やMVCモデルなどの学習内容について�
 
 \newpage
 \section*{付録２：プログラムリスト}
-プログラムリストは本文中には説明に必要な部分だけ抜粋して掲載して，
-プログラムリスト全体はレポートの最後に「付録」として付ける．
-プログラムコードには，主なメソッド，フィールドの説明など
-最低限のコメントは付ける．
-
-\verb|cat -n hash.c| などとして，行番号付きのプログラムリスト
-を生成して，
-
-\noindent
-\verb|\begin{verbatim}....\end{verbatim}|を用いて記述すると読みやすい．
-ページ数が多くなる場合は，
-\verb|\small|や\verb|\footnotesize|を
-用いるとよい．
-
+\subsection{GameFrame.java}
 \begin{small}
 \begin{verbatim}
-    1  struct item* insert(struct item s){
-    2    int i; struct entry *p, *chain; 
-    3    i=h(s.key);
-    4    chain=H[i];
-    5    if(chain){
-    6      while(chain && comparekeytype(chain->term.key, s.key)) chain=chain->next; 
-    7      if(chain) return &(chain->term);  /* 同じ鍵が見つかった 場合*/
-    8    }
+  1 import java.awt.*;
+  2 import java.awt.event.*;
+  3 import java.io.File;
+  4 import javax.swing.*;
+  5 import java.util.Observable;
+  6 import java.util.Observer;
+  7 import java.net.URL;
+  8 import javax.sound.sampled.*;
+  9 
+ 10 //  動作確認用
+ 11 @SuppressWarnings("deprecation")
+ 12 class Stage extends Observable implements KeyListener {
+ 13     private boolean gameOver = false;
+ 14 
+ 15     // gameOverのgetterメソッド
+ 16     public boolean isGameOver() {
+ 17         return this.gameOver;
+ 18     }
+ 19 
+ 20     @Override
+ 21     public void keyPressed(KeyEvent e) {
+ 22         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+ 23             this.gameOver = true;
+ 24 
+ 25             setChanged();
+ 26             notifyObservers();
+ 27         }
+ 28     }
+ 29 
+ 30     public void keyTyped(KeyEvent e) {
+ 31 
+ 32     }
+ 33 
+ 34     public void keyReleased(KeyEvent e) {
+ 35 
+ 36     }
+ 37 }
+ 38 
+ 39 @SuppressWarnings("deprecation")
+ 40 public class GameFrame extends JFrame implements Observer {
+ 41     private JPanel mainPanel;
+ 42     private JPanel gamePanel;
+ 43     private Object commSV;
+ 44     private MoveManager mm;
+ 45     private ShootingView view;
+ 46 
+ 47     // ---- BGM制御用 ----
+ 48     private Clip clip;
+ 49     // ------------------
+ 50 
+ 51     // setterメソッド
+ 52     public void setCommSV(Object comm) {
+ 53         this.commSV = comm;
+ 54     }
+ 55 
+ 56     // getterメソッド
+ 57     public Object getCommSV() {
+ 58         return this.commSV;
+ 59     }
+ 60 
+ 61     public GameFrame() {
+ 62         this.setTitle("GAME");
+ 63         this.setSize(1200, 800);
+ 64         this.setLayout(new BorderLayout());
+ 65 
+ 66         // ダミーのベースパネルを作成（ゲーム画面の代わり）
+ 67         gamePanel = new JPanel();
+ 68         gamePanel.setBackground(Color.BLACK);
+ 69         gamePanel.setPreferredSize(new Dimension(800, 600));
+ 70         gamePanel.setFocusable(true);
+ 71 
+ 72         // Start, Server, Clientの各パネルを切り替えられる、土台となるmainPanelを使用
+ 73         mainPanel = new JPanel(new CardLayout());
+ 74 
+ 75         // mainPanelで切り替えるパネルを追加
+ 76         mainPanel.add(new StartPanel(this), "START");
+ 77         mainPanel.add(new ServerPanel(this), "SERVER");
+ 78         mainPanel.add(new ClientPanel(this), "CLIENT");
+ 79         mainPanel.add(gamePanel, "GAME");
+ 80 
+ 81         this.add(mainPanel, BorderLayout.CENTER);
+ 82         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // ×を押したら閉じる
+ 83         ((CardLayout) mainPanel.getLayout()).show(mainPanel, "START");
+ 84         playBGM("music/main.wav", 0.3f);
+ 85         this.setVisible(true);
+ 86     }
+ 87 
+ 88     // 画面切り替え用メソッド
+ 89     public void showCard(String key) {
+ 90         ((CardLayout) mainPanel.getLayout()).show(mainPanel, key);
+ 91     }
+ 92 
+ 93     public void startGame(boolean isServer, Object comm) {
+ 94         this.commSV = comm;
+ 95         System.out.println("ゲーム開始: " + (isServer ? "Server" : "Client"));
+ 96 
+ 97         // 1. MoveManager (ゲームロジック) の作成
+ 98         // 既存の通信オブジェクト(comm)を渡す
+ 99         mm = new MoveManager(1200, 800, 30, isServer, comm);
+100         mm.addObserver(this); // ゲーム終了監視用
+101 
+102         // 2. ShootingView (描画パネル) の作成
+103         view = new ShootingView(mm);
+104 
+105         // 3. 画面への追加処理
+106         gamePanel.removeAll(); // 前のゲーム画面があれば消す
+107         gamePanel.setLayout(new BorderLayout());
+108         gamePanel.add(view, BorderLayout.CENTER); // ShootingViewを追加
+109 
+110         // リトライ後を考慮して古いキーリスナーは削除
+111         for (KeyListener kl : gamePanel.getKeyListeners()) {
+112             gamePanel.removeKeyListener(kl);
+113         }
+114 
+115         gamePanel.addKeyListener(view);
+116 
+117         showCard("GAME");
+118         stopBGM();
+119         playBGM("music/battle.wav", 0.5f);
+120 
+121         SwingUtilities.invokeLater(() -> { // gamePanelの描画後に実行(実行予約リストの最後尾に回す)
+122             view.requestFocusInWindow(); // キーボードの入力先をShootingViewに設定
+123         });
+124     }
+125 
+126     // ------ リトライと終了機能 -------------------------------
+127 
+128     // 共通送信メソッド(これを作らないと以下メソッドの送受信のやり取りがめんどくさい(主語が設定がだるい))
+129     public boolean sendMessage(String msg) {
+130         if (commSV instanceof CommServer)
+131             return ((CommServer) commSV).send(msg);
+132         else if (commSV instanceof CommClient)
+133             return ((CommClient) commSV).send(msg);
+134         return false;
+135     }
+136 
+137     // 共通受信メソッド
+138     public String receiveMessage() {
+139 
+140         if (mm != null) {
+141             String queuedMsg = mm.msgQueue.poll(); // 後述のメソッドを追加
+142             if (queuedMsg != null)
+143                 return queuedMsg;
+144         }
+145 
+146         if (commSV instanceof CommServer)
+147             return ((CommServer) commSV).recv();
+148         else if (commSV instanceof CommClient)
+149             return ((CommClient) commSV).recv();
+150         return null;
+151     }
+152 
+153     public void tryRetry() {
+154         // 通信待ち時のフリーズ回避のためにマルチスレッド
+155         new Thread(() -> {
+156             boolean isSend = sendMessage("Retry:RETRY");
+157             System.out.println("リトライ要求を送信中・・・");
+158 
+159             // 送信バッファに "RETRY" が置けてない
+160             if (!isSend) {
+161                 SwingUtilities.invokeLater(() -> {
+162                     // ポップアップを表示
+163                     JOptionPane.showMessageDialog(this, "通信が切断されています。"); // 自身側で通信が切断
+164                     backToStart();
+165                 });
+166                 return;
+167             }
+168 
+169             // 相手の応答待機
+170 
+171             String response = receiveMessage();
+172             // 切断されていた場合のチェック
+173             if (response == null) {
+174                 SwingUtilities.invokeLater(() -> {
+175                     JOptionPane.showMessageDialog(this, "通信が切断されました。");
+176                     backToStart();
+177                 });
+178                 return; // 処理を中断
+179             }
+180             while (response != null && !response.startsWith("Retry:")) {    // "Retry:" で始まるメッセージが来るまで待機 (他の通信が混ざる可能性を考慮)
+181                 response = receiveMessage();
+182             }
+183             String actualResponse = response.substring(6);
+184             System.out.println("相手の応答: " + actualResponse);
+185 
+186             SwingUtilities.invokeLater(() -> {
+187                 if (actualResponse.equals("RETRY")) {
+188                     retryGame();    // 両者ともリトライを開始
+189                 } else if(actualResponse.equals("QUIT")) {
+190                     JOptionPane.showMessageDialog(this, "相手がゲームを終了しました。");    // 再チェック
+191                     backToStart(); // 自分もスタートに戻る
+192                 }
+193             });
+194         }).start();
+195     }
+196 
+197     public void retryGame() {
+198         // 1度消して再生成
+199         this.getContentPane().removeAll();
+200         this.add(mainPanel, BorderLayout.CENTER);
+201 
+202         boolean isServer = (commSV instanceof CommServer);
+203         startGame(isServer, commSV);
+204 
+205         this.revalidate(); // レイアウトの再計算
+206         this.repaint();
+207     }
+208 
+209     public void backToStart() {
+210         // 通信の切断
+211         if (commSV instanceof CommServer) {
+212             ((CommServer) commSV).close(); // 念のためキャスト(下も同じ)
+213         } else if (commSV instanceof CommClient) {
+214             ((CommClient) commSV).close();
+215         }
+216         commSV = null;
+217 
+218         this.getContentPane().removeAll();
+219         this.add(mainPanel, BorderLayout.CENTER);
+220         showCard("START");
+221 
+222         this.revalidate();
+223         this.repaint();
+224     }
+225     // ---------------------------------------------------
+226 
+227     // ---   B G M 再 生 メ ソ ッ ド   ---
+228     public void playBGM(String filePath, float volume) {
+229         try {
+230             URL url = getClass().getResource("/" + filePath);
+231             AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
+232 
+233             // 音声データをロード
+234             clip = AudioSystem.getClip();
+235             clip.open(audioStream);
+236 
+237             // --- 音量調整処理 ---
+238             // MASTER_GAIN というコントロールを取得
+239             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+240 
+241             // 0.0(消音) ～ 1.0(最大) の値を デシベル(dB) に変換する計算式
+242             // dB = 20 * log10(volume)
+243             float db = (float) (Math.log10(volume) * 20.0);
+244 
+245             // 設定可能な最小値より小さくならないように制限
+246             float min = gainControl.getMinimum(); // 通常 -80.0dBくらい
+247             if (db < min)
+248                 db = min;
+249 
+250             gainControl.setValue(db);
+251             // ------------------
+252 
+253             // ループ設定して再生開始
+254             clip.loop(Clip.LOOP_CONTINUOUSLY);
+255 
+256         } catch (Exception e) {
+257             System.out.println("BGM再生エラー: " + e.getMessage());
+258             e.printStackTrace();
+259         }
+260     }
+261 
+262     // ---   B G M 停 止 メ ソ ッ ド   ---
+263     public void stopBGM() {
+264         if (clip != null && clip.isRunning()) {
+265             clip.stop();
+266             clip.close(); // メモリ解放
+267         }
+268     }
+269 
+270     // ---   S E 再 生 用 メ ソ ッ ド   -------
+271     public static void playSE(String filePath, float volume) {
+272         try {
+273             URL url = GameFrame.class.getResource("/" + filePath);
+274             AudioInputStream audioStream = AudioSystem.getAudioInputStream(url);
+275 
+276             Clip clip = AudioSystem.getClip();
+277             clip.open(audioStream);
+278 
+279             // 音量調整 (BGMと同じロジック)
+280             FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+281             float db = (float) (Math.log10(volume) * 20.0);
+282             float min = gainControl.getMinimum();
+283             if (db < min)
+284                 db = min;
+285             gainControl.setValue(db);
+286 
+287             // 再生終了時に自動で閉じるためのリスナーを追加 (メモリ節約)
+288             clip.addLineListener(event -> {
+289                 if (event.getType() == LineEvent.Type.STOP) {
+290                     clip.close();
+291                 }
+292             });
+293 
+294             clip.start(); // 再生開始
+295         } catch (Exception e) {
+296             System.out.println("再生できませんでした");
+297             e.printStackTrace();
+298         }
+299     }
+300     // ---------------------------------------------------------------------------
+301 
+302     @Override
+303     public void update(Observable o, Object arg) {
+304         // stage変数を通じてStageクラスのメソッドやフィールドにアクセスできるようにする
+305         Timer timer = new Timer(2000, e -> {
+306             SwingUtilities.invokeLater(() -> {
+307                 this.getContentPane().removeAll();
+308                 ResultPanel result = new ResultPanel(this, mm.getPlayer().getIsWin());
+309                 this.add(result, BorderLayout.CENTER);
+310                 stopBGM();
+311                 playBGM("music/main.wav", 0.3f);
+312 
+313                 this.revalidate();// レイアウトの再計算
+314                 this.repaint();
+315             });
+316         });
+317         timer.setRepeats(false); // 1回だけ
+318         timer.start();
+319 
+320     }
+321 
+322     public static void main(String argv[]) {
+323         new GameFrame();
+324     }
+325 }
+\end{verbatim}
+\end{small}
+\subsection{Manager.java}
+\begin{small}
+\begin{verbatim}
+1 import java.awt.*;
+  2 import java.util.ArrayList;
+  3 import java.util.Iterator;
+  4 import java.util.Random;
+  5 import java.util.Observable;
+  6 import java.util.concurrent.ConcurrentLinkedQueue;
+  7 
+  8 @SuppressWarnings("deprecation") // 非推奨Componentを使用しても警告が出ないようにする
+  9 class MoveManager extends Observable {
+ 10     private boolean server;
+ 11     private CommServer sv = null;
+ 12     private CommClient cl = null;
+ 13 
+ 14     // ゲームデータ
+ 15     public int court_size_x, court_size_y;
+ 16     public Player player1, player2;
+ 17     public ArrayList<Bullet> bullets;
+ 18     public ArrayList<Gimmick> gimmicks;
+ 19 
+ 20     public String winner = "";
+ 21     public boolean isRunning = true;
+ 22     private Random rand = new Random();
+ 23     public ConcurrentLinkedQueue<String> msgQueue;
+ 24 
+ 25     // コンストラクタ
+ 26     public MoveManager(int x, int y, int offset, boolean server, Object comm) {
+ 27 
+ 28         this.server = server;
+ 29         this.court_size_x = x;
+ 30         this.court_size_y = y;
+ 31         msgQueue = new ConcurrentLinkedQueue<>();
+ 32 
+ 33         // Playerの初期化 (既存の引数に合わせつつ、調整)
+ 34         // ※ Playerクラスのコンストラクタに合わせて調整する
+ 35         player1 = new Player(10, 10, offset + 20, y / 2, 0.5f, 20, x / 2 - 20, y, 20, 1, 0, 0);
+ 36         player2 = new Player(10, 10, x - offset - 20, y / 2, 0.5f, x / 2 + 20, x - 20, y, 20, -1, 0, 0);
+ 37 
+ 38         bullets = new ArrayList<>(); // 弾リストの初期化
+ 39         gimmicks = new ArrayList<>(); // ギミックリストの初期化
+ 40 
+ 41         // 通信オブジェクトの受け取り
+ 42         if (server) {
+ 43             this.sv = (CommServer) comm;
+ 44         } else {
+ 45             this.cl = (CommClient) comm;
+ 46         }
+ 47 
+ 48         Thread recvThread = new Thread(() -> {
+ 49             while (isRunning) {
+ 50                 String msg = null;
+ 51                 // サーバーかクライアントかで使い分け
+ 52                 if (server && sv != null) {
+ 53                     msg = sv.recv();
+ 54                 } else if (!server && cl != null) {
+ 55                     msg = cl.recv();
+ 56                 }
+ 57 
+ 58                 if (msg != null) {
+ 59                     // 受信したらメッセージをキューに保存
+ 60                     msgQueue.add(msg);
+ 61                 } else {
+ 62                     // エラーや切断時の処理（必要ならisRunningをfalseにする等）
+ 63                 }
+ 64             }
+ 65         });
+ 66         recvThread.start();
+ 67     }
+ 68 
+ 69     // メインループ
+ 70     public void update() {
+ 71         if (!isRunning)
+ 72             return;
+ 73 
+ 74         if (server) {
+ 75             // サーバー側の処理
+ 76 
+ 77             // クライアント(Player2)の操作を受信
+ 78             String msg;
+ 79             while ((msg = msgQueue.poll()) != null) {
+ 80                 try {
+ 81 
+ 82                     if (msg.startsWith("Data:")) {
+ 83                         String actualData = msg.substring(5);
+ 84                         String[] data = actualData.split(" ");
+ 85                         int p2x = Integer.parseInt(data[0]);
+ 86                         int p2y = Integer.parseInt(data[1]);
+ 87                         boolean p2Shoot = Boolean.parseBoolean(data[2]);
+ 88                         int bulletType = Integer.parseInt(data[3]);
+ 89                         // 位置を同期
+ 90                         player2.setXY(p2x, p2y);
+ 91 
+ 92                         // 発射処理 (サーバー側で弾を生成してリストに追加)
+ 93                         if (p2Shoot) {
+ 94                             bullets.addAll(player2.tryShoot(bulletType));
+ 95                         }
+ 96                     }
+ 97                 } catch (Exception e) {
+ 98                     e.printStackTrace();
+ 99                 }
+100             }
+101 
+102             // ゲームロジック (弾の移動、当たり判定)
+103             serverLogic();
+104 
+105             // 全データをクライアントへ送信
+106             sendServerData();
+107 
+108         } else {
+109             // クライアント側の処理
+110 
+111             // サーバーからの全データを受信して反映
+112             String msg;
+113             while ((msg = msgQueue.poll()) != null) {
+114                 if (msg.startsWith("Data:")) {// 送られてきた情報にDataのタグが付いていることを確認
+115                     String actualData = msg.substring(5);
+116                     parseServerData(actualData);
+117                 }
+118             }
+119         }
+120     }
+121 
+122     // サーバーのみが実行する物理演算
+123     private void serverLogic() {
+124         // ギミックを確率1/450で生成
+125         if (rand.nextInt(450) < 1) {
+126             int gx = rand.nextInt(court_size_x - 100) + 50; // ギミックのx座標をランダムに決定
+127             int gy = rand.nextInt(court_size_y - 100) + 50; // ギミックのy座標をランダムに決定
+128             // ギミックの種類0, 1をランダムに決定して配列に追加
+129             gimmicks.add(new Gimmick(gx, gy, 20, new Color(0, 255, 0), 0, rand.nextInt(2)));
+130         }
+131 
+132         // 弾の移動と当たり判定, ギミックの判定
+133         Iterator<Bullet> it = bullets.iterator();
+134         Iterator<Gimmick> it2 = gimmicks.iterator();
+135         // 弾の移動と当たり判定
+136         while (it.hasNext()) {
+137             Bullet b = it.next();
+138             b.move(); // Bulletクラスのmove()を使用
+139 
+140             // 画面外に出たら削除
+141             if (b.getX() < -50 || b.getX() > court_size_x + 50 ||
+142                     b.getY() < -50 || b.getY() > court_size_y + 50) {
+143                 it.remove();
+144                 continue;
+145             }
+146 
+147             // 爆発
+148             if (b.getStateExplosion() != 0) { // 爆発状態なら
+149                 if (b.explosion()) { // 爆発が進んだら
+150                     b.setStateExplosion(b.getStateExplosion() + 1); // 状態を進める
+151                     b.setAnimationFrames(0); // アニメーションフレームをリセット
+152                 } else { // 爆発が進んでいなければ
+153                     // アニメーションフレームを進める(これらの数字の判定はBulletクラス内で行う)
+154                     b.setAnimationFrames(b.getAnimationFrames() + 1);
+155                 }
+156             }
+157             // 非アクティブなら削除
+158             if (!b.getIsActive()) {
+159                 it.remove();
+160                 continue;
+161             }
+162             boolean hit = false; // 当たったか(初期値はfalse)
+163             // Player1への当たり判定
+164             if (b.getOwner() != player1 && isHit(player1, b) && b.getStateExplosion() == 0) { // 自分の弾でなく,
+165                                                                                               // 当たっていて,爆発状態でなければ
+166                 GameFrame.playSE("music/damaged.wav", 0.5f); // SE再生
+167                 player1.hit(1); // 1ダメージ
+168                 hit = true; // 当たったことを記録
+169             }
+170             // Player2への当たり判定
+171             else if (b.getOwner() != player2 && isHit(player2, b) && b.getStateExplosion() == 0) { // 自分の弾でなく,
+172                                                                                                    // 当たっていて,爆発状態でなければ
+173                 GameFrame.playSE("music/damaged.wav", 0.5f); // SE再生
+174                 player2.hit(1); // 1ダメージ
+175                 hit = true; // 当たったことを記録
+176             }
+177             if (hit) { // 当たっていたら
+178                 b.setStateExplosion(1); // 爆発状態を1(爆発初期)にする
+179                 b.setAnimationFrames(0); // アニメーションフレームをリセット
+180             }
+181         }
+182 
+183         // ギミックの移動と当たり判定
+184         while (it2.hasNext()) {
+185             Gimmick g = it2.next();
+186 
+187             // 画面外に出たら削除
+188             if (g.getX() < -50 || g.getX() > court_size_x + 50 ||
+189                     g.getY() < -50 || g.getY() > court_size_y + 50) {
+190                 it2.remove();
+191                 continue;
+192             }
+193 
+194             boolean hit = false; // 当たったか(初期値はfalse)
+195             // Player1への当たり判定
+196             if (isHit_Gimmick(player1, g) && player1.getStatePowerup() == 0 && g.getType() == 0) { // ギミックに当たっていて,
+197                                                                                                    // 半径拡大の効果中でなく,
+198                                                                                                    // 当たったのが弾の半径拡大ギミックなら
+199                 player1.setStatePowerup(1); // 半径拡大中(初期)にする
+200                 player1.setImg(); // 画像更新
+201                 player1.setBiggerbullet(10); // 弾の半径を10大きくする
+202                 hit = true; // 当たったことを記録
+203             } else if (isHit_Gimmick(player1, g) && g.getType() == 1) { // ギミックに当たっていて, 当たったのが回復ギミックなら
+204                 player1.heal(1); // 1回復
+205                 hit = true; // 当たったことを記録
+206             }
+207             // Player2への当たり判定
+208             else if (isHit_Gimmick(player2, g) && player2.getStatePowerup() == 0 && g.getType() == 0) { // ギミックに当たっていて,
+209                                                                                                         // 半径拡大の効果中でなく,
+210                                                                                                         // 当たったのが弾の半径拡大ギミックなら
+211                 player2.setStatePowerup(1); // 半径拡大中(初期)にする
+212                 player2.setImg(); // 画像更新
+213                 player2.setBiggerbullet(10); // 弾の半径を10大きくする
+214                 hit = true; // 当たったことを記録
+215             } else if (isHit_Gimmick(player2, g) && g.getType() == 1) { // ギミックに当たっていて, 当たったのが回復ギミックなら
+216                 player2.heal(1); // 1回復
+217                 hit = true; // 当たったことを記録
+218             }
+219 
+220             // ギミックが表示されている経過時間を進める
+221             g.setTime(g.getTime() + 1);
+222 
+223             // ギミック表示時間が750より長いか, 当たっていたら削除
+224             if (g.getTime() > 750 || hit) {
+225                 it2.remove();
+226             }
+227         }
+228 
+229         // プレイヤーのパワーアップ状態の管理
+230         if (player1.getStatePowerup() > 0 && player1.getStatePowerup() < 600) { // 弾の半径拡大効果中
+231             player1.setStatePowerup(player1.getStatePowerup() + 1); // 効果時間を進める
+232             player1.setImg(); // プレイヤーの画像更新
+233         } else if (player1.getStatePowerup() >= 600) { // 効果時間終了
+234             player1.setStatePowerup(0); // 効果終了
+235             player1.setBiggerbullet(0); // 弾の半径を元に戻す
+236             player1.setImg(); // プレイヤーの画像更新
+237         }
+238 
+239         // プレイヤー2のパワーアップ状態の管理
+240         if (player2.getStatePowerup() > 0 && player2.getStatePowerup() < 600) {
+241             player2.setStatePowerup(player2.getStatePowerup() + 1);
+242             player2.setImg();
+243         } else if (player2.getStatePowerup() >= 600) {
+244             player2.setStatePowerup(0);
+245             player2.setBiggerbullet(0);
+246             player2.setImg();
+247         }
+248 
+249         // 勝敗判定
+250         if (player1.IsDead()) {
+251             isRunning = false;
+252             player1.setIsWin(false);
+253             winner = "player2";
+254             gameEnd();
+255         } else if (player2.IsDead()) {
+256             isRunning = false;
+257             player1.setIsWin(true);
+258             winner = "player1";
+259             gameEnd();
+260         }
+261     }
+262 
+263     public Player getPlayer() {
+264         return this.player1;
+265     }
+266 
+267     // 弾との当たり判定の補助メソッド
+268     private boolean isHit(Player p, Bullet b) {
+269         // 距離の2乗で判定 (平方根計算を避けて高速化)
+270         double dx = p.getX() - b.getX();
+271         double dy = p.getY() - b.getY();
+272         double rSum = p.getRadius() + b.getRadius();
+273         return (dx * dx + dy * dy) <= (rSum * rSum);
+274     }
+275 
+276     // ギミックとの当たり判定の補助メソッド
+277     private boolean isHit_Gimmick(Player p, Gimmick g) {
+278         double dx = p.getX() - g.getX();
+279         double dy = p.getY() - g.getY();
+280         double rSum = p.getRadius() + g.getRadius();
+281         return (dx * dx + dy * dy) <= (rSum * rSum);
+282     }
+283 
+284     // サーバーからクライアントへデータを送信
+285     // フォーマット: "P1x,P1y,P1hp,P2x,P2y,P2hp,Winner # Bullet1;Bullet2;... # Items..."
+286     private void sendServerData() {
+287         StringBuilder sb = new StringBuilder();
+288 
+289         // 1. プレイヤー情報と勝敗
+290         sb.append(player1.getX()).append(",").append(player1.getY()).append(",").append(player1.getHp()).append(",")
+291                 .append(player2.getX()).append(",").append(player2.getY()).append(",").append(player2.getHp())
+292                 .append(",")
+293                 .append(player1.getStatePowerup()).append(",")
+294                 .append(player2.getStatePowerup()).append(",")
+295                 .append(player1.getBiggerbullet()).append(",")
+296                 .append(player2.getBiggerbullet()).append(",")
+297                 .append(winner).append("#"); // #でプレイヤーに関する情報, 弾に関する情報, ギミックに関する情報を区切る
+298 
+299         // 2. 弾情報
+300         for (Bullet b : bullets) {
+301             // Color取得(円で描画する場合)
+302             int rgb = (b.getColor() != null) ? b.getColor().getRGB() : Color.RED.getRGB();
+303 
+304             // 弾の型判定
+305             int type = 0; // 通常の弾
+306             if (b instanceof CurveBullet) { // 曲線弾
+307                 type = 1;
+308             } else if (b instanceof UpDiagonalBullet) { // 斜め上弾
+309                 type = 2;
+310             } else if (b instanceof DownDiagonalBullet) { // 斜め下弾
+311                 type = 3;
+312             }
+313             sb.append(b.getX()).append(",").append(b.getY()).append(",")
+314                     .append(b.getRadius()).append(",").append(rgb).append(",")
+315                     .append(b.getShootdir()).append(",")
+316                     .append(type).append(",")
+317                     .append(b.getStateExplosion()).append(",")
+318                     .append(b.getAnimationFrames()).append(";"); // ;で弾同士を区切る
+319         }
+320         sb.append("#");
+321 
+322         // 3 Gimmick情報
+323         for (Gimmick g : gimmicks) {
+324             // Color取得(円で描画する場合)
+325             int rgb = (g.getColor() != null) ? g.getColor().getRGB() : Color.RED.getRGB();
+326 
+327             sb.append(g.getX()).append(",").append(g.getY()).append(",")
+328                     .append(g.getRadius()).append(",").append(rgb).append(",")
+329                     .append(g.getTime()).append(",")
+330                     .append(g.getType()).append(";"); // ;でギミック同士を区切る
+331 
+332         }
+333         sb.append("#");
+334 
+335         sv.send("Data:" + sb.toString());// タグ付け
+336     }
+337 
+338     // クライアント側でのデータ受信・解析
+339     private void parseServerData(String msg) {
+340         try {
+341             // # で分割
+342             String[] sections = msg.split("#", -1);
+343             if (sections.length < 3)
+344                 return;
+345             int old_hp = player2.getHp();
+346             // 1. プレイヤー情報
+347             // split(",", -1) にして、末尾の空文字(winner)を消さないようにする
+348             String[] basic = sections[0].split(",", -1);
+349 
+350             // 空文字があっても配列の長さは 11 になるので、if文の中に入れる
+351             if (basic.length >= 11) {// クライアント側での情報の入力
+352                 player1.setXY(Integer.parseInt(basic[0]), Integer.parseInt(basic[1]));
+353                 player1.setHP(Integer.parseInt(basic[2]));
+354                 // player2.setXY(Integer.parseInt(basic[3]), Integer.parseInt(basic[4]));
+355                 player2.setHP(Integer.parseInt(basic[5]));
+356                 player1.setStatePowerup(Integer.parseInt(basic[6]));
+357                 player2.setStatePowerup(Integer.parseInt(basic[7]));
+358                 player1.setBiggerbullet(Integer.parseInt(basic[8]));
+359                 player2.setBiggerbullet(Integer.parseInt(basic[9]));
+360                 if (Integer.parseInt(basic[5]) < old_hp) {
+361                     player1.hit(0);
+362                 }
+363                 winner = basic[10]; // 空文字でもエラーにならず代入される
+364 
+365                 player1.setImg(); // プレイヤーの画像更新
+366                 player2.setImg();
+367 
+368                 if (!winner.isEmpty()) {
+369 
+370                     if ("player1".equals(winner)) {
+371                         player1.setIsWin(false);
+372                     }
+373                     if ("player2".equals(winner)) {
+374                         player1.setIsWin(true);
+375                     }
+376                     isRunning = false;
+377                     gameEnd();
+378                 }
+379             }
+380 
+381             // 2. 弾情報 (リストを毎回作り直す)
+382             bullets.clear();
+383             if (!sections[1].isEmpty()) {
+384                 String[] bList = sections[1].split(";");
+385                 for (String bStr : bList) {
+386                     if (bStr.isEmpty())
+387                         continue;
+388                     String[] val = bStr.split(",");
+389                     if (val.length >= 8) {
+390                         int bx = Integer.parseInt(val[0]); // 弾のx座標
+391                         int by = Integer.parseInt(val[1]); // 弾のy座標
+392                         int br = Integer.parseInt(val[2]); // 弾の半径
+393                         // 色情報のパース
+394                         Color bc = new Color(Integer.parseInt(val[3])); // 弾の色(円で描画する場合)
+395                         // どちらの弾か
+396                         int bs = Integer.parseInt(val[4]);
+397                         // なんの弾か
+398                         int type = Integer.parseInt(val[5]);
+399                         // 爆発の段階
+400                         int se = Integer.parseInt(val[6]);
+401                         // 爆発アニメーションのフレーム
+402                         int af = Integer.parseInt(val[7]);
+403 
+404                         // 受信専用のBulletを作る
+405 
+406                         if (type == 0) { // 通常の弾
+407                             bullets.add(new Bullet(bx, by, br, bc, bs, se, af));
+408                         } else if (type == 1) { // 曲線弾
+409                             bullets.add(new CurveBullet(bx, by, br, bc, bs, se, af));
+410                         } else if (type == 2) { // 斜め上弾
+411                             bullets.add(new UpDiagonalBullet(bx, by, br, bc, bs, se, af));
+412                         } else if (type == 3) { // 斜め下弾
+413                             bullets.add(new DownDiagonalBullet(bx, by, br, bc, bs, se, af));
+414                         }
+415                     }
+416                 }
+417             }
+418 
+419             // 3. Gimmick情報
+420             gimmicks.clear();
+421             if (!sections[2].isEmpty()) {
+422                 String[] gList = sections[2].split(";");
+423                 for (String gStr : gList) {
+424                     if (gStr.isEmpty())
+425                         continue;
+426                     String[] val = gStr.split(",");
+427                     if (val.length >= 6) {
+428                         int gx = Integer.parseInt(val[0]); // ギミックのx座標
+429                         int gy = Integer.parseInt(val[1]); // ギミックのy座標
+430                         int gr = Integer.parseInt(val[2]); // ギミックの半径
+431                         // 色情報のパース(円で描画する場合)
+432                         Color gc = new Color(Integer.parseInt(val[3]));
+433                         // 表示されてからの経過時間
+434                         int gt = Integer.parseInt(val[4]);
+435                         // ギミックの種類
+436                         int gty = Integer.parseInt(val[5]);
+437 
+438                         // 受信専用のGimmickを作る
+439                         gimmicks.add(new Gimmick(gx, gy, gr, gc, gt, gty));
+440                     }
+441                 }
+442             }
+443 
+444         } catch (Exception e) {
+445             e.printStackTrace();
+446         }
+447     }
+448 
+449     // クライアントからサーバーへ入力情報を送信
+450     public void sendClientInput(boolean isShooting, int bulletType) {
+451         if (!server) {
+452             // "x y isShooting"
+453             cl.send("Data:" + player2.getX() + " " + player2.getY() + " " + isShooting + " " + bulletType);
+454         }
+455     }
+456 
+457     // 終了通知
+458     public void gameEnd() {
+459         setChanged();
+460         notifyObservers();
+461     }
+462 
+463     public boolean isServer() {
+464         return server;
+465     }
+466 
+467     public boolean getIsRunning() {
+468         return this.isRunning;
+469     }
+470 
+471     public void draw(Graphics g) {
+472 
+473         g.drawRect(0, 0, court_size_x, court_size_y);
+474         player1.draw(g);
+475         player2.draw(g);
+476 
+477         for (Bullet b : bullets) { // すべての弾の描画
+478             b.draw(g);
+479         }
+480 
+481         for (Gimmick gm : gimmicks) { // すべてのギミックの描画
+482             gm.draw(g);
+483         }
+484     }
+485 }
+\end{verbatim}
+\end{small}
+\subsection{ShootingView.java}
+\begin{small}
+\begin{verbatim}
+  1 import javax.imageio.ImageIO;
+  2 import javax.swing.*;
+  3 import java.awt.*;
+  4 import java.awt.event.*;
+  5 import java.io.File;
+  6 import java.io.IOException;
+  7 import java.util.ArrayList;
+  8 import java.util.Observable;
+  9 import java.util.Observer;
+ 10 
+ 11 @SuppressWarnings("deprecation")
+ 12 public class ShootingView extends StarAnimPanel implements Runnable, KeyListener, Observer {
+ 13     private int shakeX, shakeY;
+ 14     private double shakeAngle = 0;
+ 15     private int offset = 8;
+ 16     private MoveManager manager;
+ 17     private Thread gameThread;
+ 18     private long beforeShootTime;
+ 19     private long nowTime, startedTime, endTime;
+ 20     private Image bgImage;
+ 21     private Font fontLarge;
+ 22     private Font fontSmall;
+ 23     private boolean[] keys = new boolean[256];
+ 24 
+ 25     private static final int WIDTH = 1200;
+ 26     private static final int HEIGHT = 800;
+ 27 
+ 28     public ShootingView(MoveManager manager) {
+ 29         this.manager = manager;
+ 30         manager.addObserver(this);
+ 31         setPreferredSize(new Dimension(WIDTH, HEIGHT));
+ 32         this.starMaxSpeed = 0.3;
+ 33         setBackground(Color.BLACK);
+ 34         setFocusable(true);
+ 35         addKeyListener(this);
+ 36 
+ 37         gameThread = new Thread(this);
+ 38         gameThread.start();
+ 39         startedTime = System.currentTimeMillis();
+ 40         try {
+ 41             bgImage = new ImageIcon(getClass().getResource("/images/GamePanelBG.jpg")).getImage();
+ 42         } catch (Exception e) {
+ 43             System.out.println("画像が見つかりません.");
+ 44         }
+ 45         try {
+ 46             java.io.InputStream fontFile = getClass().getResourceAsStream("/Fonts/DotGothic16-Regular.ttf");
+ 47             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+ 48 
+ 49             fontLarge = baseFont.deriveFont(Font.BOLD, 60f);
+ 50             fontSmall = baseFont.deriveFont(Font.BOLD, 10f);
+ 51 
+ 52             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+ 53             ge.registerFont(baseFont);
+ 54 
+ 55         } catch (Exception e) {
+ 56             // フォールバック（失敗しても落ちない）
+ 57             fontLarge = new Font("Monospaced", Font.BOLD, 200);
+ 58             fontSmall = new Font("Monospaced", Font.BOLD, 10);
+ 59         }
+ 60     }
+ 61 
+ 62     @Override
+ 63     public void run() {
+ 64         System.out.println("ゲームループ開始"); // ★デバッグ用
+ 65         long error = 0;
+ 66         int fps = 60;
+ 67         long idealSleep = 1000 / fps; // 約16ms
+ 68         long oldTime;
+ 69         long newTime = System.currentTimeMillis();
+ 70         while (getpassedEndTime() > 2000) {
+ 71             oldTime = newTime;
+ 72             try {
+ 73                 processInput();
+ 74 
+ 75                 // ここで通信待ちが発生するが、以下の計算でその分スリープを削る
+ 76                 manager.update();
+ 77                 repaint();
+ 78 
+ 79                 newTime = System.currentTimeMillis();
+ 80                 long processTime = newTime - oldTime; // 処理にかかった時間
+ 81                 long sleepTime = idealSleep - processTime; // 理想の時間から処理時間を引く
+ 82 
+ 83                 if (sleepTime < 2) {
+ 84                     sleepTime = 2; // 最低でも2msは休ませてCPU負荷を下げる
+ 85                 }
+ 86                 Thread.sleep(sleepTime);
+ 87             } catch (Exception e) {
+ 88                 e.printStackTrace();
+ 89             }
+ 90         }
+ 91 
+ 92     }
+ 93 
+ 94     private void processInput() {
+ 95         if (manager.isServer()) {
+ 96             if (keys[KeyEvent.VK_LEFT])
+ 97                 manager.player1.moveLeft();
+ 98             if (keys[KeyEvent.VK_RIGHT])
+ 99                 manager.player1.moveRight();
+100             if (keys[KeyEvent.VK_UP])
+101                 manager.player1.moveUp();
+102             if (keys[KeyEvent.VK_DOWN])
+103                 manager.player1.moveDown();
+104             if (keys[KeyEvent.VK_SPACE]) {
+105                 long currentTime = System.currentTimeMillis();
+106                 if (currentTime - beforeShootTime > 500) {
+107                     manager.bullets.addAll(manager.player1.tryShoot(0));
+108                     beforeShootTime = System.currentTimeMillis();
+109                 }
+110             }
+111             if (keys[KeyEvent.VK_Z]) {
+112                 long currentTime = System.currentTimeMillis();
+113                 if (currentTime - beforeShootTime > 300) {
+114                     manager.bullets.addAll(manager.player1.tryShoot(1));
+115                     beforeShootTime = System.currentTimeMillis();
+116                 }
+117             }
+118             if (keys[KeyEvent.VK_X]) {
+119                 long currentTime = System.currentTimeMillis();
+120                 if (currentTime - beforeShootTime > 300) {
+121                     manager.bullets.addAll(manager.player1.tryShoot(2));
+122                     beforeShootTime = System.currentTimeMillis();
+123                 }
+124             }
+125             // Serverの発射処理はここに実装
+126             // currentTimeに現在時刻を代入
+127             // beforeShootTimeとの差を計算して発射クールダウンを設定
+128 
+129         } else {
+130             // Client
+131             if (keys[KeyEvent.VK_LEFT])
+132                 manager.player2.moveLeft();
+133             if (keys[KeyEvent.VK_RIGHT])
+134                 manager.player2.moveRight();
+135             if (keys[KeyEvent.VK_UP])
+136                 manager.player2.moveUp();
+137             if (keys[KeyEvent.VK_DOWN])
+138                 manager.player2.moveDown();
+139             // ★重要: クライアントは「受信」する前に「送信」すること！
+140             // そうしないと、サーバー(受信待ち)とクライアント(受信待ち)で睨み合いになる
+141             boolean isShooting = false;
+142             int bulletType = 0;
+143             if (keys[KeyEvent.VK_SPACE]) {
+144                 long currentTime = System.currentTimeMillis();
+145                 if (currentTime - beforeShootTime > 500) {
+146                     isShooting = true;
+147                     bulletType = 0;
+148                     beforeShootTime = System.currentTimeMillis();
+149                 }
+150             }
+151             if (keys[KeyEvent.VK_Z]) {
+152                 long currentTime = System.currentTimeMillis();
+153                 if (currentTime - beforeShootTime > 300) {
+154                     isShooting = true;
+155                     bulletType = 1;
+156                     beforeShootTime = System.currentTimeMillis();
+157                 }
+158             }
+159             if (keys[KeyEvent.VK_X]) {
+160                 long currentTime = System.currentTimeMillis();
+161                 if (currentTime - beforeShootTime > 300) {
+162                     isShooting = true;
+163                     bulletType = 2;
+164                     beforeShootTime = System.currentTimeMillis();
+165                 }
+166             }
+167             manager.sendClientInput(isShooting, bulletType);
+168             // Client側では球が発射されたかとどの球が発射されたかは別フラグで管理
+169         }
+170     }
+171 
+172     @Override
+173     protected void paintComponent(Graphics g) {
+174 
+175         super.paintComponent(g);
+176         Graphics2D g2 = (Graphics2D) g;
+177 
+178         if (manager != null) {
+179             g2.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+180             // 以下で画面の揺れ方を設定
+181             if (manager.getPlayer().getShakeTime() > 0) {
+182                 shakeX = (int) (Math.cos(shakeAngle) * 30);
+183                 shakeY = (int) (Math.sin(shakeAngle) * 30);
+184                 shakeAngle += 1.0;// 揺れ方は三角関数に従う
+185                 manager.getPlayer().passShakeTime();// Player側ではhit時にShakeTimeを設定
+186                 g2.setColor(new Color(255, 0, 0, 80)); // 半透明赤の長方形を置いて画面を赤く
+187                 g2.fillRect(0, 0, getWidth(), getHeight());
+188             } else {
+189                 shakeX = 0;
+190                 shakeY = 0;
+191             }
+192             g2.translate(shakeX, shakeY);// 画面の原点座標をずらす
+193             manager.draw(g2);
+194             drawUI(g2);
+195 
+196             nowTime = System.currentTimeMillis();
+197             if (nowTime - startedTime < 800) {
+198                 drawStart(g2);// ゲームスタート直後はGameStartの文字を描画
+199             }
+200             if (manager.isRunning == false) {
+201                 drawGameset(g2);// ゲーム終了後はGamesetの文字を描画
+202                                 // ゲーム終了後一定時間したらこのスレッドは描画されなくなるので描画終了時刻は考えなくてよい
+203             }
+204         }
+205 
+206         g2.translate(-1 * shakeX, -1 * shakeY);// 画面揺れのずれをもとに戻す
+207     }
+208 
+209     // UI描画（NetworkShooterから移植）
+210     private void drawUI(Graphics g) {
+211         // Player1 (Server) のステータス
+212         drawPlayerStatus(g, manager.player1, 20, HEIGHT - 80);
+213 
+214         // Player2 (Client) のステータス
+215         drawPlayerStatus(g, manager.player2, 980, 30);
+216     }
+217 
+218     // GameStartの文字の描画
+219     private void drawStart(Graphics g) {
+220         // フォントの登録
+221         if (fontLarge != null) {
+222             g.setFont(fontLarge);
+223         }
+224         String text = "START";
+225         FontMetrics fm = g.getFontMetrics();
+226 
+227         // 「手前の緑色のエリア」の中心を計算
+228         // 左端(pad) + 傾き半分(skew/2) + 幅半分(shapeW/2)
+229         float centerX = 600;
+230         float centerY = 400;
+231 
+232         int textX = (int) (centerX - fm.stringWidth(text) / 2);
+233         int textY = (int) (centerY - fm.getAscent() / 2) + fm.getAscent() - offset;
+234         // フォントサイズを計算して画面の真ん中に文字が来るように
+235         g.setColor(Color.RED);
+236         g.drawString(text, textX, textY);
+237     }
+238 
+239     private void drawGameset(Graphics g) {
+240         // フォントの登録
+241         if (fontLarge != null) {
+242             g.setFont(fontLarge);
+243         }
+244         String text = "GAMESET";
+245         FontMetrics fm = g.getFontMetrics();
+246 
+247         // 「手前の緑色のエリア」の中心を計算
+248         // 左端(pad) + 傾き半分(skew/2) + 幅半分(shapeW/2)
+249         float centerX = 600;
+250         float centerY = 400;
+251 
+252         int textX = (int) (centerX - fm.stringWidth(text) / 2);
+253         int textY = (int) (centerY - fm.getAscent() / 2) + fm.getAscent() - offset;
+254         // フォントサイズを計算して画面の真ん中に文字が来るように
+255         g.setColor(Color.RED);
+256         g.drawString(text, textX, textY);
+257     }
+258 
+259     private void drawPlayerStatus(Graphics g, Player p, int x, int y) {
+260 
+261         g.setColor(Color.WHITE);
+262 
+263         if (fontSmall != null) {
+264             g.setFont(fontSmall);
+265         }
+266         // HPバー
+267         g.drawString("HP: " + p.getHp(), x, y);
+268         g.setColor(Color.GRAY);
+269         g.fillRect(x + 50, y - 10, 200, 10);
+270 
+271         g.setColor(Color.GREEN); // とりあえず緑
+272         // Playerクラスに getMaxHp() があると仮定して割合計算
+273         // int hpWidth = (int)((p.getHp() / (double)p.getMaxHp()) * 200);
+274         int hpWidth = p.getHp() * 20; // 仮計算
+275         if (hpWidth < 0)
+276             hpWidth = 0;
+277 
+278         g.fillRect(x + 50, y - 10, hpWidth, 10);
+279         g.setColor(Color.WHITE);
+280         g.drawRect(x + 50, y - 10, 200, 10);
+281     }
+282 
+283     public long getpassedEndTime() {
+284         nowTime = System.currentTimeMillis();
+285         return this.nowTime - endTime;
+286     }
+287 
+288     @Override
+289     public void keyPressed(KeyEvent e) {
+290         System.out.println("キーが押されました: " + e.getKeyCode()); // ★デバッグ用
+291         if (e.getKeyCode() < keys.length)
+292             keys[e.getKeyCode()] = true;
+293     }
+294 
+295     @Override
+296     public void keyReleased(KeyEvent e) {
+297         if (e.getKeyCode() < keys.length)
+298             keys[e.getKeyCode()] = false;
+299     }
+300 
+301     @Override
+302     public void keyTyped(KeyEvent e) {
+303     }
+304 
+305     @Override
+306     public void update(Observable o, Object arg) {
+307         System.out.println("ゲームが終了しました");
+308         endTime = System.currentTimeMillis();
+309 
+310         // stage変数を通じてStageクラスのメソッドやフィールドにアクセスできるようにする
+311 
+312     }
+313 }
+\end{verbatim}
+\end{small}
+\subsection{StartPanel.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.*;
+  2 import java.awt.event.*;
+  3 import javax.swing.*;
+  4 import java.io.IOException;
+  5 import java.awt.geom.Path2D;
+  6 
+  7 public class StartPanel extends JPanel implements ActionListener {
+  8     private CustomButton serverBtn;
+  9     private CustomButton clientBtn;
+ 10     private CustomButton exitBtn;
+ 11     private BackGroundPanel bgPanel;
+ 12     private GameFrame f;
+ 13 
+ 14     // Null Pointer Exception回避のため、引数にGameFrameを指定
+ 15     public StartPanel(GameFrame f) {
+ 16         this.f = f;
+ 17         Font pixelFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 40f);
+ 18         // --- 1. レイアウト設定 ---
+ 19         this.setLayout(new BorderLayout());
+ 20         // --- 2. 構成要素 ---
+ 21         bgPanel = new BackGroundPanel("/images/start_image.jpg", "/images/start_image_flashed.jpg");
+ 22         bgPanel.setLayout(new GridBagLayout());
+ 23         GridBagConstraints gbc = new GridBagConstraints();
+ 24         JLabel title = new JLabel(new ImageIcon(getClass().getResource("/images/title_image_transparent.png")));
+ 25         JPanel btnPanel = new JPanel(new GridLayout(3, 1, 0, 20));
+ 26         serverBtn = new CustomButton("CREATE", pixelFont);
+ 27         clientBtn = new CustomButton("JOIN", pixelFont);
+ 28         exitBtn = new CustomButton("EXIT", pixelFont);
+ 29         JLabel credit = new JLabel("SE, 一部BGM: 魔王魂様");
+ 30         // --- 3. 装飾 ----
+ 31         btnPanel.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 50));
+ 32         btnPanel.setOpaque(false); // ボタンはデフォルトだと背景が不透明(Opaque)
+ 33         credit.setForeground(Color.ORANGE);
+ 34         credit.setFont(pixelFont.deriveFont(12f));
+ 35         serverBtn.setAction(isHover -> bgPanel.flashImage(isHover));
+ 36         serverBtn.setSound(f);
+ 37         clientBtn.setAction(isHover -> bgPanel.flashImage(isHover));
+ 38         clientBtn.setSound(f);
+ 39         exitBtn.setAction(isHover -> bgPanel.flashImage(isHover));
+ 40         exitBtn.setSound(f);
+ 41         // ---- 3.1. ボタンのサイズを調整 ----
+ 42         Dimension btnSize = new Dimension(400, 100);
+ 43         serverBtn.setPreferredSize(btnSize);
+ 44         clientBtn.setPreferredSize(btnSize);
+ 45         exitBtn.setPreferredSize(btnSize);
+ 46         // ---- 3.2. タイトル部分の設定 ----
+ 47         gbc.gridx = 0;
+ 48         gbc.gridy = 0;
+ 49         gbc.weightx = 1.0;
+ 50         gbc.weighty = 0.8; // 上部の空き・画像スペースの比率（大きくすると下に押し下げられる）
+ 51         gbc.anchor = GridBagConstraints.CENTER;
+ 52         bgPanel.add(title, gbc);
+ 53         // ---- 3.3. ボタン部分の設定 ----
+ 54         gbc.gridy = 1;
+ 55         gbc.weighty = 0.4; // 下部のボタンエリアの比率
+ 56         gbc.anchor = GridBagConstraints.CENTER;
+ 57         bgPanel.add(btnPanel, gbc);
+ 58         // ---- 3.4. クレジット部分の設定 ----
+ 59         gbc.anchor = GridBagConstraints.SOUTHEAST;
+ 60         bgPanel.add(credit, gbc);
+ 61         // --- 4. リスナーの登録 ---
+ 62         serverBtn.addActionListener(this);
+ 63         clientBtn.addActionListener(this);
+ 64         exitBtn.addActionListener(this);
+ 65         // --- 5. 構成要素を載せる ---
+ 66         this.add(bgPanel);
+ 67         btnPanel.add(serverBtn);
+ 68         btnPanel.add(clientBtn);
+ 69         btnPanel.add(exitBtn);
+ 70     }
+ 71 
+ 72     @Override
+ 73     public void actionPerformed(ActionEvent e) {
+ 74         if (e.getSource() == serverBtn) {
+ 75             f.playSE("music/go.wav", 1);
+ 76             f.stopBGM();
+ 77             f.playBGM("music/waiting.wav", 0.3f);
+ 78             f.showCard("SERVER");
+ 79         } else if (e.getSource() == clientBtn) {
+ 80             f.playSE("music/go.wav", 1);
+ 81             f.stopBGM();
+ 82             f.playBGM("music/waiting.wav", 0.3f);
+ 83             f.showCard("CLIENT");
+ 84         } else if (e.getSource() == exitBtn) {
+ 85             f.playSE("music/back.wav", 1);
+ 86             System.out.println("EXITボタンが選択されました.");
+ 87             f.stopBGM();
+ 88             System.exit(0);
+ 89         }
+ 90     }
+ 91 }
+\end{verbatim}
+\end{small}
+\subsection{ServerPanel.java}
+\begin{small}
+\begin{verbatim}
+1 import java.awt.*;
+  2 import java.awt.event.*;
+  3 import java.net.InetAddress;
+  4 import javax.imageio.ImageIO;
+  5 import javax.swing.*;
+  6 
+  7 public class ServerPanel extends StarAnimPanel implements ActionListener {
+  8     private CustomButton closeBtn;
+  9     private GameFrame f;
+ 10     private boolean isWaiting = false;
+ 11 
+ 12     // 描画用データ保持変数
+ 13     private String displayIP = "取得中...";
+ 14     private String displayPort = "---";
+ 15     private String displayStatus = "INITIALIZING...";
+ 16 
+ 17     // アニメーション用
+ 18     private double radarAngle = 0;
+ 19     private Image bgImage;
+ 20 
+ 21     public ServerPanel(GameFrame f) {
+ 22         super(); // 星のアニメーション開始
+ 23         this.f = f;
+ 24         Font pixelFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 40f);
+ 25 
+ 26         // レイアウト設定
+ 27         this.setLayout(new BorderLayout());
+ 28 
+ 29         try {
+ 30             bgImage = new ImageIcon(getClass().getResource("/images/server-clientpanel.png")).getImage();
+ 31         } catch (Exception e) {
+ 32             System.out.println("背景画像が見つかりません: " + e.getMessage());
+ 33         }
+ 34 
+ 35         //　構成要素
+ 36         JPanel bottomPanel = new JPanel();
+ 37         bottomPanel.setOpaque(false);
+ 38 
+ 39         closeBtn = new CustomButton("CANCEL", pixelFont); // "戻る" -> 英語表記に変更（機能は同じ）
+ 40         closeBtn.setPreferredSize(new Dimension(300, 100));
+ 41         closeBtn.setSound(f);
+ 42         bottomPanel.add(closeBtn);
+ 43         bottomPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 40, 0)); // 下に余白
+ 44         this.add(bottomPanel, BorderLayout.SOUTH);
+ 45 
+ 46         // リスナーの登録
+ 47         closeBtn.addActionListener(this);
+ 48 
+ 49         //　画面表示時のイベント
+ 50         this.addComponentListener(new java.awt.event.ComponentAdapter() {
+ 51             @Override
+ 52             public void componentShown(java.awt.event.ComponentEvent e) {
+ 53                 serverWait();
+ 54             }
+ 55         });
+ 56     }
+ 57 
+ 58     // サーバー待機ロジック
+ 59     public void serverWait() {
+ 60         if (isWaiting) return;
+ 61         isWaiting = true;
+ 62 
+ 63         // ランダムポート番号設定
+ 64         int port = (int) (Math.random() * 64511) + 1024;
+ 65 
+ 66         this.displayPort = String.valueOf(port);
+ 67         this.displayStatus = "WAITING FOR CONNECTION...";
+ 68 
+ 69         // 自分のIPアドレスを取得
+ 70         String myIP = "UNKNOWN";
+ 71         try {
+ 72             myIP = InetAddress.getLocalHost().getHostAddress();
+ 73         } catch (Exception e) {
+ 74             e.printStackTrace();
+ 75         }
+ 76         this.displayIP = myIP;
+ 77 
+ 78         // 別スレッドで接続待ちを開始　
+ 79         new Thread(() -> {
+ 80             try {
+ 81                 // Commサーバーをインスタンス化
+ 82                 CommServer sv = new CommServer(port);
+ 83                 f.setCommSV(sv);
+ 84 
+ 85                 System.out.println("接続に成功しました");
+ 86 
+ 87                 // 状態更新
+ 88                 displayStatus = "CONNECTION ESTABLISHED!";
+ 89                 repaint();
+ 90 
+ 91                 // 接続成功後、ゲームを実行
+ 92                 SwingUtilities.invokeLater(() -> {
+ 93                     f.startGame(true, sv);
+ 94                     isWaiting = false;
+ 95                 });
+ 96             } catch (Exception e){      // エラー処理
+ 97                 e.printStackTrace();
+ 98                 isWaiting = false;
+ 99                 SwingUtilities.invokeLater(() -> {
+100                     displayStatus = "CONNECTION ERROR";
+101                     repaint();
+102                 });
+103             }
+104         }).start();     // Threadの起動
+105     }
+106 
+107     // 描画処理
+108     @Override
+109     protected void paintComponent(Graphics g) {
+110         super.paintComponent(g);
+111         Graphics2D g2d = (Graphics2D) g;
+112         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+113 
+114         if (bgImage != null) {
+115             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f));
+116             g2d.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+117             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+118         }
+119 
+120         int cx = getWidth() / 2;
+121         int cy = getHeight() / 2 - 30;
+122         int r = 130;
+123 
+124         // レーダー円
+125         g2d.setColor(new Color(0, 255, 100, 100));
+126         g2d.setStroke(new BasicStroke(2));
+127         g2d.drawOval(cx - r, cy - r, r * 2, r * 2);
+128         g2d.drawOval(cx - r/2, cy - r/2, r, r);
+129         g2d.drawLine(cx - r, cy, cx + r, cy);
+130         g2d.drawLine(cx, cy - r, cx, cy + r);
+131 
+132         // 走査線
+133         if (isWaiting) {
+134             int lx = cx + (int)(r * Math.cos(radarAngle));
+135             int ly = cy + (int)(r * Math.sin(radarAngle));
+136             GradientPaint gp = new GradientPaint(cx, cy, new Color(0, 255, 100, 0), lx, ly, new Color(0, 255, 100, 180));
+137             g2d.setPaint(gp);
+138             g2d.fillArc(cx - r, cy - r, r * 2, r * 2, (int)Math.toDegrees(-radarAngle), 60);
+139         }
+140 
+141         // 情報テキスト描画
+142         g2d.setColor(Color.WHITE);
+143 
+144         // ステータス
+145         g2d.setFont(new Font("SansSerif", Font.BOLD, 24));
+146         drawCenteredString(g2d, displayStatus, cx, cy - r - 30);
+147 
+148         // IPとポート
+149         g2d.setFont(new Font("Monospaced", Font.BOLD, 20));
+150         g2d.setColor(Color.CYAN);
+151         drawCenteredString(g2d, "SERVER IP : " + displayIP, cx, cy + r + 40);
+152         drawCenteredString(g2d, "ROOM ID (PORT) : " + displayPort, cx, cy + r + 70);
+153     }
+154 
+155     private void drawCenteredString(Graphics2D g, String text, int x, int y) {
+156         FontMetrics fm = g.getFontMetrics();
+157         g.drawString(text, x - fm.stringWidth(text) / 2, y);
+158     }
+159 
+160     @Override
+161     public void actionPerformed(ActionEvent e) {
+162         if (e.getSource() == closeBtn) {
+163             // 待機キャンセル等の処理が必要ならここに記述
+164             f.playSE("music/back.wav", 1);
+165             f.showCard("START");
+166             f.stopBGM();
+167             f.playBGM("music/main.wav", 0.3f);
+168         }
+169         // 星のアニメーション用
+170         updateStars();
+171 
+172         // レーダーの回転
+173         radarAngle += 0.05;
+174         if(radarAngle > Math.PI * 2) radarAngle = 0;
+175         repaint();
+176     }
+177 }
+\end{verbatim}
+\end{small}
+\subsection{ClientPanel.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.*;
+  2 import java.awt.event.*;
+  3 import javax.swing.*;
+  4 
+  5 public class ClientPanel extends StarAnimPanel implements ActionListener {
+  6     private CustomButton closeBtn;
+  7     private CustomButton connectBtn;
+  8     private JTextField idField;
+  9     private JTextField ipField;
+ 10     private JLabel statusLbl;
+ 11     private GameFrame f;
+ 12     private Image bgImage;
+ 13 
+ 14     public ClientPanel(GameFrame f) {
+ 15         super(); // 星のアニメーション開始
+ 16         this.f = f;
+ 17         Font pixelFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 40f);
+ 18         Font titleFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 24f);
+ 19         Font statusFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 14f);
+ 20         
+ 21         //　レイアウト設定
+ 22         this.setLayout(new GridBagLayout());
+ 23 
+ 24         try {
+ 25             bgImage = new ImageIcon(getClass().getResource("/images/server-clientpanel.png")).getImage();
+ 26         } catch (Exception e) {
+ 27             System.out.println("背景画像が見つかりません: " + e.getMessage());
+ 28         }
+ 29 
+ 30         // コックピット風パネル
+ 31         JPanel consolePanel = new JPanel();
+ 32         consolePanel.setLayout(new GridBagLayout());
+ 33         consolePanel.setOpaque(false);
+ 34         // 背景に半透明の枠を描く
+ 35         consolePanel.setBorder(BorderFactory.createCompoundBorder(
+ 36             BorderFactory.createLineBorder(new Color(0, 200, 255), 2),
+ 37             BorderFactory.createEmptyBorder(20, 20, 20, 20)
+ 38         ));
+ 39         consolePanel.setBackground(new Color(0, 0, 30, 200)); // 半透明黒
+ 40 
+ 41         //　構成要素の作成とデザイン
+ 42         JLabel titleLabel = new JLabel("ESTABLISH CONNECTION");
+ 43         titleLabel.setForeground(Color.CYAN);
+ 44         titleLabel.setFont(titleFont);
+ 45 
+ 46         JLabel ipLabel = new JLabel("TARGET IP:");
+ 47         ipLabel.setForeground(Color.WHITE);
+ 48         titleLabel.setFont(pixelFont);
+ 49         
+ 50         JLabel idLabel = new JLabel("ROOM ID (PORT):");
+ 51         idLabel.setForeground(Color.WHITE);
+ 52         titleLabel.setFont(pixelFont);
+ 53 
+ 54         // テキストフィールドのカスタムデザイン
+ 55         ipField = createCustomTextField("localhost");
+ 56         idField = createCustomTextField("");
+ 57 
+ 58         statusLbl = new JLabel("READY", JLabel.CENTER);
+ 59         statusLbl.setForeground(Color.GRAY);
+ 60         statusLbl.setFont(statusFont);
+ 61         statusLbl.setPreferredSize(new Dimension(300, 30));
+ 62 
+ 63         connectBtn = new CustomButton("CONNECT", titleFont);
+ 64         connectBtn.setPreferredSize(new Dimension(200, 75));
+ 65         closeBtn = new CustomButton("BACK", titleFont);
+ 66         closeBtn.setPreferredSize(new Dimension(200, 75));
+ 67 
+ 68         connectBtn.setSound(f);
+ 69         closeBtn.setSound(f);
+ 70         // リスナーの登録 
+ 71         connectBtn.addActionListener(this);
+ 72         closeBtn.addActionListener(this);
+ 73         idField.addActionListener(this);
+ 74         ipField.addActionListener(this);
+ 75 
+ 76         // レイアウト配置 (GridBag)
+ 77         GridBagConstraints gbc = new GridBagConstraints();
+ 78         gbc.insets = new Insets(10, 10, 10, 10);
+ 79         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+ 80         consolePanel.add(titleLabel, gbc);
+ 81 
+ 82         // IP
+ 83         gbc.gridy++; gbc.gridwidth = 1; gbc.anchor = GridBagConstraints.EAST;
+ 84         consolePanel.add(ipLabel, gbc);
+ 85         gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST;
+ 86         consolePanel.add(ipField, gbc);
+ 87 
+ 88         // ID (PORT)
+ 89         gbc.gridx = 0; gbc.gridy++; gbc.anchor = GridBagConstraints.EAST;
+ 90         consolePanel.add(idLabel, gbc);
+ 91         gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST;
+ 92         consolePanel.add(idField, gbc);
+ 93 
+ 94         // Status
+ 95         gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
+ 96         consolePanel.add(statusLbl, gbc);
+ 97 
+ 98         // Buttons
+ 99         gbc.gridy++;
+100         JPanel btnPanel = new JPanel(new FlowLayout());
+101         btnPanel.setOpaque(false);
+102         btnPanel.add(connectBtn);
+103         btnPanel.add(closeBtn);
+104         consolePanel.add(btnPanel, gbc);
+105 
+106         
+107         JPanel wrapper = new JPanel() {
+108             @Override
+109             protected void paintComponent(Graphics g) {
+110                 g.setColor(new Color(0, 20, 40, 200));
+111                 g.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+112                 super.paintComponent(g);
+113             }
+114         };
+115         wrapper.setOpaque(false);
+116         wrapper.add(consolePanel);
+117         this.add(wrapper);
+118 
+119         // 画面が表示されるたびに状態をリセット
+120         this.addComponentListener(new java.awt.event.ComponentAdapter() {
+121             @Override
+122             public void componentShown(java.awt.event.ComponentEvent e) {
+123                 statusLbl.setText("READY");
+124                 statusLbl.setForeground(Color.GREEN);
+125                 connectBtn.setEnabled(true);
+126                 idField.setText("");
+127                 idField.requestFocus();
+128             }
+129         });
+130     }
+131 
+132     // デザイン用ヘルパーメソッド
+133     private JTextField createCustomTextField(String text) {
+134         JTextField tf = new JTextField(text, 12);
+135         tf.setBackground(Color.BLACK);
+136         tf.setForeground(Color.GREEN);
+137         tf.setCaretColor(Color.GREEN);
+138         tf.setFont(new Font("Monospaced", Font.BOLD, 18));
+139         tf.setBorder(BorderFactory.createCompoundBorder(
+140             BorderFactory.createLineBorder(Color.DARK_GRAY, 1),
+141             BorderFactory.createEmptyBorder(5, 5, 5, 5)
+142         ));
+143         return tf;
+144     }
+145 
+146     @Override
+147     public void actionPerformed(ActionEvent e) {
+148         super.actionPerformed(e);
+149 
+150         if (e.getSource() == closeBtn) {
+151             f.playSE("music/back.wav", 1);
+152             f.showCard("START");
+153             f.stopBGM();
+154             f.playBGM("music/main.wav", 0.3f);
+155         } else if (e.getSource() == connectBtn || e.getSource() == idField) {    
+156             f.playSE("music/go.wav", 1);
+157             String id = idField.getText();
+158             String ip = ipField.getText();
+159 
+160             // 入力チェック
+161             if (id.isEmpty()) return;
+162             try {
+163                 int port = Integer.parseInt(id);
+164                 connecToServer(ip, port);
+165             } catch (NumberFormatException ex) {
+166                 statusLbl.setText("ERROR: INVALID NUMBER");
+167                 statusLbl.setForeground(Color.RED);
+168             }
+169         }
+170     }
+171 
+172     // クライアント接続ロジック
+173     private void connecToServer(String ip, int port) {
+174         statusLbl.setText("CONNECTING (" + ip + ":" + port + ")...");
+175         statusLbl.setForeground(Color.YELLOW);
+176         connectBtn.setEnabled(false);
+177 
+178         new Thread(() -> {
+179             try {
+180                 // ここでCommClientをインスタンス化
+181                 CommClient cl = new CommClient(ip, port);
+182                 
+183                 System.out.println("接続に成功しました");
+184 
+185                 SwingUtilities.invokeLater(() -> {
+186                     f.startGame(false, cl);
+187                     connectBtn.setEnabled(true);
+188                     statusLbl.setText("CONNECTED!");
+189                     statusLbl.setForeground(Color.GREEN);
+190                 });
+191             } catch (Exception ex) {
+192                 ex.printStackTrace();
+193                 SwingUtilities.invokeLater(() -> {
+194                     statusLbl.setText("CONNECTION FAILED");
+195                     statusLbl.setForeground(Color.RED);
+196                     connectBtn.setEnabled(true);
+197                 });
+198             }
+199         }).start();
+200     }
+201     @Override
+202     protected void paintComponent(Graphics g) {
+203         super.paintComponent(g);
+204         Graphics2D g2d = (Graphics2D) g;
+205 
+206         // 画像があれば半透明で描画
+207         if (bgImage != null) {
+208             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 透明度0.6
+209             g2d.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+210             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f)); // 戻す
+211         }
+212     }
+213 }
+\end{verbatim}
+\end{small}
+\subsection{ResultPanel.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.*;
+  2 import java.awt.event.*;
+  3 import java.awt.geom.Path2D;
+  4 import java.io.IOException;
+  5 import javax.swing.*;
+  6 
+  7 public class ResultPanel extends JPanel implements ActionListener {
+  8     private CustomButton retryButton;
+  9     private CustomButton quitButton;
+ 10     private BackGroundPanel bgPanel;
+ 11     private GameFrame f;
+ 12     private boolean isWin;
+ 13 
+ 14     public ResultPanel(GameFrame f, boolean isWin) {
+ 15         this.f = f;
+ 16         Font pixelFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 40f);
+ 17         Font resFont = FontLoader.loadFont("/Fonts/DotGothic16-Regular.ttf", 80f);
+ 18         this.isWin = isWin;
+ 19 
+ 20         // レイアウト設定
+ 21         this.setLayout(new BorderLayout());
+ 22 
+ 23         // 構成要素
+ 24         bgPanel = new BackGroundPanel("/images/result.png", "/images/resultflashed.png");
+ 25         bgPanel.setLayout(new GridBagLayout()); // 中央寄せ用
+ 26         GridBagConstraints gbc = new GridBagConstraints();
+ 27 
+ 28         // 勝敗表示ラベル
+ 29         String message = isWin ? "YOU WIN!" : "YOU LOSE...";
+ 30         Color textColor = isWin ? new Color(255, 50, 50) : new Color(50, 50, 255); // 勝ちは赤、負けは青
+ 31 
+ 32         JLabel resLabel = new JLabel(message, JLabel.CENTER);
+ 33         resLabel.setFont(resFont);
+ 34         resLabel.setForeground(textColor);
+ 35         
+ 36         // ボタンパネル
+ 37         JPanel btnPanel = new JPanel(new GridLayout(2, 1, 0, 20)); // 縦に並べる
+ 38         retryButton = new CustomButton("RETRY", pixelFont);
+ 39         quitButton = new CustomButton("QUIT", pixelFont);
+ 40 
+ 41         // ボタン設定
+ 42         btnPanel.setOpaque(false);
+ 43         Dimension btnSize = new Dimension(400, 100);
+ 44         retryButton.setPreferredSize(btnSize);
+ 45         quitButton.setPreferredSize(btnSize);
+ 46         retryButton.setAction(isHover -> bgPanel.flashImage(isHover));
+ 47         retryButton.setSound(f);
+ 48         quitButton.setAction(isHover -> bgPanel.flashImage(isHover));
+ 49         quitButton.setSound(f);
+ 50 
+ 51         
+ 52         // 勝敗ラベル
+ 53         gbc.gridx = 0;
+ 54         gbc.gridy = 0;
+ 55         gbc.weightx = 1.0;
+ 56         gbc.weighty = 0.6; 
+ 57         gbc.anchor = GridBagConstraints.CENTER;
+ 58         gbc.insets = new Insets(0, 0, 0, 0);
+ 59         bgPanel.add(resLabel, gbc);
+ 60 
+ 61         // ボタンエリア
+ 62         gbc.gridy = 1;
+ 63         gbc.weighty = 0.4; 
+ 64         gbc.anchor = GridBagConstraints.NORTH;
+ 65         bgPanel.add(btnPanel, gbc);
+ 66 
+ 67         // リスナー登録
+ 68         retryButton.addActionListener(this);
+ 69         quitButton.addActionListener(this);
+ 70 
+ 71         // パネルに追加
+ 72         btnPanel.add(retryButton);
+ 73         btnPanel.add(quitButton);
+ 74         this.add(bgPanel);
+ 75     }
+ 76 
+ 77     @Override
+ 78     public void actionPerformed(ActionEvent e) {
+ 79         // ボタンが押された場合
+ 80         if (e.getSource() == this.retryButton) {
+ 81             f.playSE("music/go.wav", 1);
+ 82             // 連打防止＆状態表示
+ 83             this.retryButton.setEnabled(false);
+ 84             this.quitButton.setEnabled(false);
+ 85             this.retryButton.setText("WAITING...");
+ 86 
+ 87             System.out.println("ゲームをもう一度行います");
+ 88             f.tryRetry();
+ 89         } else if (e.getSource() == this.quitButton) {
+ 90             f.playSE("music/back.wav", 1);
+ 91             System.out.println("ゲームを終了します");
+ 92             f.sendMessage("QUIT");  //  backToStart()内に記述すると、リトライ失敗後にbackToStart()するので余計なメッセージ送信をしてしまう
+ 93             f.backToStart();
+ 94         }
+ 95         
+ 96     }
+ 97 }
+\end{verbatim}
+\end{small}
+\subsection{Design.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.*;
+  2 import java.awt.event.*;
+  3 import javax.swing.*;
+  4 import java.io.IOException;
+  5 import java.util.function.Consumer;
+  6 import java.awt.geom.Path2D;
+  7 
+  8 public interface Design {
+  9     default void flashImage(boolean isflashed) {};
+ 10     default void setSound(GameFrame f) {};
+ 11     default void setAction(java.util.function.Consumer<Boolean> action) {};
+ 12 }
+ 13 
+ 14 //  ---  背  景  装  飾  ---
+ 15 
+ 16 class BackGroundPanel extends StarAnimPanel implements Design {
+ 17     private Image bgImage_original;
+ 18     private Image bgImage_flashed;
+ 19     private boolean isFlashed;
+ 20     public BackGroundPanel(String ori_path, String flash_path) {
+ 21         this.starMaxSize = 12.0f;
+ 22         this.starMaxBrightness = 300;
+ 23         try {
+ 24             bgImage_original = new ImageIcon(getClass().getResource(ori_path)).getImage();
+ 25             bgImage_flashed = new ImageIcon(getClass().getResource(flash_path)).getImage();
+ 26         } catch (Exception e) {
+ 27             System.out.println("画像が見つかりません.");
+ 28         }
+ 29     }
+ 30 
+ 31     //  外部からの呼び出し関数
+ 32     @Override
+ 33     public void flashImage(boolean isFlashed) {
+ 34         this.isFlashed = isFlashed;
+ 35         if (isFlashed) {
+ 36             starMaxSpeed = 0.1f;
+ 37         } else {
+ 38             starMaxSpeed = 1f;
+ 39         }
+ 40         repaint();
+ 41     }
+ 42 
+ 43     @Override
+ 44     protected void paintComponent(Graphics g) {
+ 45         super.paintComponent(g);
+ 46         Graphics2D g2d = (Graphics2D) g;
+ 47         //  --- メイン背景を描画 ---
+ 48         Image bgImage = isFlashed ? bgImage_flashed : bgImage_original;
+ 49         if (bgImage != null) {
+ 50             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER /*重ね塗りモード */, 0.7f));    //  透化処理
+ 51             g2d.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+ 52             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));    //  透化リセット
+ 53         }
+ 54     }
+ 55 }
+ 56 
+ 57 //  ---  ボ  タ  ン  装  飾  ---
+ 58 
+ 59 class CustomButton extends JButton implements Design {
+ 60     //  ActionPerformedの処理を入れる配列
+ 61     private Consumer<Boolean> actionBox;
+ 62     private GameFrame f;
+ 63 
+ 64     //  調整用パラメータ
+ 65     private int offset = 8;         // 枠のずれ幅
+ 66     private Color lineColor = new Color(147, 234, 237, 100); // 線の色
+ 67     private Color shadowColor = new Color(36, 46, 133, 220); // 影の色
+ 68     private float strokeWidth = 2.5f; // 線の太さ
+ 69     private boolean isHover = false; 
+ 70 
+ 71     public CustomButton(String text, Font font) {
+ 72         super(text);
+ 73         this.setFont(font);
+ 74         //  標準のボタンの見た目をオフにする設定
+ 75         setContentAreaFilled(false);   // 背景の塗りつぶし
+ 76         setBorderPainted(false);       // 標準の枠線
+ 77         setFocusPainted(false);        // フォーカス時の枠線
+ 78         setOpaque(false);       // ボタンの背景を透かす
+ 79 
+ 80         //  ホバー時の設定(リスナーの登録と処理の記述を一括)(paintComponent内でフラグの値によって色が決まる)
+ 81         this.addMouseListener(new MouseAdapter() {
+ 82             // hover
+ 83             @Override
+ 84             public void mouseEntered(MouseEvent e) {
+ 85                 isHover = true;
+ 86                 f.playSE("music/hover.wav", 1);
+ 87                 if (actionBox != null) {    //  bgPanelを使っていない場合の処理
+ 88                     actionBox.accept(true);
+ 89                 }
+ 90                 repaint();
+ 91             }
+ 92             // leave
+ 93             @Override
+ 94             public void mouseExited(MouseEvent e) {
+ 95                 isHover = false;
+ 96                 if (actionBox != null) {
+ 97                     actionBox.accept(false);
+ 98                 }
+ 99                 repaint();
+100             }
+101         });
+102     }
+103 
+104     // --------------- 実際の描画 ----------------
+105     @Override
+106     protected void paintComponent(Graphics g) {
+107         //  --- 1. 準備 ---
+108         Graphics2D g2d = (Graphics2D) g.create();   //  小数点(float, double)を使えるような描画設定をコピー
+109 
+110             // ---- 1.1  ア  ン  チ  エ  イ  リ  ア  ス（線を滑らかにする設定） ----
+111         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+112         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+113 
+114         int w = getWidth();
+115         int h = getHeight();
+116 
+117             // ---- 1.2  実  際  に  描  画  で  き  る  領  域  の  計  算  （線の太さ分少し内側にする） ----
+118         int pad = (int)strokeWidth;     //  線の幅は座標を中心に両側に広がる
+119         int skew = w / 7;
+120         int rectW = w - offset - pad * 2 - offset -skew;
+121         int rectH = h - offset - pad * 2 - offset;
+122 
+123             // ---- 1.3  共  通  の  サ  イ  ズ  を  計  算  す  る  ----
+124         float shapeW = rectW - offset;
+125         float shapeH = rectH - offset;
+126             // ---- 1.4  ホ  バ  ー  時  の  色  の  変  換  ----
+127         Color currentLineColor = !isHover ? lineColor : shadowColor;
+128         Color currentShadowColor = !isHover ? shadowColor : lineColor;
+129             //  ---- 1.5  フ  ォ  ン  ト  の  読  み  込  み  ----
+130         if (getFont() != null) {
+131             g2d.setFont(getFont());
+132         }
+133 
+134         // --- 2. 影  の  描  画  (座標を +offset するだけ)  ---
+135         Path2D.Float p = new Path2D.Float();
+136         p.moveTo(skew + offset, offset);            // 左上
+137         p.lineTo(skew + shapeW + offset, offset);   // 右上
+138         p.lineTo(shapeW + offset, shapeH + offset); // 右下
+139         p.lineTo(offset, shapeH + offset);          // 左下
+140         p.closePath();
+141 
+142         g2d.setColor(currentShadowColor); // 影の色
+143         g2d.fill(p);
+144 
+145         // --- 3.  手  前  の  枠  を  描  く  ---
+146         Path2D.Float q = new Path2D.Float();
+147         q.moveTo(skew, 0);              // 左上
+148         q.lineTo(skew + shapeW, 0);     // 右上
+149         q.lineTo(shapeW, shapeH);   // 右下
+150         q.lineTo(0, shapeH);    // 左下
+151         q.closePath();
+152 
+153         g2d.setColor(currentLineColor); // 手前の色（枠線など）
+154         g2d.fill(q);
+155 
+156         // --- 4. テ  キ  ス  ト  を  描  く  ---
+157         String text = getText();
+158         FontMetrics fm = g2d.getFontMetrics();
+159         
+160         // 「手前の緑色のエリア」の中心を計算
+161         // 左端(pad) + 傾き半分(skew/2) + 幅半分(shapeW/2)
+162         float centerX = pad + skew / 2.0f + (shapeW / 2.0f);
+163         float centerY = pad + shapeH / 2.0f;
+164 
+165         int textX = (int)(centerX - fm.stringWidth(text) / 2);
+166         int textY = (int)(centerY - fm.getAscent() / 2) + fm.getAscent() - offset;
+167         
+168         g2d.setColor(currentShadowColor); // 文字色
+169         g2d.drawString(text, textX, textY);
+170 
+171         g2d.dispose();
+172     }
+173 
+174     //  インターフェースの実装
+175     @Override
+176     public void setSound(GameFrame f) { this.f = f;}
+177     @Override
+178     public void setAction(Consumer<Boolean> action) { this.actionBox = action;}
+179 }
+\end{verbatim}
+\end{small}
+\subsection{Comm.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.net.*;
+  2 import java.io.*;
+  3 
+  4 class CommServer {
+  5     private ServerSocket serverS = null;
+  6     private Socket clientS = null;
+  7     private PrintWriter out = null;
+  8     private BufferedReader in = null;
+  9     private int port = 0;
+ 10 
+ 11     CommServer() {
+ 12     }
+ 13 
+ 14     CommServer(int port) {
+ 15         open(port);
+ 16     }
+ 17 
+ 18     CommServer(CommServer cs) {
+ 19         serverS = cs.getServerSocket();
+ 20         open(cs.getPortNo());
+ 21     }
+ 22 
+ 23     ServerSocket getServerSocket() {
+ 24         return serverS;
+ 25     }
+ 26 
+ 27     int getPortNo() {
+ 28         return port;
+ 29     }
+ 30 
+ 31     // サーバ用のソケット(通信路)のオープン
+ 32     // サーバ用のソケットはクライアントからの接続待ち専用．
+ 33     // ポート番号のみを指定する．
+ 34     boolean open(int port) {
+ 35         this.port = port;
+ 36         try {
+ 37             if (serverS == null) {
+ 38                 serverS = new ServerSocket(port);
+ 39             }
+ 40         } catch (IOException e) {
+ 41             System.err.println("ポートにアクセスできません。");
+ 42             System.exit(1);
+ 43         }
+ 44         try {
+ 45             clientS = serverS.accept();
+ 46             out = new PrintWriter(clientS.getOutputStream(), true);
+ 47             in = new BufferedReader(new InputStreamReader(clientS.getInputStream()));
+ 48         } catch (IOException e) {
+ 49             System.err.println("Acceptに失敗しました。");
+ 50             System.exit(1);
+ 51         }
+ 52         return true;
+ 53     }
+ 54 
+ 55     // データ送信
+ 56     boolean send(String msg) {
+ 57         if (out == null) {
+ 58             return false;
+ 59         }
+ 60         out.println(msg);
+ 61         return true;
+ 62     }
+ 63 
+ 64     // データ受信
+ 65     String recv() {
+ 66         String msg = null;
+ 67         if (in == null) {
+ 68             return null;
+ 69         }
+ 70         try {
+ 71             msg = in.readLine();
+ 72         } catch (SocketTimeoutException e) {
+ 73             System.err.println("タイムアウト．");
+ 74             return null;
+ 75         } catch (IOException e) {
+ 76             System.err.println("受信に失敗しました。");
+ 77             // System.exit(1);
+ 78             return "Retry:QUIT"; // 変更点
+ 79         }
+ 80         return msg;
+ 81     }
+ 82 
+ 83     // タイムアウトの設定
+ 84     int setTimeout(int to) {
+ 85         try {
+ 86             clientS.setSoTimeout(to);
+ 87         } catch (SocketException e) {
+ 88             System.err.println("タイムアウト時間を変更できません．");
+ 89             System.exit(1);
+ 90         }
+ 91         return to;
+ 92     }
+ 93 
+ 94     // ソケットのクローズ (通信終了)
+ 95     void close() {
+ 96         try {
+ 97             in.close();
+ 98             out.close();
+ 99             clientS.close();
+100             serverS.close();
+101         } catch (IOException e) {
+102             System.err.println("ソケットのクローズに失敗しました。");
+103             System.exit(1);
+104         }
+105         in = null;
+106         out = null;
+107         clientS = null;
+108         serverS = null;
+109     }
+110 }
+111 
+112 class CommClient {
+113     Socket clientS = null;
+114     BufferedReader in = null;
+115     PrintWriter out = null;
+116 
+117     CommClient() {
+118     }
+119 
+120     CommClient(String host, int port) throws IOException {
+121         open(host, port);
+122     }
+123 
+124     // クライアントソケット(通信路)のオープン
+125     // 接続先のホスト名とポート番号が必要．
+126     boolean open(String host, int port) throws IOException {
+127         try {
+128             clientS = new Socket(InetAddress.getByName(host), port);
+129             in = new BufferedReader(new InputStreamReader(clientS.getInputStream()));
+130             out = new PrintWriter(clientS.getOutputStream(), true);
+131         } catch (UnknownHostException e) {
+132             System.err.println("ホストに接続できません。");
+133             // System.exit(1);
+134             throw new IOException("ホストが見つかりません: " + host);
+135         } catch (IOException e) {
+136             System.err.println("入力IPアドレスまたはポート番号が同一リンク内に存在しないかブロックされています");
+137             // System.exit(1);
+138             throw e;
+139         }
+140         return true;
+141     }
+142 
+143     // データ送信
+144     boolean send(String msg) {
+145         if (out == null) {
+146             return false;
+147         }
+148         out.println(msg);
+149         return true;
+150     }
+151 
+152     // データ受信
+153     String recv() {
+154         String msg = null;
+155         if (in == null) {
+156             return null;
+157         }
+158         try {
+159             msg = in.readLine();
+160         } catch (SocketTimeoutException e) {
+161             return null;
+162         } catch (IOException e) {
+163             System.err.println("受信に失敗しました。");
+164             // System.exit(1);
+165             return "Retry:QUIT"; // 変更点
+166         }
+167         return msg;
+168     }
+169 
+170     // タイムアウトの設定
+171     int setTimeout(int to) {
+172         try {
+173             clientS.setSoTimeout(to);
+174         } catch (SocketException e) {
+175             System.err.println("タイムアウト時間を変更できません．");
+176             System.exit(1);
+177         }
+178         return to;
+179     }
+180 
+181     // ソケットのクローズ (通信終了)
+182     void close() {
+183         try {
+184             in.close();
+185             out.close();
+186             clientS.close();
+187         } catch (IOException e) {
+188             System.err.println("ソケットのクローズに失敗しました。");
+189             System.exit(1);
+190         }
+191         in = null;
+192         out = null;
+193         clientS = null;
+194     }
+195 }
+\end{verbatim}
+\end{small}
+\subsection{Player.java}
+\begin{small}
+\begin{verbatim}
+  1 import javax.swing.*;
+  2 import java.awt.*;
+  3 import java.util.ArrayList;
+  4 import java.awt.geom.Ellipse2D;
+  5 
+  6 //プレイヤークラス
+  7 class Player {
+  8     private int hp; // 現在の体力
+  9     private int max_hp; // 最大体力
+ 10     private int x; // x座標
+ 11     private int y; // y座標
+ 12     private float speed; // 移動速度
+ 13     private int bounds_x_max; // x座標の最大値(壁)
+ 14     private int bounds_x_min; // x座標の最小値(壁)
+ 15     private int bounds_y; // y座標の最大値(床)
+ 16     private int radius; // 半径
+ 17     private int Shootdir; // プレイヤーの向き(1:サーバー側)
+ 18     private final static int dx = 5; // x方向の移動量
+ 19     private final static int dy = 5; // y方向の移動量
+ 20     private Image img; // プレイヤーの画像
+ 21     private boolean isWin = false; // 勝利フラグ
+ 22     private float shakeTime = 0; // 画面揺れ時間
+ 23     private int biggerbullet = 0; // ギミック効果時に弾の大きさをどれだけ大きくするか
+ 24     private int statePowerup = 0; // パワーアップ状態(0:通常, 1以上:パワーアップ中)
+ 25 
+ 26     // コンストラクタ
+ 27     public Player(int hp, int max_hp, int x, int y, float speed, int bounds_x_min, int bounds_x_max, int bounds_y,
+ 28             int radius, int Shootdir, int biggerbullet, int statePowerup) {
+ 29         this.hp = hp;
+ 30         this.max_hp = max_hp;
+ 31         this.x = x;
+ 32         this.y = y;
+ 33         this.speed = speed;
+ 34         this.bounds_x_max = bounds_x_max;
+ 35         this.bounds_x_min = bounds_x_min;
+ 36         this.bounds_y = bounds_y;
+ 37         this.radius = radius;
+ 38         this.Shootdir = Shootdir;
+ 39         this.biggerbullet = biggerbullet;
+ 40         this.statePowerup = statePowerup;
+ 41 
+ 42         setImg(); // 画像読み込み
+ 43     }
+ 44 
+ 45     // 画像読み込み
+ 46     public void setImg() {
+ 47         if (Shootdir == 1 && statePowerup == 0) { // サーバー側, 通常時
+ 48             this.img = new ImageIcon(getClass().getResource("/images/player1T.png")).getImage();
+ 49         } else if (Shootdir == 1 && statePowerup > 0) { // サーバー側, 弾半径増加時
+ 50             if ((statePowerup / 10) % 2 == 0) { // 効果中2つの画像を切り替える
+ 51                 this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT1.png")).getImage();
+ 52             } else {
+ 53                 this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT2.png")).getImage();
+ 54             }
+ 55         } else if (Shootdir != 1 && statePowerup == 0) { // クライアント側, 通常時
+ 56             this.img = new ImageIcon(getClass().getResource("/images/player2T.png")).getImage();
+ 57         } else if (Shootdir != 1 && statePowerup > 0) { // クライアント側, 弾半径増加時
+ 58             if ((statePowerup / 10) % 2 == 0) { // 効果中2つの画像を切り替える
+ 59                 this.img = new ImageIcon(getClass().getResource("/images/player2PowerupT1.png")).getImage();
+ 60             } else {
+ 61                 this.img = new ImageIcon(getClass().getResource("/images/player2PowerupT2.png")).getImage();
+ 62             }
+ 63         }
+ 64     }
+ 65 
+ 66     // 描画処理
+ 67     public void draw(Graphics g) {
+ 68         // g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius); //円で描画する場合
+ 69         // imgに応じて描画
+ 70         g.drawImage(img, x - radius, y - radius, 2 * radius, 2 * radius, null);
+ 71     }
+ 72 
+ 73     // 上移動
+ 74     public void moveUp() {
+ 75         if ((y - radius) - dy * speed < 0) {
+ 76             y = radius;
+ 77             return;
+ 78         }
+ 79         y -= dy * speed;
+ 80     }
+ 81 
+ 82     // 下移動
+ 83     public void moveDown() {
+ 84         if ((y + radius) + dy * speed > bounds_y) {
+ 85             y = bounds_y - radius;
+ 86             return;
+ 87         }
+ 88         y += dy * speed;
+ 89     }
+ 90 
+ 91     // 左移動
+ 92     public void moveLeft() {
+ 93         if ((x - radius) - dx * speed < bounds_x_min) {
+ 94             x = bounds_x_min + radius;
+ 95             return;
+ 96         }
+ 97         x -= dx * speed;
+ 98     }
+ 99 
+100     // 右移動
+101     public void moveRight() {
+102         if ((x + radius) + dx * speed > bounds_x_max) {
+103             x = bounds_x_max - radius;
+104             return;
+105         }
+106         x += dx * speed;
+107     }
+108 
+109     // ダメージ、画面揺れの時間管理も担当
+110     public int hit(int damage) {
+111         hp -= damage;
+112         shakeTime = 15;
+113         if (hp < 0) {
+114             hp = 0;
+115         }
+116         return hp;
+117     }
+118 
+119     // 回復
+120     public int heal(int amount) {
+121         if (hp + amount > max_hp) {
+122             hp = max_hp;
+123         } else {
+124             hp += amount;
+125         }
+126         return hp;
+127     }
+128 
+129     // 死亡判定
+130     public boolean IsDead() {
+131         return (hp <= 0);
+132     }
+133 
+134     // 勝利判定を返す
+135     public boolean getIsWin() {
+136         return isWin;
+137     }
+138 
+139     // 画面揺れ時間を経過させる
+140     public void passShakeTime() {
+141         this.shakeTime -= 1;
+142     }
+143 
+144     // 弾を発射する
+145     public ArrayList<Bullet> tryShoot(int type) {
+146 
+147         ArrayList<Bullet> newBullets = new ArrayList<>(); // 発射する弾のリスト(呼び出し側で, 元からある配列と結合する)
+148         if (type == 0) {
+149             // 直進弾
+150             GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
+151             newBullets
+152                     .add(new Bullet(this, this.getX(), this.getY(), 4, 15 + this.getBiggerbullet(), 1, Shootdir, null));
+153         } else if (type == 1) {
+154             // 曲線弾
+155             GameFrame.playSE("music/Thunder_Shot.wav", 0.5f);
+156             newBullets.add(
+157                     new CurveBullet(this, this.getX(), this.getY(), 1, 10 + this.getBiggerbullet(), 1, Shootdir, null));
+158         } else if (type == 2) {
+159             // 斜め2方向弾
+160             GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
+161             newBullets.add(new UpDiagonalBullet(this, this.getX(), this.getY(), 2, 15 + this.getBiggerbullet(), 1,
+162                     Shootdir, null));
+163             newBullets.add(new DownDiagonalBullet(this, this.getX(), this.getY(), 2, 15 + this.getBiggerbullet(), 1,
+164                     Shootdir, null));
+165         }
+166         return newBullets;
+167     }
+168 
+169     // getter, setterメソッド
+170     public Shape getBounds() {
+171         return new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2);
+172     }
+173 
+174     public int getHp() {
+175         return hp;
+176     }
+177 
+178     public float getShakeTime() {
+179         return this.shakeTime;
+180     }
+181 
+182     public void setXY(int x, int y) {
+183         this.x = x;
+184         this.y = y;
+185     }
+186 
+187     public void setHP(int hp) {
+188         this.hp = hp;
+189     }
+190 
+191     public int getX() {
+192         return x;
+193     }
+194 
+195     public int getY() {
+196         return y;
+197     }
+198 
+199     public int getRadius() {
+200         return radius;
+201     }
+202 
+203     public int getBiggerbullet() {
+204         return biggerbullet;
+205     }
+206 
+207     public void setBiggerbullet(int biggerbullet) {
+208         this.biggerbullet = biggerbullet;
+209     }
+210 
+211     public int getStatePowerup() {
+212         return statePowerup;
+213     }
+214 
+215     public void setStatePowerup(int statePowerup) {
+216         this.statePowerup = statePowerup;
+217     }
+218 
+219     public void setIsWin(boolean isWin) {
+220         this.isWin = isWin;
+221     }
+222 }
+\end{verbatim}
+\end{small}
+\subsection{Bullet.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.*;
+  2 import java.awt.geom.Ellipse2D;
+  3 import javax.swing.ImageIcon;
+  4 
+  5 //通常の弾クラス
+  6 public class Bullet {
+  7     private Player ownerPlayer; // 弾の所有者
+  8     private int x; // 弾のx座標
+  9     private int y; // 弾のy座標
+ 10     private float speed; // 弾の速度
+ 11     protected int radius; // 弾の半径
+ 12     private int damage; // 弾が持つダメージ
+ 13     private int Shootdir; // 弾の向き(1:サーバー側)
+ 14     private Color color = new Color(255, 0, 0); // 弾の色(円で描画する場合)
+ 15     private final static int dx = 5; // 弾の移動量
+ 16     public boolean isActive = true; // 弾のアクティブ状態
+ 17     protected Image img; // 弾の画像
+ 18     protected int state_explosion = 0; // 弾の爆発状態
+ 19     protected int AnimationFrames; // 弾の爆発アニメーションのフレーム状態
+ 20 
+ 21     // サーバー用のコンストラクタ
+ 22     public Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
+ 23             Color color) {
+ 24         this.ownerPlayer = owner;
+ 25         this.x = x;
+ 26         this.y = y;
+ 27         this.speed = speed;
+ 28         this.color = color;
+ 29         this.radius = radius;
+ 30         this.damage = damage;
+ 31         this.Shootdir = Shootdir;
+ 32         if (Shootdir == 1) // サーバー側の弾の画像
+ 33             this.img = new ImageIcon(getClass().getResource("/images/Bullet1.png")).getImage();
+ 34         else { // クライアント側の弾の画像
+ 35             this.img = new ImageIcon(getClass().getResource("/images/Bullet2.png")).getImage();
+ 36         }
+ 37     }
+ 38 
+ 39     // クライアント用のコンストラクタ
+ 40     public Bullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion, int AnimationFrames) {
+ 41         this.x = x;
+ 42         this.y = y;
+ 43         this.color = color;
+ 44         this.radius = radius;
+ 45         this.Shootdir = Shootdir;
+ 46         this.AnimationFrames = AnimationFrames;
+ 47         this.state_explosion = state_explosion;
+ 48 
+ 49         // 爆発状態に応じて画像を変更
+ 50         if (state_explosion == 1) { // 状態1
+ 51             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();
+ 52             this.radius = 20; // 爆発時の半径は大きくする
+ 53         } else if (state_explosion == 2) { // 状態2
+ 54             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion2.png")).getImage();
+ 55             this.radius += 3;
+ 56         } else if (state_explosion == 3) { // 状態3
+ 57             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion3.png")).getImage();
+ 58             this.radius += 3;
+ 59         } else if (state_explosion == 4) { // 状態4
+ 60             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion4.png")).getImage();
+ 61             this.radius = 10;
+ 62         } else if (state_explosion != 5 && Shootdir == 1) // 通常状態(サーバー側)
+ 63             this.img = new ImageIcon(getClass().getResource("/images/Bullet1.png")).getImage();
+ 64         else if (state_explosion != 5) { // 通常状態(クライアント側)
+ 65             this.img = new ImageIcon(getClass().getResource("/images/Bullet2.png")).getImage();
+ 66         }
+ 67     }
+ 68 
+ 69     // 弾の描画
+ 70     public void draw(Graphics g) {
+ 71         // g.setColor(this.color);, 画像でなく円で描画する場合
+ 72         // g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+ 73         // imgに応じて画像を描画
+ 74         g.drawImage(img, x - radius, y - radius, 2 * radius, 2 * radius, null);
+ 75     }
+ 76 
+ 77     // 弾の移動
+ 78     public void move() {
+ 79         if (this.state_explosion == 0) { // 爆発状態でなければ移動
+ 80             x += dx * speed * Shootdir;
+ 81         }
+ 82     }
+ 83 
+ 84     // 爆発処理, 爆発が進むとtrueを返す
+ 85     public boolean explosion() {
+ 86         if (this.state_explosion == 1) { // 状態1
+ 87             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();
+ 88             this.radius = 20; // 爆発時の半径は大きくする
+ 89             return true;
+ 90         } else if (this.state_explosion == 2 && this.AnimationFrames == 5) { // 状態2, 5フレームごとに更新
+ 91             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion2.png")).getImage();
+ 92             this.radius += 3;
+ 93             return true;
+ 94         } else if (this.state_explosion == 3 && this.AnimationFrames == 5) { // 状態3
+ 95             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion3.png")).getImage();
+ 96             this.radius += 3;
+ 97             return true;
+ 98         } else if (this.state_explosion == 4 && this.AnimationFrames == 5) { // 状態4
+ 99             this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion4.png")).getImage();
+100             this.radius = 10;
+101             return true;
+102         } else if (this.state_explosion == 5 && this.AnimationFrames == 5) { // 状態5(爆発終了), 非アクティブ化
+103             this.isActive = false;
+104             return true;
+105         }
+106         return false; // 爆発が進んでいない場合はfalseを返す
+107     }
+108 
+109     // 弾の座標更新
+110     public void update() {
+111         move();
+112     }
+113 
+114     // getter, setterメソッド
+115     public Player getOwner() {
+116         return this.ownerPlayer;
+117     }
+118 
+119     public int getX() {
+120         return this.x;
+121     }
+122 
+123     public int getY() {
+124         return this.y;
+125     }
+126 
+127     public boolean getIsActive() {
+128         return this.isActive;
+129     }
+130 
+131     public int getStateExplosion() {
+132         return this.state_explosion;
+133     }
+134 
+135     public void setStateExplosion(int state_explosion) {
+136         this.state_explosion = state_explosion;
+137     }
+138 
+139     public int getAnimationFrames() {
+140         return this.AnimationFrames;
+141     }
+142 
+143     public void setAnimationFrames(int AnimationFrames) {
+144         this.AnimationFrames = AnimationFrames;
+145     }
+146 
+147     public int getShootdir() {
+148         return this.Shootdir;
+149     }
+150 
+151     public void setY(int y) {
+152         this.y = y;
+153     }
+154 
+155     public Shape getBounds() {
+156         return new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2);
+157     }
+158 
+159     public int getRadius() {
+160         return this.radius;
+161     }
+162 
+163     public int getDamage() {
+164         return this.damage;
+165     }
+166 
+167     public Color getColor() {
+168         return this.color;
+169     }
+170 
+171     public float getSpeed() {
+172         return speed;
+173     }
+174 }
+\end{verbatim}
+\end{small}
+\subsection{Gimmick.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.*;
+  2 import java.awt.geom.Ellipse2D;
+  3 import javax.swing.ImageIcon;
+  4 
+  5 //ギミッククラス
+  6 public class Gimmick {
+  7     private int x; //x座標
+  8     private int y; //y座標
+  9     protected int radius; //半径
+ 10     private Color color = new Color(255, 0, 0); //色(円で描画する場合)
+ 11     protected Image img; //ギミックの画像
+ 12     private int time; //表示されている時間経過を表すフレーム
+ 13     private int type; //ギミックの種類(0:弾の半径拡大, 1:回復)
+ 14 
+ 15     //コンストラクタ
+ 16     public Gimmick(int x, int y, int radius, Color color, int time, int type) {
+ 17         this.x = x;
+ 18         this.y = y;
+ 19         this.color = color;
+ 20         this.radius = radius;
+ 21         this.time = time;
+ 22         this.type = type;
+ 23         if(type == 0){ //弾の半径拡大ギミックの画像読み込み
+ 24             this.img = new ImageIcon(getClass().getResource("/images/BigRadius.png")).getImage();
+ 25         }else if(type == 1){ //回復ギミックの画像読み込み
+ 26             this.img = new ImageIcon(getClass().getResource("/images/Heal.png")).getImage();
+ 27         }
+ 28     }
+ 29 
+ 30     //ギミックの描画
+ 31     public void draw(Graphics g) {
+ 32         //g.setColor(this.color); //画像でなく円で描画する場合
+ 33         //g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+ 34         //imgに応じて画像を描画
+ 35         g.drawImage(img, x - radius, y - radius, 2 * radius, 2 * radius, null);
+ 36     }
+ 37 
+ 38     //getter, setterメソッド
+ 39     public int getX() {
+ 40         return this.x;
+ 41     }
+ 42 
+ 43     public int getY() {
+ 44         return this.y;
+ 45     }
+ 46 
+ 47     public int getTime() {
+ 48         return this.time;
+ 49     }
+ 50 
+ 51     public void setTime(int time) {
+ 52         this.time = time;
+ 53     }
+ 54 
+ 55     public int getType() {
+ 56         return this.type;
+ 57     }
+ 58 
+ 59     public void setType(int type) {
+ 60         this.type = type;
+ 61     }
+ 62 
+ 63     public void setY(int y) {
+ 64         this.y = y;
+ 65     }
+ 66 
+ 67     public Shape getBounds() {
+ 68         return new Ellipse2D.Double(x - radius, y - radius, radius * 2, radius * 2);
+ 69     }
+ 70 
+ 71     public int getRadius() {
+ 72         return this.radius;
+ 73     }
+ 74 
+ 75     public Color getColor() {
+ 76         return this.color;
+ 77     }
+ 78 }
+\end{verbatim}
+\end{small}
+\subsection{StarAnimPanel.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.*;
+  2 import java.awt.event.*;
+  3 import java.util.ArrayList;
+  4 import java.util.Random;
+  5 import javax.swing.*;
+  6 
+  7 // 星のアニメーション機能だけを持つ共通クラス
+  8 public class StarAnimPanel extends JPanel implements ActionListener {
+  9     protected Timer timer;
+ 10     private ArrayList<Star> stars = new ArrayList<>();
+ 11     private final int STAR_COUNT = 200; // 星の数
+ 12 
+ 13     protected float starMaxSize = 7.0f;
+ 14     protected int starMaxBrightness = 255;
+ 15     protected double starMaxSpeed = 1;
+ 16 
+ 17     public StarAnimPanel() {
+ 18         this.setOpaque(true);
+ 19         this.setBackground(Color.BLACK);
+ 20 
+ 21         for (int i = 0; i < STAR_COUNT; i++) {
+ 22             stars.add(new Star());
+ 23         }
+ 24 
+ 25         timer = new Timer(16, this);
+ 26         timer.start();
+ 27     }
+ 28 
+ 29     @Override
+ 30     protected void paintComponent(Graphics g) {
+ 31         // 背景の描画
+ 32         super.paintComponent(g);
+ 33         
+ 34         Graphics2D g2d = (Graphics2D) g;
+ 35         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+ 36 
+ 37         int centerX = getWidth() / 2;
+ 38         int centerY = getHeight() / 2;
+ 39 
+ 40         for (Star star : stars) {
+ 41             star.draw(g2d, centerX, centerY);
+ 42         }
+ 43     }
+ 44 
+ 45     @Override
+ 46     public void actionPerformed(ActionEvent e) {
+ 47         updateStars();
+ 48         repaint();
+ 49     }
+ 50 
+ 51     
+ 52     protected void updateStars() {
+ 53         for (Star star : stars) {
+ 54             star.update();
+ 55         }
+ 56     }
+ 57 
+ 58     
+ 59     class Star {
+ 60         double x, y, z;
+ 61         double speedFactor;
+ 62 
+ 63         Star() {
+ 64             reset(true);
+ 65         }
+ 66 
+ 67         // 星の位置を初期化（randomize: 最初から散らばらせるかどうか）
+ 68         void reset(boolean randomize) {
+ 69             Random rand = new Random();
+ 70             x = rand.nextInt(2000) - 1000;
+ 71             y = rand.nextInt(2000) - 1000;
+ 72             
+ 73             if (randomize) {
+ 74                 z = rand.nextInt(1000); // 奥行き
+ 75             } else {
+ 76                 z = 1000; // 遠くから出現
+ 77             }
+ 78             this.speedFactor = 5 + rand.nextInt(10); // スピードのばらつき
+ 79         }
+ 80 
+ 81         // 位置の更新
+ 82         void update() {
+ 83             z -= starMaxSpeed * speedFactor; // 手前に近づく
+ 84             if (z <= 0) {
+ 85                 reset(false); // 手前まで来たら奥に戻す
+ 86             }
+ 87         }
+ 88 
+ 89         // 描画
+ 90         void draw(Graphics2D g2d, int centerX, int centerY) {
+ 91             // 遠近法の計算
+ 92             if (z <= 0) z = 0.1; // ゼロ除算防止
+ 93             
+ 94             double sx = (x / z) * 150 + centerX;
+ 95             double sy = (y / z) * 150 + centerY;
+ 96 
+ 97             // 近いほど大きく、遠いほど小さく
+ 98             double size = (1000 - z) / 1000 * starMaxSize; 
+ 99 
+100             int brightness = (int) ((1000 - z) / 1000 * starMaxBrightness);
+101 
+102             if (brightness < 0) brightness = 0;
+103             if (brightness > 255) brightness = 255;
+104             
+105             g2d.setColor(new Color(255, 255, 255, brightness));
+106             g2d.fillOval((int) sx, (int) sy, (int) size, (int) size);
+107         }
+108     }
+109 }
+\end{verbatim}
+\end{small}
+\subsection{CurveBullet.java}
+\begin{small}
+\begin{verbatim}
+1 import java.awt.*;
+  2 import javax.swing.ImageIcon;
+  3 
+  4 //曲線を描く弾クラス
+  5 public class CurveBullet extends Bullet {
+  6     double time = 0; // 時間変数(moveメソッド内のsinの引数に使用)
+  7     double frequency = 0.1; // 周波数
+  8     double amplitude = 70; // 振幅
+  9     int y = super.getY(); // 初期のy座標(元のBulletで計算した値)
+ 10 
+ 11     // サーバー用のコンストラクタ
+ 12     public CurveBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
+ 13             Color color) {
+ 14         super(owner, x, y, speed, radius, damage, Shootdir, color);
+ 15         if (Shootdir == 1) // サーバー側の弾の画像
+ 16             this.img = new ImageIcon(getClass().getResource("/images/CurveBullet1.png")).getImage();
+ 17         else { // クライアント側の弾の画像
+ 18             this.img = new ImageIcon(getClass().getResource("/images/CurveBullet2.png")).getImage();
+ 19         }
+ 20     }
+ 21 
+ 22     // クライアント用のコンストラクタ
+ 23     public CurveBullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion, int AnimationFrames) {
+ 24         super(x, y, radius, color, Shootdir, state_explosion, AnimationFrames);
+ 25         // 爆発状態に応じて画像を変更
+ 26         if (state_explosion == 1) { // 状態1
+ 27             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion1.png")).getImage();
+ 28             this.radius = 20; // 爆発時の半径は大きくする
+ 29         } else if (state_explosion == 2) { // 状態2
+ 30             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion2.png")).getImage();
+ 31             this.radius += 3;
+ 32         } else if (state_explosion == 3) { // 状態3
+ 33             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion3.png")).getImage();
+ 34             this.radius += 3;
+ 35         } else if (state_explosion == 4) { // 状態4
+ 36             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion4.png")).getImage();
+ 37             this.radius = 10;
+ 38         } else if (state_explosion != 5 && Shootdir == 1) // サーバー側の画像
+ 39             this.img = new ImageIcon(getClass().getResource("/images/CurveBullet1.png")).getImage();
+ 40         else if (state_explosion != 5) { // クライアント側の画像
+ 41             this.img = new ImageIcon(getClass().getResource("/images/CurveBullet2.png")).getImage();
+ 42         }
+ 43     }
+ 44 
+ 45     // 爆発処理, 爆発が進むとtrueを返す
+ 46     public boolean explosion() {
+ 47         if (this.state_explosion == 1) { // 状態1
+ 48             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion1.png")).getImage();
+ 49             this.radius = 20; // 爆発時の半径は大きくする
+ 50             return true;
+ 51         } else if (this.state_explosion == 2 && this.AnimationFrames == 5) { // 状態2, 5フレームごとに更新
+ 52             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion2.png")).getImage();
+ 53             this.radius += 3;
+ 54             return true;
+ 55         } else if (this.state_explosion == 3 && this.AnimationFrames == 5) { // 状態3
+ 56             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion3.png")).getImage();
+ 57             this.radius += 3;
+ 58             return true;
+ 59         } else if (this.state_explosion == 4 && this.AnimationFrames == 5) { // 状態4
+ 60             this.img = new ImageIcon(getClass().getResource("/images/CurveBulletExplosion4.png")).getImage();
+ 61             this.radius = 10;
+ 62             return true;
+ 63         } else if (this.state_explosion == 5 && this.AnimationFrames == 5) { // 状態5(爆発終了), 非アクティブ化
+ 64             this.isActive = false;
+ 65             return true;
+ 66         }
+ 67         return false; // 爆発が進んでいない場合falseを返す
+ 68     }
+ 69 
+ 70     // 弾の描画
+ 71     public void draw(Graphics g) {
+ 72         // g.setColor(this.color); //画像でなく円で描画する場合
+ 73         // g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+ 74         // imgに応じて画像を描画
+ 75         g.drawImage(this.img, getX() - getRadius(), getY() - getRadius(), 2 * getRadius(), 2 * getRadius(), null);
+ 76     }
+ 77 
+ 78     // 弾の移動
+ 79     public void move() {
+ 80         super.move();
+ 81 
+ 82         // sinの引数更新
+ 83         time += 0.5;
+ 84         // y座標更新(爆発状態でなければ)
+ 85         if (super.getStateExplosion() == 0) {
+ 86             int newY = (int) (y + Math.sin(time * frequency) * amplitude);
+ 87             super.setY(newY); // y座標セット
+ 88         }
+ 89     }
+ 90 }
+\end{verbatim}
+\end{small}
+\subsection{UpDiagonalBullet.java}
+\begin{small}
+\begin{verbatim}
+1 import java.awt.*;
+  2 import javax.swing.ImageIcon;
+  3 
+  4 //斜め上方向に進む弾クラス
+  5 public class UpDiagonalBullet extends Bullet {
+  6     private final static int dy = 5; // y方向の移動量
+  7 
+  8     // サーバー用のコンストラクタ
+  9     public UpDiagonalBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
+ 10             Color color) {
+ 11         super(owner, x, y, speed, radius, damage, Shootdir, color);
+ 12         if (Shootdir == 1)
+ 13             this.img = new ImageIcon(getClass().getResource("/images/UpDiagonalBullet1.png")).getImage();
+ 14         else {
+ 15             this.img = new ImageIcon(getClass().getResource("/images/UpDiagonalBullet2.png")).getImage();
+ 16         }
+ 17     }
+ 18 
+ 19     // クライアント用のコンストラクタ
+ 20     public UpDiagonalBullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion,
+ 21             int AnimationFrames) {
+ 22         super(x, y, radius, color, Shootdir, state_explosion, AnimationFrames);
+ 23         // 爆発状態に応じて画像を変更
+ 24         if (state_explosion == 1) { // 状態1
+ 25             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion1.png")).getImage();
+ 26             this.radius = 20;
+ 27         } else if (state_explosion == 2) { // 状態2
+ 28             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion2.png")).getImage();
+ 29             this.radius += 3;
+ 30         } else if (state_explosion == 3) { // 状態3
+ 31             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion3.png")).getImage();
+ 32             this.radius += 3;
+ 33         } else if (state_explosion == 4) { // 状態4
+ 34             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion4.png")).getImage();
+ 35             this.radius = 10;
+ 36         } else if (state_explosion != 5 && Shootdir == 1) // サーバー側の画像
+ 37             this.img = new ImageIcon(getClass().getResource("/images/UpDiagonalBullet1.png")).getImage();
+ 38         else if (state_explosion != 5) { // クライアント側の画像
+ 39             this.img = new ImageIcon(getClass().getResource("/images/UpDiagonalBullet2.png")).getImage();
+ 40         }
+ 41     }
+ 42 
+ 43     // 爆発処理, 爆発が進むとtrueを返す
+ 44     public boolean explosion() {
+ 45         if (this.state_explosion == 1) { // 状態1
+ 46             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion1.png")).getImage();
+ 47             this.radius = 20; // 爆発時の半径は大きくする
+ 48             return true;
+ 49         } else if (this.state_explosion == 2 && this.AnimationFrames == 5) { // 状態2, 5フレームごとに更新
+ 50             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion2.png")).getImage();
+ 51             this.radius += 3;
+ 52             return true;
+ 53         } else if (this.state_explosion == 3 && this.AnimationFrames == 5) { // 状態3
+ 54             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion3.png")).getImage();
+ 55             this.radius += 3;
+ 56             return true;
+ 57         } else if (this.state_explosion == 4 && this.AnimationFrames == 5) { // 状態4
+ 58             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion4.png")).getImage();
+ 59             this.radius = 10;
+ 60             return true;
+ 61         } else if (this.state_explosion == 5 && this.AnimationFrames == 5) { // 状態5(爆発終了), 非アクティブ化
+ 62             this.isActive = false;
+ 63             return true;
+ 64         }
+ 65         return false; // 爆発が進んでいない場合falseを返す
+ 66     }
+ 67 
+ 68     // 弾の描画
+ 69     public void draw(Graphics g) {
+ 70         // g.setColor(this.color); //画像でなく円で描画する場合
+ 71         // g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+ 72         // imgに応じて画像を描画
+ 73         g.drawImage(this.img, getX() - getRadius(), getY() - getRadius(), 2 * getRadius(), 2 * getRadius(), null);
+ 74     }
+ 75 
+ 76     // 弾の移動
+ 77     public void move() {
+ 78         super.move();
+ 79 
+ 80         // y座標更新(爆発状態でなければ)
+ 81         if (super.getStateExplosion() == 0) {
+ 82             int newY = (int) (super.getY() - 0.2 * dy * super.getSpeed());
+ 83             super.setY(newY); // y座標セット
+ 84         }
+ 85     }
+ 86 }
+\end{verbatim}
+\end{small}
+\subsection{DownDiagonalBullet.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.*;
+  2 import javax.swing.ImageIcon;
+  3 
+  4 //斜め下方向に進む弾クラス
+  5 public class DownDiagonalBullet extends Bullet {
+  6     private final static int dy = 5; // y方向の移動量
+  7 
+  8     public DownDiagonalBullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir,
+  9             Color color) {
+ 10         super(owner, x, y, speed, radius, damage, Shootdir, color);
+ 11         if (Shootdir == 1) // サーバー側の弾の画像
+ 12             this.img = new ImageIcon(getClass().getResource("/images/DownDiagonalBullet1.png")).getImage();
+ 13         else { // クライアント側の弾の画像
+ 14             this.img = new ImageIcon(getClass().getResource("/images/DownDiagonalBullet2.png")).getImage();
+ 15         }
+ 16     }
+ 17 
+ 18     // クライアント用のコンストラクタ
+ 19     public DownDiagonalBullet(int x, int y, int radius, Color color, int Shootdir, int state_explosion,
+ 20             int AnimationFrames) {
+ 21         super(x, y, radius, color, Shootdir, state_explosion, AnimationFrames);
+ 22         // 爆発状態に応じて画像を変更
+ 23         if (state_explosion == 1) { // 状態1
+ 24             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion1.png")).getImage();
+ 25             this.radius = 20; // 爆発時の半径は大きくする
+ 26         } else if (state_explosion == 2) { // 状態2
+ 27             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion2.png")).getImage();
+ 28             this.radius += 3;
+ 29         } else if (state_explosion == 3) { // 状態3
+ 30             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion3.png")).getImage();
+ 31             this.radius += 3;
+ 32         } else if (state_explosion == 4) { // 状態4
+ 33             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion4.png")).getImage();
+ 34             this.radius = 10;
+ 35         } else if (state_explosion != 5 && Shootdir == 1) // サーバー側の画像
+ 36             this.img = new ImageIcon(getClass().getResource("/images/DownDiagonalBullet1.png")).getImage();
+ 37         else if (state_explosion != 5) { // クライアント側の画像
+ 38             this.img = new ImageIcon(getClass().getResource("/images/DownDiagonalBullet2.png")).getImage();
+ 39         }
+ 40     }
+ 41 
+ 42     // 爆発処理, 爆発が進むとtrueを返す
+ 43     public boolean explosion() {
+ 44         if (this.state_explosion == 1) { // 状態1
+ 45             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion1.png")).getImage();
+ 46             this.radius = 20; // 爆発時の半径は大きくする
+ 47             return true;
+ 48         } else if (this.state_explosion == 2 && this.AnimationFrames == 5) { // 状態2, 5フレームごとに更新
+ 49             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion2.png")).getImage();
+ 50             this.radius += 3;
+ 51             return true;
+ 52         } else if (this.state_explosion == 3 && this.AnimationFrames == 5) { // 状態3
+ 53             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion3.png")).getImage();
+ 54             this.radius += 3;
+ 55             return true;
+ 56         } else if (this.state_explosion == 4 && this.AnimationFrames == 5) { // 状態4
+ 57             this.img = new ImageIcon(getClass().getResource("/images/UpDownBulletExplosion4.png")).getImage();
+ 58             this.radius = 10;
+ 59             return true;
+ 60         } else if (this.state_explosion == 5 && this.AnimationFrames == 5) { // 状態5(爆発終了), 非アクティブ化
+ 61             this.isActive = false;
+ 62             return true;
+ 63         }
+ 64         return false; // 爆発が進んでいない場合falseを返す
+ 65     }
+ 66 
+ 67     // 弾の描画
+ 68     public void draw(Graphics g) {
+ 69         // g.setColor(this.color); //画像でなく円で描画する場合
+ 70         // g.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
+ 71         // imgに応じて画像を描画
+ 72         g.drawImage(this.img, getX() - getRadius(), getY() - getRadius(), 2 * getRadius(), 2 * getRadius(), null);
+ 73     }
+ 74 
+ 75     // 弾の移動
+ 76     public void move() {
+ 77         super.move();
+ 78 
+ 79         // y座標更新(爆発状態でなければ)
+ 80         if (super.getStateExplosion() == 0) {
+ 81             int newY = (int) (super.getY() + 0.2 * dy * super.getSpeed());
+ 82             super.setY(newY); // y座標セット
+ 83         }
+ 84     }
+ 85 }
+\end{verbatim}
+\end{small}
+\subsection{FontLoader.java}
+\begin{small}
+\begin{verbatim}
+  1 import java.awt.Font;
+  2 import java.awt.FontFormatException;
+  3 import java.awt.GraphicsEnvironment;
+  4 import java.io.IOException;
+  5 
+  6 //  コンストラクタでパスとサイズを指定して好みのフォントを設定できるクラス
+  7 
+  8 public class FontLoader {
+  9     public static Font loadFont(String path, float size) {
+ 10         try {
+ 11             java.io.InputStream fontFile = FontLoader.class.getResourceAsStream(path);
+ 12             if (fontFile == null) {
+ 13                 throw new IOException("Font file not found: " + path);      //  ファイルが見つからなかった場合
+ 14             }
+ 15             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+ 16             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+ 17             ge.registerFont(baseFont);
+ 18             
+ 19             return baseFont.deriveFont(Font.BOLD, size); 
+ 20 
+ 21         } catch (FontFormatException | IOException e) {
+ 22             System.err.println("フォント読み込みエラー: " + path);
+ 23             e.printStackTrace();
+ 24             // エラー時はデフォルトのフォントを返す
+ 25             return new Font("Monospaced", Font.BOLD, (int)size); 
+ 26         }
+ 27     }
+ 28 }
 \end{verbatim}
 \end{small}
 \end{document}
