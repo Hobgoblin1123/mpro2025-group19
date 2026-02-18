@@ -146,10 +146,10 @@ INPUT ./class_figure.eps
 INPUT ./class_figure.eps
 INPUT ./class_figure.eps
 INPUT class_figure.eps
-INPUT ./serverLogic_figure.eps
-INPUT ./serverLogic_figure.eps
-INPUT ./serverLogic_figure.eps
-INPUT serverLogic_figure.eps
+INPUT ./serverLogicfigure.eps
+INPUT ./serverLogicfigure.eps
+INPUT ./serverLogicfigure.eps
+INPUT serverLogicfigure.eps
 INPUT ./sendServerData_figure.eps
 INPUT ./sendServerData_figure.eps
 INPUT ./sendServerData_figure.eps
