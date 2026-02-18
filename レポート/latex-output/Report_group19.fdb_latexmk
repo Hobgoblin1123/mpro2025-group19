@@ -1,13 +1,14 @@
 # Fdb version 4
-["dvipdf"] 1771372609 "latex-output/Report_group19.dvi" "latex-output/Report_group19.pdf" "latex-output/Report_group19" 1771372642 0
-  "latex-output/Report_group19.dvi" 1771372609 92228 49d9d0330c1bf7af8970e4809f525708 "latex"
+["dvipdf"] 1771408595 "latex-output/Report_group19.dvi" "latex-output/Report_group19.pdf" "latex-output/Report_group19" 1771408634 0
+  "latex-output/Report_group19.dvi" 1771408595 244596 631c4335189f9a675088554dbbd7c34c "latex"
   (generated)
   "latex-output/Report_group19.pdf"
   (rewritten before read)
-["latex"] 1771372599 "c:/Users/haruk/Desktop/group/mpro2025-group19/レポート/Report_group19.tex" "latex-output/Report_group19.dvi" "Report_group19" 1771372642 0
-  "Report_group19.tex" 1771372597 66347 8f0413db091de1cb510076e93e5c3e5b ""
+["latex"] 1771408583 "c:/Users/haruk/Desktop/group/mpro2025-group19/レポート/Report_group19.tex" "latex-output/Report_group19.dvi" "Report_group19" 1771408634 0
+  "Perspective_calculation.png" 1771405602 103340 1f67b59d070970c5570314d7bdd8b581 ""
+  "Report_group19.tex" 1771408570 206456 08a9204b886f6c7a43af31f04d129cd9 ""
   "bigger.eps" 1771352987 137327 997d581749521dfb0675d143b40eb791 ""
-  "c:/Users/haruk/Desktop/group/mpro2025-group19/レポート/Report_group19.tex" 1771372597 66347 8f0413db091de1cb510076e93e5c3e5b ""
+  "c:/Users/haruk/Desktop/group/mpro2025-group19/レポート/Report_group19.tex" 1771408570 206456 08a9204b886f6c7a43af31f04d129cd9 ""
   "c:/texlive/2023/texmf-dist/fonts/map/fontname/texfonts.map" 1703160030 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2023/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1703159535 1536 02c06700a42be0f5a28664c7273f82e7 ""
   "c:/texlive/2023/texmf-dist/fonts/tfm/ptex-fonts/standard/goth10.tfm" 1703162913 1196 5981e79c37b2cfd27b3612a6783cd4b6 ""
@@ -80,11 +81,12 @@
   "c:/texlive/2023/texmf-dist/web2c/texmf.cnf" 1703157717 41009 84b61f42d16d06bedb915f57aa2374cf ""
   "c:/texlive/2023/texmf-var/web2c/euptex/platex.fmt" 1703165083 8156151 4b5f44005bb96359d6ea32dbc69a59f8 ""
   "c:/texlive/2023/texmf.cnf" 1703164892 713 e69b156964470283e0530f5060668171 ""
+  "cl_pic.eps" 1771405602 8673309 545b5b38f3edbf98356a1522b9c6b55e ""
   "class_figure.eps" 1771225282 6126781 a53fd0ac44b7fa0b7f08291be6fa8667 ""
   "exp.png" 1770282057 46671 f74903b80e90b23272c0ebe01fe4599a ""
   "gameset_pic.png" 1771352987 430720 de0a4cda2187b8871de2d146a8b4df1c ""
   "heal_item.eps" 1771352987 42459 fe1e8ffece2ba7c443f625109aca3118 ""
-  "latex-output/Report_group19.aux" 1771372609 10404 35fbd5325a725e1a065a1e15b56c4fbf "latex"
+  "latex-output/Report_group19.aux" 1771408595 11757 54d0dbf9d345904e33ac09681f6ddb64 "latex"
   "normal.png" 1771361555 73552 56baf418c4cfb2d2f3763da32cac3678 ""
   "pUp_item.eps" 1771352987 60974 8392c32e0821f7c9c634b5bb05ae1caa ""
   "perseServerData_figure.eps" 1771352987 729344 cd2fc7d41407e299a51e62da17dfbbfa ""
@@ -97,6 +99,7 @@
   "sendServerData_figure.eps" 1771352987 2772352 372ed365316d833dcdd19fbe562af380 ""
   "serverLogic_figure.eps" 1771352987 6298545 13aa4b7043377862d821d7111f778201 ""
   "shoot.png" 1771360927 35975 0efb065fe7a387f5f036dc4d2ae24b6a ""
+  "sv_pic.eps" 1771405602 8685015 340581f5a5c154364ef07888239c06cf ""
   "title_hovered_pic.jpg" 1771352987 3055306 11942379b901452ca204d26f69d9c53a ""
   "title_pic.jpg" 1771352987 2986424 646ce622d392d846d39e1ca126dd0d0f ""
   (generated)

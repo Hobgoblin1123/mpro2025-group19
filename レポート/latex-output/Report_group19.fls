@@ -169,6 +169,10 @@ INPUT c:/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
 INPUT c:/texlive/2023/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin8.tfm
 INPUT c:/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmtt8.tfm
 INPUT c:/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmtt12.tfm
+INPUT ./Perspective_calculation.png
+INPUT ./Perspective_calculation.png
+INPUT ./Perspective_calculation.png
+INPUT extractbb -B cropbox -O Perspective_calculation.png
 INPUT ./title_pic.jpg
 INPUT ./title_pic.jpg
 INPUT ./title_pic.jpg
@@ -177,6 +181,14 @@ INPUT ./title_hovered_pic.jpg
 INPUT ./title_hovered_pic.jpg
 INPUT ./title_hovered_pic.jpg
 INPUT extractbb -B cropbox -O title_hovered_pic.jpg
+INPUT ./sv_pic.eps
+INPUT ./sv_pic.eps
+INPUT ./sv_pic.eps
+INPUT sv_pic.eps
+INPUT ./cl_pic.eps
+INPUT ./cl_pic.eps
+INPUT ./cl_pic.eps
+INPUT cl_pic.eps
 INPUT ./gameset_pic.png
 INPUT ./gameset_pic.png
 INPUT ./gameset_pic.png
