@@ -15,6 +15,7 @@
 \usepackage{siunitx}
 \usepackage{here}
 \usepackage{fancybox}
+\usepackage{float}
 \setlength{\oddsidemargin}{0mm}
 \setlength{\textwidth}{170mm} 
 \setlength{\topmargin}{-5mm}
@@ -37,7 +38,7 @@
 \vspace{0.5cm}
 {\bf グループプログラミング レポート}\\
 \vspace{1.5cm}
-{\bf 「ネットワーク対戦型2Dシューティングゲーム」}\\
+{\bf 「ネットワーク対戦型\\2Dシューティングゲーム」}\\
 \vspace{5cm}
 
 \begin{tabular}{|c|c|}\hline
@@ -54,15 +55,6 @@
 \newpage
 
 \section{プログラムの概要}
-どの様な目的のプログラムを実現したか，どのような機能を実装したか，
-をまず最初に説明してください．
-必要に応じてスクリーンキャプチャした画像も張り付けてください．
-
-「ドローエディタ」ならば，どのような機能を持ったドローエディタを作ったか
-説明してください．
-
-作業の分担など，作業をどのように進めたかも説明して下さい．\\
-------------------------------------------
 \subsection{プログラムの目的}
 私たちのグループでは、対戦型の2Dシューティングゲームを作成した。本作品における目的は機体を操作し球を発射して相手に当てて相手のHPをゼロにすることである。
 \subsection{プログラムの主な仕様}
@@ -75,7 +67,7 @@
 「1.2 プログラムの主な仕様」よりプログラムの実現のために必要な処理は大まかに以下のように分割できる。
 \begin{itemize}
   \item プレイヤークラスの実装
-  \item 弾丸クラスの実装
+  \item 弾クラスの実装
   \item ギミッククラスの実装
   \item プレイヤーと弾丸やギミックの接触判定を確認する管理システム
   \item サーバーとクライアント間での通信の確立、切断
@@ -86,19 +78,20 @@
 
 \subsection{作業の分担}
 作業の分担として、池崎は全体のゲームの動きを統括するModelを作成した。また、画面揺れや通信の軽量化など既存のコードの改良も行った。大谷はプレイヤー、弾、ギミックなどのゲームを構成する要素の実装を行った。南はgitリポジトリも管理、画面遷移やリトライ機能の実装、通信の確立、タイトル画面の設計・装飾・素材作成、SE・BGMの選定と設定を担当した。奥野はコントローラーの機能の実装や背景画像の素材の用意を主に行った。\\
----------------------------------------------
 
 \section{設計方針}
 \subsection{プレイヤークラスの実装}
+操作キャラクターはサーバー側, クライアント側の合計2つで, それぞれがプレイヤークラスのインスタンスによって管理される.よって, プレイヤークラスは座標, 半径などの基本情報に加え, 自身の向くべき方向とそれに伴う移動範囲の管理をする.また, どちらが勝利したかを表す勝利フラグもこのプレイヤークラスが保持する.弾の発射も, 発射座標や移動方向などプレイヤーの情報に依存するものが多いため, このクラスが処理するものとする.弾を発射するときは, ゲーム管理側がプレイヤークラスの該当メソッドを呼び出す.
 
 
-
-\subsection{弾丸クラスの実装}
+\subsection{弾クラスの実装}
+キャラクターが発射する弾は1つずつそれぞれの弾クラスのインスタンスによって管理される.弾クラスは座標などのプレイヤークラスも持つ基本情報に加え, 弾は相手プレイヤーに当たったときや画面外に出たときに削除する必要があるため, その弾が有効かどうかも管理する.実際の削除はゲーム管理側が行い, 弾クラスが行うのはその弾が有効/無効かを保持するのみである.また, 爆発は弾自体の画像を切り替えることで表現し, そのために爆発の段階的な画像処理は弾クラス自体が行うものとする.
 
 
 
 
 \subsection{ギミッククラスの実装}
+ギミックの効果を実際に付与する処理はゲーム管理側で行うものとし, ギミッククラスは座標や表示時間などの基本情報と, そのギミックの種類を保持して画像を描画するのみで, 具体的な効果の計算等はしないものとする.ゲーム管理側が対象ギミックの種類を判別し, それに応じた効果をプレイヤーに与える.時間経過やプレイヤーが取得したことによるギミックの削除も, ゲーム管理側が行う.
 
 
 
@@ -162,6 +155,17 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 ---------------------------------------
 
 \section{プログラムの説明}
+\subsection{池崎}
+\subsubsection*{【\texttt{MoveManager}クラス】}
+\noindent \texttt{MoveManager}クラスは,プレイヤー、弾丸、ギミックの位置情報などの更新、およびそれらの情報のサーバー・クライアント間での伝達。プレイヤーの当たり判定などを管理する。全フィールドから抜粋した主なフィールドは次の通り.
+\begin{description}
+  \item[・\texttt{server}]自身が持っているcommオブジェクトがサーバーであるかクライアントであるかについてのbooleanフラグ
+  \item[・\texttt{court\_size\_x,court\_size\_y}]対戦画面でのコートの大きさ
+  \item[・\texttt{player1,player2}]プレイヤー。player1は画面左側、player2は画面右側の機体を表す。
+  \item[・\texttt{winner}]勝者がどちらのプレイヤーかについて。初期値では空文字列が与えられている。
+  \item[・\texttt{iaRunning}]\texttt{MoveManager}が動いているのかのフラグ
+  \item[・\texttt{msgQueue}] ゲームデータについての文字列を保存するキュー
+\end{description}
 メンバー全員が各自の担当した部分を説明．工夫点を述べる．
 
 実際に作成した主要なクラスの主なメソッド，フィールドの説明を行う．
@@ -258,26 +262,152 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 
 \subsection{大谷}
-\subsubsection*{【\texttt{Bullet}クラスと, その子クラス】}
-\noindent \texttt{Bullet}クラスは, 弾の基本情報を管理するクラスである.弾の座標, 速度. 描画, 移動処理, および爆発アニメーションの状態管理を行う.
-また, \texttt{CurveBullet}(曲線弾), \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}(斜め弾)は, \texttt{Bullet}クラスを継承し, 移動方法を定義した\texttt{move()}メソッドや弾の画像を変更したものである.全フィールドから抜粋した主なフィールドは次の通り.
-\begin{description}
-  \item[・\texttt{x, y}]弾の座標
-  \item[・\texttt{speed}]弾の速度
-  \item[・\texttt{radius}]弾の半径
-  \item[・\texttt{img}]弾の画像
-  \item[・\texttt{state\_explosion}]弾の爆発状態.通常時は0で, 5まで段階的に変化する.
-  \item[・\texttt{AnimationFrames}] 爆発中において, その画像が表示されて何フレーム目か.
-\end{description}
-抜粋した主なメソッドは次の通り.
-\begin{description}
-  \item[・\small{\texttt{Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir, Color color)speed}}:]サーバー用のコンストラクタ
-  \item[・\footnotesize{\texttt{Bullet(int x, int y, int radius, Color color, int Shootdir, int state\_explosion, int AnimationFrames)}}:]クライアント用のコンストラクタ.受け取った\texttt{state\_explosion}の値によって, 半径と\texttt{img}に代入する画像を決定する.
-  \item[・\texttt{move()}:]弾の移動を定義している. \texttt{Bullet}では\texttt{x}方向への直線的な移動, \texttt{CurveBullet}ではそれに加えて\texttt{y}方向への\texttt{Math.sin}を用いた移動, \texttt{Up(Down)DiagonalBullet}では\texttt{y}方向への直線的な移動を処理している.
-  \item[・\texttt{explosion()}:]弾の爆発による画像, 半径変更を処理. \texttt{state\_explosion}と\texttt{AnimationFrames}の値によって画像を決定.それぞれの段階の画像は\texttt{AnimationFrames}が0～4の間表示され, それ以降は次の段階にうつる.
-\end{description}
-それぞれの継承クラスの\texttt{move()}メソッドは, \texttt{Bullet}クラスのものをオーバーライドしたものであり, 同様の作業で容易に新たな特殊弾を実装することができる.
-\subsubsection*{【\texttt{Player}クラス】}
+\subsection{通常弾と特殊弾}
+\begin{flushright}
+  文責：大谷
+\end{flushright}
+　操作キャラクターが発射する1つの弾を表すクラスと, その子クラスについて説明する.子クラスは親クラスと同様の部分が多いため, まとめて記述する.
+\subsubsection{Bullet, CurveBullet, UpDiagonalBullet, DownDiagonalBullet}
+\noindent\textbf{概要}: \\
+　\texttt{Bullet}クラスは, 弾の基本情報を管理するクラスである.弾の座標, 速度. 描画, 移動処理, および爆発アニメーションの状態管理を行う.
+また, \texttt{CurveBullet}(曲線弾), \texttt{UpDiagonalBullet}, \texttt{DownDiagonalBullet}(斜め弾)は, \texttt{Bullet}クラスを継承し, 移動方法を定義した\texttt{move()}メソッドや弾の画像を変更したものである.\\
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+  \item \texttt{x, y}: 弾の座標
+  \item \texttt{speed}: 弾の速度
+  \item \texttt{radius}: 弾の半径
+  \item \texttt{img}: 弾の画像
+  \item \texttt{state\_explosion}: 弾の爆発状態.通常時は0で, 5まで段階的に変化する.
+  \item \texttt{AnimationFrames}: 爆発中において, その画像が表示されて何フレーム目か.
+\end{itemize}
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+  \item \texttt{Bullet(Player owner, int x, int y, float speed, int radius, int damage, int Shootdir, Color color)speed}: サーバー用のコンストラクタ.所有者, 座標, 速度, 半径, ダメージ, 向きなどのフィールド値を設定する.
+  \item \texttt{Bullet(int x, int y, int radius, Color color, int Shootdir, int state\_explosion, int AnimationFrames)}: クライアント用のコンストラクタ.受け取った\texttt{state\_explosion}の値によって, \texttt{radius}と\texttt{img}に代入する画像を決定する.
+  \item \texttt{move()}: 弾の移動を定義している. \texttt{Bullet}では\texttt{x}方向への直線的な移動, \texttt{CurveBullet}ではそれに加えて\texttt{y}方向への\texttt{Math.sin}を用いた移動, \texttt{Up(Down)DiagonalBullet}では\texttt{y}方向への直線的な移動を処理している.
+  \item \texttt{explosion()}: 弾の爆発による画像, 半径変更を処理. \texttt{state\_explosion}と\texttt{AnimationFrames}の値によって画像を決定.それぞれの段階の画像は\texttt{AnimationFrames}が0～4の間表示され, それ以降は次の段階にうつり, \texttt{AnimationFrames}は0にもどる.爆発が進行したかを\texttt{MoveManager}クラスで認識するため, 次のように\texttt{if}文, \texttt{else if}文の中身が実行されたときのみ\texttt{true}を返し, そうでないときは\texttt{false}を返す.
+\end{itemize}
+\begin{footnotesize}
+\begin{verbatim}
+    1      public boolean explosion() {
+    2          if (this.state_explosion == 1) {
+    3              this.img = new ImageIcon(getClass().getResource("/images/BulletExplosion1.png")).getImage();
+    4              this.radius = 20;
+    5              return true; //進行したため, trueを返す.
+    6          } else if (this.state_explosion == 2 && this.AnimationFrames == 5) {
+    7              //(中略)
+    8          }
+    9          return false; //進行していないため, falseを返す.
+   10       }
+\end{verbatim}
+\end{footnotesize}
+\noindent\textbf{実装のポイント}: \vspace{0.1cm}\\
+　それぞれの継承クラスの\texttt{move()}メソッドは, 次の通り\texttt{Bullet}クラスのものをオーバーライドしたものであり, 同様の作業で容易に新たな特殊弾を実装することができる(例は\texttt{CurveBullet}).
+\begin{small}
+\begin{verbatim}
+     1      public void move() {
+     2          super.move(); //Bulletのmove()呼び出し
+
+     3          //追加の動き
+     4          // sinの引数更新
+     5          time += 0.5;
+     6          // y座標更新(爆発状態でなければ)
+     7          if (super.getStateExplosion() == 0) {
+     8              int newY = (int) (y + Math.sin(time * frequency) * amplitude);
+     9              super.setY(newY); // y座標セット
+    10          }
+    11      }
+\end{verbatim}
+\end{small}
+\subsection{操作キャラクター}
+\begin{flushright}
+  文責：大谷
+\end{flushright}
+　1人の操作キャラクターを表すクラスについて説明する.
+\subsubsection{Player}
+\noindent\textbf{概要}: \\
+　プレイヤーキャラクターの操作, 情報(体力、パワーアップ状態など)の管理, および描画を管理するクラス. 弾の生成処理も行う.\\
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+  \item \texttt{hp, max\_hp}: 現在の体力, 最大体力
+  \item \texttt{x, y}: プレイヤーの座標
+  \item \texttt{speed}: プレイヤーの速度
+  \item \texttt{radius}: プレイヤーの当たり半径
+  \item \texttt{img}: プレイヤーの現在の画像
+  \item \texttt{biggerbullet}: ギミック効果時の弾の半径増加量.通常時は0に設定されている.
+  \item \texttt{statePowerup}: ギミック効果を受け始めて何フレームか.通常時は0.
+\end{itemize}
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+  \item \texttt{Player(int hp, int max\_hp, int x, int y, float speed, int bounds\_x\_min, int bounds\_x\_max, int bounds\_y,
+            int radius, int Shootdir, int biggerbullet, int statePowerup)}: コンストラクタ.体力, 座標, 速度, 境界, 半径, 向き, パワーアップ関係のフィールド値を設定する.
+  \item \texttt{setImg()}: プレイヤーの画像を決定する. \texttt{statePowerup}が0ならば通常の画像を設定, そうでなければギミック効果時用の画像を設定する.次のような\texttt{(statePowerup / 10) \% 2}の値による分岐によって, 効果中2つの画像をフレームによって切り替える.
+  \item \texttt{moveUp(), moveDown(), moveLeft(), moveRight()}: 操作キャラクターの移動を定義している.
+  \item \texttt{hit(int damage)}: 弾に当たったときのダメージ, 画面揺れを処理する.
+  \item \texttt{heal(int amount)}: 回復ギミックをとったときの回復を処理する.
+  \item \texttt{tryShoot(int type)}: 弾の生成処理をする.SEの再生も行う.
+\end{itemize}
+  \begin{scriptsize}
+  \begin{verbatim}
+     1      public void setImg() {
+     2          if (Shootdir == 1 && statePowerup == 0) { // サーバー側, 通常時
+     3              this.img = new ImageIcon(getClass().getResource("/images/player1T.png")).getImage();
+     4          } else if (Shootdir == 1 && statePowerup > 0) { // サーバー側, 弾半径増加時
+     5              if ((statePowerup / 10) % 2 == 0) { // フレームによる分岐で効果中2つの画像を切り替える
+     6                  this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT1.png")).getImage();
+     7              } else {
+     8                  this.img = new ImageIcon(getClass().getResource("/images/player1PowerupT2.png")).getImage();
+     9              }
+    10          } else if (Shootdir != 1 && statePowerup == 0) {
+    11              //(中略)
+    12          }
+    13      }
+  \end{verbatim}
+  \end{scriptsize}
+\noindent\textbf{実装のポイント}: \vspace{0.1cm}\\
+　弾を生成するメソッド\texttt{tryShoot}を\texttt{Player}クラスが持っているため, ギミック(後述)によって弾の情報を変化させたいとき, 「弾が当たったときにダメージを与えることと同様に\texttt{Player}のフィールドを変化させ, そのフィールドは\texttt{tryShoot}内にあるため生成される弾が変化する」というように, 簡単に効果を付与することができるようにした.今回の実装では\texttt{Player}がフィールド\texttt{biggerbullet}を持っており, \texttt{tryShoot}ではそれを次のように\texttt{Bullet}のコンストラクタの\texttt{radius}の基本値に足すことで弾の半径を大きくしている.
+\begin{small}
+\begin{verbatim}
+     1      public ArrayList<Bullet> tryShoot(int type) {
+     2          // 発射する弾のリスト(呼び出し側で, 元からある配列と結合する)       
+     3          ArrayList<Bullet> newBullets = new ArrayList<>();
+     4          if (type == 0) {
+     5              // 直進弾
+     6              GameFrame.playSE("music/Gun_Shot.wav", 0.5f);
+     7              //radiusの基本値にbiggerbulletを足す.通常時は0のため, 効果時だけ変化する.
+     8              newBullets.add(new Bullet(this, this.getX(), this.getY(), 4,
+     9              15 + this.getBiggerbullet(), 1, Shootdir, null));
+    19          } else if (type == 1) {
+    11            //(中略)
+    12          }
+    13          return newBullets;
+    14      }
+\end{verbatim}
+\end{small}
+\subsection{ギミック}
+\begin{flushright}
+  文責：大谷
+\end{flushright}
+　特殊効果や回復を付与するギミックを表すクラスについて説明する.
+\subsubsection{Gimmick}
+\noindent\textbf{概要}: \\
+ゲーム中に出現するギミックを管理するクラスである.出現座標, 効果の種類(回復または弾強化), および出現してからの時間を管理する.\\
+\noindent\textbf{主なフィールド}:
+\begin{itemize}
+  \item \texttt{x, y}: ギミックの座標
+  \item \texttt{radius}: ギミックの当たり半径
+  \item \texttt{img}: ギミックの画像
+  \item \texttt{time}: このギミックが出現してからのフレーム.
+  \item \texttt{type}: ギミックの種類. 0が弾半径拡大, 1が回復.
+\end{itemize}
+\noindent\textbf{主なメソッド}:
+\begin{itemize}
+  \item \texttt{Gimmick(int x, int y, int radius, Color color, int time, int type)}: コンストラクタ. 座標, 半径, 時間, 種類などのフィールド値を設定する.
+  \item \texttt{draw(Graphics g)}: \texttt{img}の画像を現在の座標に描画する.
+\end{itemize}
+\noindent\textbf{実装のポイント}: \vspace{0.1cm}\\
+このクラスが行っているのは, 座標などの情報とギミックの種類の管理, そして描画だけである.非常にシンプルな構造で可読性が高い.
+\subsection{南}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　通　信　確　立 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{通信確立とリトライ}
 \begin{flushright}
@@ -506,10 +636,6 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \subsection{奥野}
 
 
-
--------------------------------------------
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%　実　行　例　%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{実行例}
@@ -575,10 +701,44 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 \end{figure}
 
 以上のように、相手からのリトライ要求の応答がない場合は、相手がゲームを終了したと見做して、ポップアップを表示している。
+\subsection{弾射出時の実行例}
+サーバー側でスペースキーを押し, 通常弾の射出を行った画面のスクリーンショットを以下に示す.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=1]{shoot.png}
+        \caption{通常弾の射出時の画面(ズーム)}
+    \end{center}
+\end{figure}
+所有者の座標から, 所有者の向いている方向に向かって弾が射出されている.
+\subsection{弾爆発の実行例}
+クライアント側の曲線弾がサーバー側に当たったときの爆発のうちの1フレームを以下に示す.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.35]{exp.png}
+        \caption{曲線弾の爆発時の画面(ズーム)}
+    \end{center}
+\end{figure}
+曲線弾の画像が, 特定の爆発画像に変化している.
+\subsection{ギミック取得の実行例}
+サーバー側における, 通常時と弾半径拡大ギミック取得時のスクリーンショットを以下に示す.
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.5]{normal.png}
+        \caption{通常時(ズーム)}
+    \end{center}
+\end{figure}
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.5]{powerup.png}
+        \caption{弾半径拡大ギミック取得時(ズーム)}
+    \end{center}
+\end{figure}
+操作キャラクターの画像がギミック取得時のものに変化し, 弾半径が大きくなっている.
 
 %%%%%%%%%%%%%%%%%%%%%%%　考　察　%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{考察}
+
 \subsection{プログラムについての考察}
 通信型のゲームを作成するうえで軽量化という問題は非常に重要な課題だと感じた。今回作成したゲームは現代におけるゲームの中ではかなり要素の少ないものであるが、それでもスレッドのスリープ時間やゲームデータの送信方式をある程度工夫しないとラグが発生してしまっていた。今回使用したライブラリのメソッドがゲーム用の通信としてあまり最適化されていない点もあるとはいえ、もっと大きい規模のゲームを作成するならば今回のもの以上に通信の最適化について気にしなければならないと考えられる。今回作成したゲームにおいて挙げられる改善点としては、\texttt{Comm.java}を改善することである。具体的には、今の\texttt{Comm.java}は\texttt{TCP}での通信であり、信頼性が高い代わりに通信速度が遅いためゲームでの通信には適さない。そのため、通信を\texttt{UDP}ベースで行えるようにし弾の発射や被弾などの重要なイベントのみ再送しそれ以外は古いデータを上書きするという方式にして軽量化を行うようにしたい。
 
@@ -590,17 +750,28 @@ Comm.javaと同様にサンプルコードにあるtennis.javaは通信を確立
 
 \subsection{通信の確立に関する考察}
 今回の実装では、サーバーとクライアントを明確に区別して通信を行った。計画当初はチーム戦もできるような実装にしたいと考えていたがこの実装方法では後付けで追加出来なかった。\\
-　今後、チーム戦や観戦者モードを実装するためには、サーバーとクライアントの区別をなくし、\texttt{group18}が行っていたように必要な処理(データ送受信など)をインターフェースにまとめて、サーバーとクライアントの両方で共通の親クラスを作成して、必要に応じてオブジェクトを生成する方法が考えられる。\\
-　また、今回は\texttt{Comm}サーバーを用いた関係上、\texttt{TCP}通信を行った。もし、ローカル対戦だけでなく、インターネット対戦も行えるようにする場合、\texttt{group18}のようにターン性のゲームであれば\texttt{TCP}通信でもよいが、今回のようなリアルタイム性のゲームで\texttt{TCP}を用いると通信の遅延が致命的になる可能性が高いと考えられる。
-このため、\texttt{UDP}通信を採用することが好ましいと考えられる。UDP通信ならコネクションの確立/切断やパケットの再送制御等の処理が行われないため、通信の遅延を減らすことができると考えられるからである。
+　今後、チーム戦や観戦者モードを実装するためには、サーバーとクライアントの区別をなくし、group18が行っていたように必要な処理(データ送受信など)をインターフェースにまとめて、サーバーとクライアントの両方で共通の親クラスを作成して、必要に応じてオブジェクトを生成する方法が考えられる。\\
+　また、今回はCommサーバーを用いた関係上、TCP通信を行った。もし、ローカル対戦だけでなく、インターネット対戦も行えるようにする場合、group18のようにターン性のゲームであればTCP通信でもよいが、今回のようなリアルタイム性のゲームでTCPを用いると通信の遅延が致命的になる可能性が高いと考えられる。
+このため、UDP通信を採用することが好ましいと考えられる。UDP通信ならコネクションの確立/切断やパケットの再送制御等の処理が行われないため、通信の遅延を減らすことができると考えられるからである。
+
+\subsection{弾, ギミックの実装に関する考察}
+今回, 弾クラスとギミッククラスは全く別のクラスとして作成した.しかし, この2つのクラスのフィールドは共通するものが多く, またプレイヤーのように入力で操作するものではない.よって, より抽象的な「ゲーム盤面上に存在する非操作オブジェクト」とした\texttt{abstract class Object\_Field}のような抽象クラスを作成し, それを継承して\texttt{Bullet}クラスや\texttt{Gimmick}クラスを作成する方法もあったと考えられる.この利点として, プログラムの規模がより大きくなったとき, 今回の\texttt{MoveManager}にあたるような管理ロジックにおいて, 弾なのかギミックなのかは考慮せず「ゲーム盤面上に存在する非操作オブジェクト」として一括で処理したいときなどに扱いやすくなる点が挙げられる.
+
+\subsection{ギミックの拡張性に関する考察}
+ギミック機能は, 開発終盤に短時間で作成したものであり, 拡張性が考慮されていない.実際, ギミッククラスはコードの短期完成を優先したために非常に簡潔で最低限なものである.そのため, 現在の仕様ではギミックの種類を増やすためには, \texttt{MoveManager}の該当箇所を拡張する必要がある.要素の追加でゲームロジックを管理するクラスを大きく書き換える必要があることは望ましくない.そのため, 今後の改良点として, 可能な限り効果の処理もギミッククラス内で行うものにすることが挙げられる.
+
 
 %%%%%%%%%%%%%%%%%%%%%%　各　自　の　反　省　と　感　想　%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{各自の反省と感想}
 
 \subsection{池崎}
-私たちのグループでは、コード作成の初めにクラス図を作成して分担を行うことができていなかったため並行して作業することがあまりできておらず作業の効率化が行えていなかった。一人での作成であればファイル構造が複雑化してもある程度問題なく開発できるが、グループでのプログラム作成や保守性を考えると、もっとファイル構造の簡略化を行い可視性を上げる必要があると思う。そのためにも、オブジェクト指向についてもっと考える必要があると考える。具体的には、今回私が作成した\texttt{MoveManager}はゲーム進行、衝突判定、ネットワーク通信といった複数の役割を持っており責務が集中しているのでこの部分についてファイルを分割して役割を分担し可視性、保守性を高めたい。また、ゲーム独自の要素としてのギミックの種類を増やすことも今後の課題である。
-今回のグループ演習を通してJava言語などのオブジェクト指向言語ではMVCモデルなどでの構造の簡略化の重要性、グループ開発の難しさやファイル構成を事前に決めることの大切さを学ぶことができた。
+私たちのグループでは、コード作成の初めにクラス図を作成して分担を行うことができていなかったため並行して作業することがあまりできておらず作業の効率化が行えていなかった。一人での作成であればファイル構造が複雑化してもある程度問題なく開発できるが、グループでのプログラム作成や保守性を考えると、もっとファイル構造の簡略化を行い可視性を上げる必要があると思う。そのためにも、オブジェクト指向についてもっと考える必要があると考える。ゲーム独自の要素としてのギミックの種類を増やすことが今後の課題である。また、リトライ機能において片方がRETRYを押しもう片方はQUITを押すなど予期しない動作を行った時の動きの正常化など技術力が足りず直しきれなかったバグもあったのでこれらも改善したい。Java言語などのオブジェクト指向言語ではMVCモデルなどでの構造の簡略化が非常に大事だと感じた。プログラミング演習の授業を通してグループでのプログラミングを行い開発の難しさやファイル構成を事前に決めることに大切さなどを学ぶことができた。
+
+\subsection{大谷}
+今回の演習では, 開発計画がはっきりできていなかったことが反省点であると感じる.必要そうなものを作ってみて, それならばこれも必要, といった形で進めてしまった部分があった.まずはクラス群の全体像を組み立てて, そこから実際にコードを書く方がスムーズに進んだと思う.考察5.5で述べたようにギミックの拡張性まで手が回らなかったことも, これが理由の1つであると感じる.開発の人数やプログラムの規模が大きくなると立案から完成までの見通しの重要性がより高まると考えられるため, 今後このような開発をするときは, 今回の反省を生かした体制で取り組みたいと思う.\\
+　これまでプログラミングは演習授業の問題など, 1人で書くものしか取り組んでこなかった.グループプログラミングでは分担, データの共有の方法(Git Hub), 人が書いたコードを自分が書いたコードと結びつけることなど, プログラミングそのものの技術以外にも多くのことを意識する必要があった.実際の開発では, むしろ1人で書くことがないと思われるので, 今回の経験を活かしたい.
+
 
 \subsection{南}
 gitの管理をしていたわけだが、経験はあっても使い慣れてはいないのでマージコンフリクトが起きた時の対処に苦労した。以降はブランチを上手く使い分けて作業を行うようにしたい。\\
@@ -616,16 +787,11 @@ gitの管理をしていたわけだが、経験はあっても使い慣れて�
 
 \newpage
 \section*{付録１：操作法マニュアル (ユーザーズマニュアル)}
-そのプログラムを初めて使う人向けの説明書を書いてください．
-ドローエディタなら操作法の説明，ゲームならキー操作の
-説明などを書いてください．スクリーンキャプチャした画像に
-説明を書き込んだりしてもいいでしょう．
-2ページ程度の簡潔な説明書で構いません．
 
 なお，付録は始まる直前で必ず改ページして下さい．
 
-\texttt{java GameFrame}をターミナル上で実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかが\texttt{CREATE}ボタンを押して部屋を立てる。もう片方のプレイヤーは\texttt{JOIN}ボタンを押し、部屋を立てた側のプレイヤーの画面に表示されている\texttt{IP}アドレスと\texttt{ROOM ID}(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
-ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、\texttt{Z} キーで波弾、\texttt{X} キーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーが\texttt{RETRY}を押すことで再戦ができる。
+\texttt{java GameFrame}をターミナル上で実行, またはjarファイルを実行することでアプリが立ち上がる。ゲームを立ち上げたら、プレイヤーのうちどちらかがCREATEボタンを押して部屋を立てる。もう片方のプレイヤーはJOINボタンを押し、部屋を立てた側のプレイヤーの画面に表示されているIPアドレスとROOM ID(ポート番号)をクライアント側の画面に入力することで通信が確立し対戦が始まる。
+ゲーム中、プレイヤーは矢印キーで上下左右に動くことができる。また、スペースキーを押して直進弾、Zキーで波弾、Xキーで斜め弾を発射することができる。ゲーム中にはフィールド上にアイテムが生成される。図\ref{powerUp}のようなアイテムを拾うと、発射する弾の大きさが図\ref{bigger}のように大きくなる。また、図\ref{heal}のようなアイテムを拾うと体力が回復する。どちらかの体力が0になればゲーム終了となりリザルト画面に遷移する。リザルト画面ではゲームを終了するか再戦するかを選ぶことができ、両方のプレイヤーがRETRYを押すことで再戦ができる。意図しない挙動を引き起こす可能性があるため、両者の選ぶボタンは異なるものにすること。
 
 
 
